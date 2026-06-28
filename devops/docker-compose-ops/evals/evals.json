@@ -1,0 +1,23 @@
+{
+  "skill_name": "docker-compose-ops",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "這個 repo 應該可以用 docker-compose 啟動前後端，但根目錄沒有 docker-compose.yml。請幫我找出正確的 Compose 檔或替代啟動方式，並說明你會怎麼安全驗證。",
+      "expected_output": "會搜尋其他 Compose 檔名與 README 啟動說明，不會假設 docker-compose.yml 一定存在，會說明 fallback 路徑，並提供安全的驗證指令。",
+      "files": []
+    },
+    {
+      "id": 1,
+      "prompt": "我的 docker compose stack 會啟動 Postgres 和 FastAPI backend，但 backend 一直顯示 connection refused to localhost:5432。請幫我診斷並提出最小 compose/env 修法。",
+      "expected_output": "會說明 container networking 與 service name hostname，檢查 env vars 與 logs，建議在 Compose 內使用 database service name，並避免刪除 volumes。",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "docker compose up -d frontend 失敗，原因是 port 5173 already allocated。但我還需要保留目前佔用該 port 的程序。應該怎麼調整 compose 設定並驗證 Vite？",
+      "expected_output": "會辨識 host port 衝突，不停止無關程序，建議修改 host-side port mapping、保留 container port，並在重啟後驗證 frontend URL。",
+      "files": []
+    }
+  ]
+}
