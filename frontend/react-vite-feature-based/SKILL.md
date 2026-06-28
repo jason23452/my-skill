@@ -1,0 +1,215 @@
+---
+name: react-vite-feature-based
+description: 當使用者要修改這個專案的 React + Vite 前端，尤其提到 feature-based、src/features、router、頁面、components、hooks、types、api、assets、shared、Tailwind CSS、UI 調整、資料夾重構或新增前端功能時，優先使用這個 skill。這個 skill 專門對齊本專案的 feature-based 結構與開發規範。
+---
+
+# React Vite Feature-Based
+
+以這個專案目前的架構與規範進行前端開發。這不是通用 React 風格指南，而是針對本專案的實作規範。
+
+## 專案結構
+
+預設結構如下：
+
+```text
+src/
+  app/
+    App.tsx
+    AppRouter.tsx
+    global.css
+
+  features/
+    <feature-name>/
+      router/
+      components/
+      hooks/
+      types/
+      api/
+      assets/
+
+  shared/
+    components/
+    hooks/
+    types/
+    api/
+    assets/
+
+  main.tsx
+```
+
+## 工作方式
+
+開始修改前先做這些事：
+
+1. 先閱讀 `src/app/`、相關的 `src/features/<feature-name>/` 與 `src/shared/`
+2. 確認需求屬於哪一個 feature
+3. 用最小正確修改完成工作，不要先做過度抽象
+
+## 分層規則
+
+### `app/`
+
+只放應用程式層級內容：
+
+- `App.tsx`
+- `AppRouter.tsx`
+- `global.css`
+
+不要把 feature 專屬頁面或區塊元件放進 `app/`。
+
+### `features/<feature-name>/router/`
+
+放該 feature 的頁面入口與路由相關元件。
+
+例：
+
+- `HomePage.tsx`
+- `ProfilePage.tsx`
+
+### `features/<feature-name>/components/`
+
+放該 feature 專用元件。
+
+如果元件只被該 feature 使用，就留在這裡，不要提早搬到 `shared/components/`。
+
+### `features/<feature-name>/hooks/`
+
+放該 feature 專用 hooks。
+
+### `features/<feature-name>/types/`
+
+放該 feature 的資料型別。
+
+### `features/<feature-name>/api/`
+
+放該 feature 的 API 組裝層。
+
+這裡的責任是：
+
+1. 組裝 request function
+2. 處理 query、params、body 等請求參數
+3. 整理 response mapper 或資料轉換
+4. 提供 service 或呼叫入口給 feature 使用
+5. 放 DTO 或 API 相關型別
+
+不要把畫面 state、事件處理或 JSX 邏輯放進這裡。
+
+### `features/<feature-name>/assets/`
+
+放該 feature 專用圖片與靜態資源。
+
+### `shared/`
+
+只有跨 feature 共用的內容才放進這裡。
+
+## 樣式規則
+
+本專案使用 Tailwind CSS 為主要樣式方式。
+
+請遵守以下規則：
+
+1. 優先直接在 JSX 使用 Tailwind class
+2. 不要為一般元件新增獨立 `.css` 檔
+3. `src/app/global.css` 只保留 Tailwind 匯入、全域變數與必要基礎樣式
+4. 若 class 需要動態合併或覆蓋，使用 `tailwind-merge`
+
+範例：
+
+```ts
+import { twMerge } from 'tailwind-merge'
+
+const className = twMerge(
+  'rounded-md px-4 py-2 text-sm',
+  active && 'bg-violet-500 text-white',
+  disabled && 'pointer-events-none opacity-50'
+)
+```
+
+## 資產規則
+
+找圖片時先看最近的 feature：
+
+1. 單一 feature 使用的圖片，放進該 feature 的 `assets/`
+2. 多個 feature 共用的圖片，才放進 `shared/assets/`
+
+## 命名規則
+
+1. feature 資料夾使用小寫或 kebab-case
+2. 元件使用 `PascalCase.tsx`
+3. hook 使用 `useXxx.ts`
+4. 頁面使用 `XxxPage.tsx`
+
+## 何時提升到 shared
+
+只有在下列情況才放進 `shared/`：
+
+1. 該元件、hook、type、api 或 asset 已被多個 feature 使用
+2. 已有明確複用需求
+3. 提升後可以降低重複，而不是只是提早抽象
+
+## 修改準則
+
+進行前端修改時：
+
+1. 優先維持目前專案結構
+2. 優先最小改動
+3. 若需求只影響單一 feature，就不要擴散到其他目錄
+4. 若搬動檔案，務必同步更新 import
+5. 若新增頁面，從 `router/` 開始組裝，再從 `components/` 拆區塊
+
+## 驗證
+
+完成後預設執行：
+
+```bash
+pnpm build
+pnpm lint
+```
+
+如果失敗，先修正再回報。
+
+## 專案啟動方式
+
+當使用者詢問如何啟動這個專案時，直接提供以下資訊：
+
+1. 在專案根目錄 `frontend-vite-react/` 執行 `pnpm install`
+2. 執行 `pnpm dev`
+3. 在瀏覽器開啟 `http://localhost:5173`
+
+若使用者還需要其他常用指令，一併提供：
+
+- `pnpm build`
+- `pnpm lint`
+- `pnpm preview`
+
+## 回覆方式
+
+對使用者回覆時：
+
+1. 使用中文
+2. 直接說明變更內容與檔案路徑
+3. 若有驗證，明確回報 `pnpm build` 與 `pnpm lint` 結果
+
+## 典型任務範例
+
+### 範例 1：新增功能頁
+
+若使用者要新增 `profile` 頁面：
+
+1. 建立 `src/features/profile/router/ProfilePage.tsx`
+2. 在 `src/features/profile/components/` 建立該頁面需要的元件
+3. 在 `src/app/AppRouter.tsx` 掛上對應路由
+
+### 範例 2：新增專用圖片
+
+若圖片只給 `home` 使用：
+
+1. 放到 `src/features/home/assets/`
+2. 從該 feature 元件直接引用
+
+### 範例 3：共用按鈕
+
+若按鈕會在多個 feature 使用：
+
+1. 建立於 `src/shared/components/`
+2. 讓 feature 再引用它

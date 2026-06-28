@@ -1,0 +1,23 @@
+{
+  "skill_name": "docker-build",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "I have a Node + Vite frontend with a Dockerfile that copies the whole repo before npm install and the image rebuilds dependencies every time. Please improve the Docker build caching and suggest the docker build command I should run.",
+      "expected_output": "Improves Dockerfile layer ordering for Node/Vite, keeps lockfile-based install, mentions .dockerignore, and provides a concrete docker build command.",
+      "files": []
+    },
+    {
+      "id": 1,
+      "prompt": "我的 FastAPI 專案 docker build 失敗，log 說 COPY requirements.txt 找不到，但檔案明明在 backend/requirements.txt。幫我判斷可能原因和修法，專案根目錄有 docker-compose.yml。",
+      "expected_output": "Explains build context vs Dockerfile path, recommends using docker compose build or correcting COPY/context, and gives a troubleshooting command with plain progress logs.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Containerize this Go API for production. I want a small image, reproducible build, and a quick way to verify the image after build. Please outline the Dockerfile approach and commands.",
+      "expected_output": "Proposes a multi-stage Go build, caches go mod download, chooses a minimal runtime with tradeoffs, avoids secrets/root assumptions, and includes build/run verification commands.",
+      "files": []
+    }
+  ]
+}
