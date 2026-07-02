@@ -183,6 +183,27 @@ src/app/global.css
 
 ## 安裝與整合方式
 
+### shadcn / coss CLI 前置規則
+
+`@coss/style` 是 shadcn registry spec，不是本機檔案路徑。
+
+使用 CLI 時請遵守：
+
+1. 不可使用 Read、Glob 或 `ls` 去讀取 `coss/style` 或 `@coss/style` 當成本機路徑
+2. 執行 `pnpm dlx shadcn@latest init @coss/style` 前，必須先確認 React / Vite 專案已有 Tailwind CSS entry
+3. 執行 `pnpm dlx shadcn@latest init @coss/style` 前，必須先確認專案已有 import alias
+4. Tailwind CSS entry 必須包含 `@import "tailwindcss";`
+5. `vite.config.ts` 必須使用 `@tailwindcss/vite`
+6. `tsconfig.json` 或 `tsconfig.app.json` 必須設定 `baseUrl` 與 `@/*` paths
+
+CLI init 範例：
+
+```bash
+pnpm dlx shadcn@latest init @coss/style
+```
+
+若前置設定缺失，先補齊設定，再執行 CLI。不要把同一批套件重裝當成主要修復方式。
+
 ### 推薦做法：手動整合到 shared
 
 對這個專案來說，推薦做法不是直接讓 CLI 用預設路徑寫檔，而是：
@@ -242,6 +263,40 @@ pnpm add @base-ui/react class-variance-authority clsx lucide-react
 3. 若需要 token 或 root isolation，檢查 `src/app/global.css` 與 `src/app/App.tsx`
 4. 若元件會在多個 feature 使用，就維持放在 `shared/components/ui`
 
+## shadcn / coss Troubleshooting
+
+### `No Tailwind CSS configuration found`
+
+修復方向是補齊 Tailwind v4 專案設定，而不是重新安裝同一批套件。
+
+確認事項：
+
+1. CSS entry 存在，例如 `src/app/global.css` 或 `src/index.css`
+2. CSS entry 包含 `@import "tailwindcss";`
+3. `vite.config.ts` 使用 `@tailwindcss/vite` plugin
+
+修復後再重跑：
+
+```bash
+pnpm dlx shadcn@latest init @coss/style
+```
+
+### `Could not find valid path aliases or package imports`
+
+修復方向是補齊 import alias 設定。
+
+確認事項：
+
+1. `vite.config.ts` 設定 `@` alias 指向 `./src`
+2. `tsconfig.json` 或 `tsconfig.app.json` 設定 `baseUrl: "."`
+3. `tsconfig.json` 或 `tsconfig.app.json` 設定 `paths: { "@/*": ["./src/*"] }`
+
+修復後再重跑：
+
+```bash
+pnpm dlx shadcn@latest init @coss/style
+```
+
 ## 不要這樣做
 
 1. 不要把 coss 元件放到 `src/features/<feature>/components/`，除非它已經被你改寫成完全 feature 專用元件
@@ -249,6 +304,7 @@ pnpm add @base-ui/react class-variance-authority clsx lucide-react
 3. 不要只複製單一檔案卻漏掉相依元件
 4. 不要移除 `global.css` 裡 coss 需要的 token
 5. 不要移除 `App.tsx` 的 `isolate relative` 容器
+6. 不要把 `@coss/style` 或其他 `@coss/<name>` registry spec 當成本機檔案路徑讀取
 
 ## 元件使用原則
 
@@ -299,6 +355,11 @@ pnpm add @base-ui/react class-variance-authority clsx lucide-react
 
 ```bash
 pnpm build
+```
+
+若 `package.json` 有 `lint` script，再執行：
+
+```bash
 pnpm lint
 ```
 

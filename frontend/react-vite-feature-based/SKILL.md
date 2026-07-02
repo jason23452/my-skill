@@ -45,6 +45,57 @@ src/
 2. 確認需求屬於哪一個 feature
 3. 用最小正確修改完成工作，不要先做過度抽象
 
+## Greenfield Bootstrap 規則
+
+建立新的 React / Vite / Tailwind 專案時，必須先完成 Tailwind v4 與 import alias 前置設定，再執行任何 shadcn / coss init。
+
+必要設定：
+
+1. 建立或保留 CSS entry，例如 `src/app/global.css` 或 `src/index.css`
+2. CSS entry 必須包含 Tailwind v4 匯入
+3. `vite.config.ts` 必須使用 `@tailwindcss/vite` plugin
+4. `vite.config.ts` 必須設定 `@` alias 指向 `./src`
+5. `tsconfig.json` 或 `tsconfig.app.json` 必須設定 `baseUrl: "."` 與 `paths: { "@/*": ["./src/*"] }`
+
+CSS entry 範例：
+
+```css
+@import "tailwindcss";
+```
+
+`vite.config.ts` 範例：
+
+```ts
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import tailwindcss from '@tailwindcss/vite'
+import path from 'node:path'
+
+export default defineConfig({
+  plugins: [react(), tailwindcss()],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
+})
+```
+
+`tsconfig` 範例：
+
+```json
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  }
+}
+```
+
+若專案使用 feature-based 結構，建議入口使用 `src/app/global.css`。若既有專案已使用 `src/index.css`，不要強制搬移，只需確保該 CSS entry 有 `@import "tailwindcss";`。
+
 ## 分層規則
 
 ### `app/`
@@ -163,6 +214,11 @@ const className = twMerge(
 
 ```bash
 pnpm build
+```
+
+若 `package.json` 有 `lint` script，再執行：
+
+```bash
 pnpm lint
 ```
 
