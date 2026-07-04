@@ -5,6 +5,22 @@ description: 當使用者要修改這個專案的 React + Vite 前端，尤其�
 
 # React Vite Feature-Based
 
+## OpenCode Greenfield Bootstrap Metadata
+
+```opencode-bootstrap-json
+{
+  "role": "frontend",
+  "order": 10,
+  "packageManager": "pnpm",
+  "scaffoldCommand": [
+    "node -e \"const fs=require('fs'),p=require('path');const w=(f,s)=>{fs.mkdirSync(p.dirname(f),{recursive:true});fs.writeFileSync(f,s)};fs.writeFileSync('package.json',JSON.stringify({type:'module',scripts:{dev:'vite --host 0.0.0.0',build:'tsc -b && vite build',preview:'vite preview --host 0.0.0.0'},dependencies:{react:'latest','react-dom':'latest'},devDependencies:{'@vitejs/plugin-react':'latest','@tailwindcss/vite':'latest',vite:'latest',typescript:'latest',tailwindcss:'latest','@types/react':'latest','@types/react-dom':'latest'}},null,2));w('index.html','<div id=\\\"root\\\"></div><script type=\\\"module\\\" src=\\\"/src/main.tsx\\\"></script>\\n');w('src/app/global.css','@import \\\"tailwindcss\\\";\\n');w('src/features/home/router/HomePage.tsx','export function HomePage(){return <main className=\\\"min-h-screen p-8\\\"><h1 className=\\\"text-3xl font-bold\\\">Greenfield App</h1></main>}\\n');w('src/app/AppRouter.tsx','import { HomePage } from \\\"@/features/home/router/HomePage\\\"; export function AppRouter(){return <HomePage />}\\n');w('src/app/App.tsx','import { AppRouter } from \\\"./AppRouter\\\"; export function App(){return <AppRouter />}\\n');w('src/main.tsx','import React from \\\"react\\\";import{createRoot}from \\\"react-dom/client\\\";import { AppRouter } from \\\"./app/AppRouter\\\";import \\\"./app/global.css\\\";createRoot(document.getElementById(\\\"root\\\")!).render(<React.StrictMode><AppRouter /></React.StrictMode>);\\n');w('vite.config.ts','import { defineConfig } from \\\"vite\\\";import react from \\\"@vitejs/plugin-react\\\";import tailwindcss from \\\"@tailwindcss/vite\\\";import path from \\\"node:path\\\";export default defineConfig({plugins:[react(),tailwindcss()],resolve:{alias:{\\\"@\\\":path.resolve(__dirname,\\\"./src\\\")}}});\\n');w('src/vite-env.d.ts','/// <reference types=\\\"vite/client\\\" />\\n');for(const d of ['src/features/home/components','src/features/home/hooks','src/features/home/types','src/features/home/api','src/features/home/assets','src/shared/components','src/shared/hooks','src/shared/types','src/shared/api','src/shared/assets']){fs.mkdirSync(d,{recursive:true});w(p.join(d,'.gitkeep'),'')}fs.writeFileSync('tsconfig.json',JSON.stringify({compilerOptions:{target:'ES2020',useDefineForClassFields:true,lib:['DOM','DOM.Iterable','ES2020'],allowJs:false,skipLibCheck:true,esModuleInterop:true,allowSyntheticDefaultImports:true,strict:true,forceConsistentCasingInFileNames:true,module:'ESNext',moduleResolution:'Bundler',resolveJsonModule:true,isolatedModules:true,noEmit:true,jsx:'react-jsx',paths:{'@/*':['./src/*']}},include:['src','vite.config.ts']},null,2));\" && pnpm install"
+  ],
+  "verificationCommands": ["pnpm build"],
+  "runtimeSmokeCommand": "pnpm dev -- --host 127.0.0.1 --port $PORT",
+  "runtimeSmokeHealthUrl": "http://127.0.0.1:$PORT/"
+}
+```
+
 以這個專案目前的架構與規範進行前端開發。這不是通用 React 風格指南，而是針對本專案的實作規範。
 
 ## 專案結構

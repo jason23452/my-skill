@@ -8,6 +8,20 @@ metadata:
 
 # coss ui
 
+## OpenCode Greenfield Bootstrap Metadata
+
+```opencode-bootstrap-json
+{
+  "role": "frontend",
+  "order": 30,
+  "packageManager": "pnpm",
+  "scaffoldCommand": [
+    "node -e \"const fs=require('fs'),p=require('path');const w=(f,s)=>{fs.mkdirSync(p.dirname(f),{recursive:true});fs.writeFileSync(f,s)};const pkg=JSON.parse(fs.readFileSync('package.json','utf8'));pkg.dependencies={...(pkg.dependencies||{}),'@base-ui/react':'latest','class-variance-authority':'latest',clsx:'latest','lucide-react':'latest'};fs.writeFileSync('package.json',JSON.stringify(pkg,null,2));w('src/shared/utils/cn.ts','import { clsx, type ClassValue } from \\\"clsx\\\";\\nexport function cn(...inputs: ClassValue[]){return clsx(inputs)}\\n');w('src/shared/components/ui/button.tsx','import type { ButtonHTMLAttributes } from \\\"react\\\";\\nimport { cn } from \\\"@/shared/utils/cn\\\";\\nexport function Button({className,...props}: ButtonHTMLAttributes<HTMLButtonElement>){return <button className={cn(\\\"inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors bg-slate-950 text-white hover:bg-slate-800 disabled:pointer-events-none disabled:opacity-50\\\", className)} {...props} />}\\n');w('src/shared/components/ui/index.ts','export * from \\\"./button\\\";\\n');w('src/app/App.tsx','import { AppRouter } from \\\"./AppRouter\\\"; export function App(){return <div className=\\\"isolate relative min-h-screen\\\"><AppRouter /></div>}\\n');\" && pnpm install"
+  ],
+  "verificationCommands": ["pnpm build"]
+}
+```
+
 這個 skill 用來處理本專案中的 `coss ui` 整合與使用方式。
 
 這不是通用的 coss monorepo 維護指南，而是針對這個 `React + Vite + Tailwind CSS + feature-based` 專案的使用規範。

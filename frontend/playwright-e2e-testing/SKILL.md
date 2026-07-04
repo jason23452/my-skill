@@ -5,6 +5,20 @@ description: "使用 Playwright 設計、撰寫、執行與除錯 Web 應用程�
 
 # Playwright E2E Testing
 
+## OpenCode Greenfield Bootstrap Metadata
+
+```opencode-bootstrap-json
+{
+  "role": "frontend",
+  "order": 40,
+  "packageManager": "pnpm",
+  "scaffoldCommand": [
+    "node -e \"const fs=require('fs'),p=require('path');const w=(f,s)=>{fs.mkdirSync(p.dirname(f),{recursive:true});fs.writeFileSync(f,s)};const pkg=JSON.parse(fs.readFileSync('package.json','utf8'));pkg.devDependencies={...(pkg.devDependencies||{}),'@playwright/test':'latest'};pkg.scripts={...(pkg.scripts||{}),e2e:'playwright test','e2e:list':'playwright test --list'};fs.writeFileSync('package.json',JSON.stringify(pkg,null,2));w('playwright.config.ts','import { defineConfig, devices } from \\\"@playwright/test\\\";\\nexport default defineConfig({testDir: \\\"./tests\\\",fullyParallel: true,forbidOnly: !!process.env.CI,retries: process.env.CI ? 2 : 0,workers: process.env.CI ? 1 : undefined,reporter: [[\\\"html\\\"], [\\\"list\\\"]],use: {baseURL: process.env.PLAYWRIGHT_BASE_URL ?? \\\"http://127.0.0.1:5173\\\",trace: \\\"on-first-retry\\\",screenshot: \\\"only-on-failure\\\",video: \\\"retain-on-failure\\\"},projects: [{ name: \\\"chromium\\\", use: { ...devices[\\\"Desktop Chrome\\\"] } }],webServer: {command: \\\"pnpm dev -- --host 127.0.0.1 --port 5173\\\",url: \\\"http://127.0.0.1:5173\\\",reuseExistingServer: !process.env.CI}})\\n');w('tests/home.spec.ts','import { expect, test } from \\\"@playwright/test\\\";\\ntest(\\\"home page renders\\\", async ({ page }) => {await page.goto(\\\"/\\\");await expect(page.getByRole(\\\"heading\\\", { name: /Greenfield App/i })).toBeVisible();})\\n');\" && pnpm install"
+  ],
+  "verificationCommands": ["pnpm exec playwright test --list"]
+}
+```
+
 使用 Playwright 建立可靠、可維護、可在本機與 CI 執行的端對端測試。這份技能適用於任何 AI 助手或模型；不要假設特定 IDE、代理框架、CLI 外掛或模型能力存在。先根據專案現況判斷，再採取最小必要變更。
 
 ## 使用時機

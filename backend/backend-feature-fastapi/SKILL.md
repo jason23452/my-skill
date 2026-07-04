@@ -7,6 +7,22 @@ compatibility: Python 3.12 FastAPI backend using uv, SQLAlchemy 2 async, asyncpg
 
 # Backend Feature FastAPI
 
+## OpenCode Greenfield Bootstrap Metadata
+
+```opencode-bootstrap-json
+{
+  "role": "backend",
+  "order": 10,
+  "packageManager": "uv",
+  "scaffoldCommand": [
+    "node -e \"const fs=require('fs'),p=require('path');const w=(f,s)=>{fs.mkdirSync(p.dirname(f),{recursive:true});fs.writeFileSync(f,s)};w('app/__init__.py','');w('app/features/__init__.py','');w('app/features/router.py','from fastapi import APIRouter\\n\\nrouter = APIRouter()\\n\\n@router.get(\\\"/\\\")\\ndef root():\\n    return {\\\"status\\\": \\\"ok\\\"}\\n\\n@router.get(\\\"/health\\\")\\ndef health():\\n    return {\\\"status\\\": \\\"ok\\\"}\\n');w('app/main.py','from fastapi import FastAPI\\nfrom app.features.router import router as feature_router\\n\\napp = FastAPI()\\napp.include_router(feature_router)\\n');fs.writeFileSync('pyproject.toml','[project]\\nname = \\\"greenfield-backend\\\"\\nversion = \\\"0.1.0\\\"\\nrequires-python = \\\">=3.12\\\"\\ndependencies = [\\n  \\\"fastapi[standard]>=0.115.0\\\"\\n]\\n');\" && uv sync"
+  ],
+  "verificationCommands": ["uv run python -m compileall app"],
+  "runtimeSmokeCommand": "uv run fastapi dev app/main.py --host 127.0.0.1 --port $PORT",
+  "runtimeSmokeHealthUrl": "http://127.0.0.1:$PORT/health"
+}
+```
+
 Use this skill to build or modify backend features in the same style as this project. The goal is to preserve the project's feature-based architecture so future backend work remains predictable and easy to extend.
 
 ## Start Here

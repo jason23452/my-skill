@@ -7,6 +7,19 @@ compatibility: Docker CLI、Docker Compose v2、compose.yaml/docker-compose.yml�
 
 # Docker Compose Ops
 
+## OpenCode Greenfield Bootstrap Metadata
+
+```opencode-bootstrap-json
+{
+  "role": "any",
+  "order": 90,
+  "scaffoldCommand": [
+    "node -e \"const fs=require('fs');const hasPkg=fs.existsSync('package.json');const hasPy=fs.existsSync('pyproject.toml')||fs.existsSync('requirements.txt');const service=hasPkg?'frontend':hasPy?'backend':'app';const port=hasPkg?'5173':hasPy?'8000':'8080';const lines=['services:','  '+service+':','    build:','      context: .','      dockerfile: Dockerfile','    ports:','      - '+port+':'+port,'    environment:','      - NODE_ENV=development'];fs.writeFileSync('compose.yaml',lines.join('\\n')+'\\n');\""
+  ],
+  "verificationCommands": []
+}
+```
+
 使用這個 skill 安全地操作與排查 Docker Compose 專案。Compose 工作通常不是只看單一檔案，而是整個 runtime graph：repository 結構、service 相依、環境變數、ports、volumes、healthchecks、networks 與 logs 都要一起檢查。
 
 ## 初始檢查
