@@ -15,9 +15,13 @@ compatibility: Python 3.12 FastAPI backend using uv, SQLAlchemy 2 async, asyncpg
   "order": 10,
   "packageManager": "uv",
   "scaffoldCommand": [
-    "node -e \"const fs=require('fs'),p=require('path');const w=(f,s)=>{fs.mkdirSync(p.dirname(f),{recursive:true});fs.writeFileSync(f,s)};w('app/__init__.py','');w('app/features/__init__.py','');w('app/features/router.py','from fastapi import APIRouter\\n\\nrouter = APIRouter()\\n\\n@router.get(\\\"/\\\")\\ndef root():\\n    return {\\\"status\\\": \\\"ok\\\"}\\n\\n@router.get(\\\"/health\\\")\\ndef health():\\n    return {\\\"status\\\": \\\"ok\\\"}\\n');w('app/main.py','from fastapi import FastAPI\\nfrom app.features.router import router as feature_router\\n\\napp = FastAPI()\\napp.include_router(feature_router)\\n');fs.writeFileSync('pyproject.toml','[project]\\nname = \\\"greenfield-backend\\\"\\nversion = \\\"0.1.0\\\"\\nrequires-python = \\\">=3.12\\\"\\ndependencies = [\\n  \\\"fastapi[standard]>=0.115.0\\\"\\n]\\n');\" && uv sync"
+    "uv init --app --name greenfield-backend --no-readme --no-workspace --vcs none",
+    "uv add \"fastapi[standard]>=0.115.0\"",
+    "node -e \"const fs=require('fs'),p=require('path');const w=(f,s)=>{fs.mkdirSync(p.dirname(f),{recursive:true});fs.writeFileSync(f,s)};try{fs.rmSync('main.py',{force:true})}catch{};w('app/__init__.py','');w('app/features/__init__.py','');w('app/features/router.py','from fastapi import APIRouter\\n\\nrouter = APIRouter()\\n\\n@router.get(\\\"/\\\")\\ndef root():\\n    return {\\\"status\\\": \\\"ok\\\"}\\n\\n@router.get(\\\"/health\\\")\\ndef health():\\n    return {\\\"status\\\": \\\"ok\\\"}\\n');w('app/main.py','from fastapi import FastAPI\\nfrom app.features.router import router as feature_router\\n\\napp = FastAPI()\\napp.include_router(feature_router)\\n');\""
   ],
-  "verificationCommands": ["uv run python -m compileall app"],
+  "verificationCommands": [
+    "uv run python -m compileall app"
+  ],
   "runtimeSmokeCommand": "uv run fastapi dev app/main.py --host 127.0.0.1 --port $PORT",
   "runtimeSmokeHealthUrl": "http://127.0.0.1:$PORT/health"
 }
