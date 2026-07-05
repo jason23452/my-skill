@@ -10,7 +10,7 @@
         "Output explains that existing components.json aliases win over shared defaults.",
         "Output keeps UI files under the resolved @/components/ui location unless the user explicitly asks otherwise.",
         "Output does not instruct Read, Glob, ls, or local file access for coss/style or @coss/style.",
-        "Bootstrap metadata does not include shell-expandable $schema or naked @coss/style command tokens."
+        "Bootstrap metadata does not include shell-expandable $schema, naked @coss/style command tokens, or shell-fragile regex/backslash JavaScript snippets."
       ]
     },
     {
