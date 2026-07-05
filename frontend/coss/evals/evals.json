@@ -10,7 +10,9 @@
         "Output explains that existing components.json aliases win over shared defaults.",
         "Output keeps UI files under the resolved @/components/ui location unless the user explicitly asks otherwise.",
         "Output does not instruct Read, Glob, ls, or local file access for coss/style or @coss/style.",
-        "Bootstrap metadata does not include shell-expandable $schema, naked @coss/style command tokens, or shell-fragile regex/backslash JavaScript snippets."
+        "Bootstrap metadata does not include shell-expandable $schema, naked @coss/style command tokens, or shell-fragile regex/backslash JavaScript snippets.",
+        "Bootstrap metadata keeps the coss/shadcn install in scaffoldCommand when the coss skill is selected.",
+        "Bootstrap metadata does not put pnpm build in the coss skill verificationCommands; final build should be provided once by the base frontend bootstrap after all scaffold commands finish."
       ]
     },
     {
@@ -33,7 +35,8 @@
         "Output prefers src/shared/components/ui when src/shared or src/shared/components exists.",
         "Output treats src/components/ui as the fallback only when no shared UI structure exists.",
         "Output avoids using literal @/components and @/lib directories as an intermediate install target.",
-        "Bootstrap metadata patches components.json and tsconfig aliases before running shadcn add."
+        "Bootstrap metadata patches components.json and tsconfig aliases before running shadcn add.",
+        "Bootstrap metadata still runs the official shadcn coss install during scaffold, but leaves build verification to the aggregate frontend plan."
       ]
     }
   ]

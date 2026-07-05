@@ -20,9 +20,7 @@ metadata:
     "node -e \"const cp=require('child_process'),at=String.fromCharCode(64);const spec=at+'coss/style';const env={...process.env,PNPM_CONFIG_IGNORE_SCRIPTS:'true'};cp.execSync('pnpm dlx shadcn@latest add '+spec+' --yes --overwrite',{stdio:'inherit',env})\"",
     "node -e \"const fs=require('fs'),p=require('path'),at=String.fromCharCode(64),bs=String.fromCharCode(92),nl=String.fromCharCode(10),sq=String.fromCharCode(39),dq=String.fromCharCode(34);const cleanCss=f=>{if(!fs.existsSync(f))return;const bad1='@import '+dq+'geist'+dq+';',bad2='@import '+sq+'geist'+sq+';';const s=fs.readFileSync(f,'utf8').split(nl).filter(l=>{const t=l.trim();return t!==bad1&&t!==bad2}).join(nl);fs.writeFileSync(f,s)};for(const f of ['src/index.css','src/app/global.css','app/globals.css'])cleanCss(f);if(fs.existsSync(at))throw new Error('literal '+at+' folder generated; shadcn alias preflight failed');const sl=v=>String(v||'').split(bs).join('/');const rd=f=>{try{return JSON.parse(fs.readFileSync(f,'utf8'))}catch{return {aliases:{}}}};const a2p=a=>{a=sl(a);return a.startsWith(at+'/')?'src/'+a.slice(2):a};const ui=a2p((rd('components.json').aliases||{}).ui||'src/components/ui');if(fs.existsSync(ui)){const out=fs.readdirSync(ui).filter(n=>n.endsWith('.ts')||n.endsWith('.tsx')).filter(n=>n!=='index.ts').sort().map(n=>{const b=n.endsWith('.tsx')?n.slice(0,-4):n.slice(0,-3);return 'export * from '+sq+'./'+b+sq+';'}).join(nl);fs.writeFileSync(p.join(ui,'index.ts'),out+nl)}\""
   ],
-  "verificationCommands": [
-    "pnpm build"
-  ]
+  "verificationCommands": []
 }
 ```
 
@@ -343,6 +341,7 @@ app/globals.css
 10. 若 shadcn 產生與 resolver 不一致的實體資料夾，bootstrap 必須把 UI 檔案收斂到 resolved UI directory
 11. `components.json` aliases 必須指向 resolved components/ui/utils/hooks，不可一律覆寫成 shared
 12. Machine-readable `opencode-bootstrap-json` command 中不要裸露 `@coss/<name>`；用 runtime 組字串避免 OpenCode reference resolver 把 registry spec 當本機路徑讀取
+13. Machine-readable `opencode-bootstrap-json` 中，coss 只負責 scaffold/install，不宣告 `pnpm build`；Greenfield repo bootstrap 會等所有 selected skills 的 scaffold commands 完成後，再由基礎 frontend skill 的 verification 統一執行一次 build
 
 官方 CLI 範例：
 
@@ -485,7 +484,7 @@ pnpm dlx shadcn@latest init @coss/style
 2. 使用了哪個官方 shadcn CLI 指令
 3. 哪個 coss 元件已整合進哪個 UI 目錄
 4. 是否有更新 `components.json`、CSS entry 或 `App.tsx`
-5. build / lint 結果
+5. 若有執行 build / lint，說明結果；Greenfield bootstrap 的 coss metadata 不單獨宣告 build
 
 ## 回覆範例
 
@@ -504,11 +503,13 @@ pnpm dlx shadcn@latest init @coss/style
 
 ## 驗證
 
-完成後預設執行：
+一般 coss 整合任務完成後預設執行：
 
 ```bash
 pnpm build
 ```
+
+Greenfield bootstrap 例外：不要把 `pnpm build` 放進 coss 的 `verificationCommands`，避免多個 additive skills 重複 build；由 base frontend bootstrap 在全部 scaffold/install 完成後統一 build。
 
 若 `package.json` 有 `lint` script，再執行：
 
