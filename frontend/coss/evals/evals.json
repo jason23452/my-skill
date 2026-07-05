@@ -23,6 +23,18 @@
         "Output updates the resolved UI directory index export.",
         "Output reports the resolved UI, utils, and hooks placement in the final summary."
       ]
+    },
+    {
+      "id": 3,
+      "prompt": "In a Vite feature-based project with src/shared/components already present, install coss UI into the correct common folder without first generating literal @/components or @/lib folders.",
+      "expected_output": "The skill resolves shared UI to src/shared/components/ui before shadcn runs, patches components.json and tsconfig aliases up front, and keeps components.json aliases pointed at @/shared/components/ui and @/shared/utils/cn.",
+      "files": [],
+      "assertions": [
+        "Output prefers src/shared/components/ui when src/shared or src/shared/components exists.",
+        "Output treats src/components/ui as the fallback only when no shared UI structure exists.",
+        "Output avoids using literal @/components and @/lib directories as an intermediate install target.",
+        "Bootstrap metadata patches components.json and tsconfig aliases before running shadcn add."
+      ]
     }
   ]
 }

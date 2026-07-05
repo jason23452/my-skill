@@ -17,6 +17,45 @@ metadata:
   "packageManager": "pnpm",
   "scaffoldCommand": [
     "node -e \"const cp=require('child_process');const env={...process.env,PNPM_CONFIG_IGNORE_SCRIPTS:'true'};cp.execSync('pnpm add @base-ui/react @fontsource-variable/inter class-variance-authority clsx geist lucide-react react-day-picker tailwind-merge',{stdio:'inherit',env});cp.execSync('pnpm add -D tw-animate-css',{stdio:'inherit',env})\"",
+    "node -e \"const fs=require('fs'),p=require('path'),at=String.fromCharCode(64),dlr=String.fromCharCode(36),bs=String.fromCharCode(92),q=String.fromCharCode(39),nl=String.fromCharCode(10);const sl=v=>{let s=String(v||'').split(bs).join('/');while(s.endsWith('/'))s=s.slice(0,-1);return s};const ex=d=>d&&fs.existsSync(d);const rd=f=>{try{return JSON.parse(fs.readFileSync(f,'utf8'))}catch{return null}};const wr=(f,j)=>fs.writeFileSync(f,JSON.stringify(j,null,2)+nl);const a2p=a=>{a=sl(a);return a.startsWith(at+'/')?'src/'+a.slice(2):a};const p2a=d=>{d=sl(d);return d.startsWith('src/')?at+'/'+d.slice(4):d};const noTs=s=>s.endsWith('.ts')?s.slice(0,-3):s;const has=(v,x)=>sl(v).split('/').includes(x);const j=rd('components.json')||{style:'new-york',rsc:false,tsx:true,tailwind:{css:ex('src/app/global.css')?'src/app/global.css':'src/index.css',baseColor:'neutral',cssVariables:true},iconLibrary:'lucide',aliases:{}};j[dlr+'schema']=j[dlr+'schema']||'https://ui.shadcn.com/schema.json';const a=j.aliases||{};const ui0=a2p(a.ui||''),u0=a2p(a.utils||''),h0=a2p(a.hooks||''),defaultUi=!ui0||ui0==='src/components/ui'||ui0==='components/ui';const shared=ex('src/shared')||ex('src/shared/components')||ex('src/shared/hooks')||ex('src/shared/api')||ex('src/shared/types');const pkg=ex('packages/ui/src/components')||ex('packages/ui/src/components/ui'),libs=ex('libs/ui/src/components')||ex('libs/ui/src/components/ui');let ui=defaultUi?(shared?'src/shared/components/ui':pkg?'packages/ui/src/components/ui':libs?'libs/ui/src/components/ui':'src/components/ui'):ui0;ui=sl(ui);const comps=ui.endsWith('/ui')?ui.slice(0,-3):sl(p.dirname(ui));const defaultUtils=!u0||u0==='src/lib/utils'||u0==='lib/utils';let utils=defaultUtils?(has(ui,'shared')?'src/shared/utils/cn':ui.startsWith('packages/ui/')?'packages/ui/src/utils/cn':ui.startsWith('libs/ui/')?'libs/ui/src/utils/cn':'src/lib/utils'):u0;const lib=sl(a2p(a.lib||''))||(has(ui,'shared')?'src/shared':ui.startsWith('packages/ui/')?'packages/ui/src':ui.startsWith('libs/ui/')?'libs/ui/src':sl(p.dirname(noTs(utils))));const defaultHooks=!h0||h0==='src/hooks'||h0==='hooks';const hooks=defaultHooks?(has(ui,'shared')?'src/shared/hooks':ui.startsWith('packages/ui/')?'packages/ui/src/hooks':ui.startsWith('libs/ui/')?'libs/ui/src/hooks':'src/hooks'):h0;for(const d of [ui,comps,hooks,p.dirname(noTs(utils)+'.ts')])fs.mkdirSync(d,{recursive:true});const uf=noTs(utils)+'.ts';if(!ex(uf)){const util='import { clsx, type ClassValue } from '+q+'clsx'+q+';'+nl+'import { twMerge } from '+q+'tailwind-merge'+q+';'+nl+nl+'export function cn(...inputs: ClassValue[]) {'+nl+'  return twMerge(clsx(inputs));'+nl+'}'+nl;fs.writeFileSync(uf,util)}j.aliases={...a,components:p2a(comps),ui:p2a(ui),utils:p2a(noTs(utils)),lib:p2a(lib),hooks:p2a(hooks)};wr('components.json',j);for(const c of ['tsconfig.json','tsconfig.app.json']){if(!ex(c))continue;const t=rd(c)||{};t.compilerOptions={...(t.compilerOptions||{}),baseUrl:(t.compilerOptions||{}).baseUrl||'.',paths:{...((t.compilerOptions||{}).paths||{}),[at+'/*']:['./src/*']}};wr(c,t)}\"",
+    "node -e \"const cp=require('child_process'),at=String.fromCharCode(64);const spec=at+'coss/style';const env={...process.env,PNPM_CONFIG_IGNORE_SCRIPTS:'true'};cp.execSync('pnpm dlx shadcn@latest add '+spec+' --yes --overwrite',{stdio:'inherit',env})\"",
+    "node -e \"const fs=require('fs'),p=require('path'),at=String.fromCharCode(64),bs=String.fromCharCode(92),nl=String.fromCharCode(10),sq=String.fromCharCode(39);if(fs.existsSync(at))throw new Error('literal '+at+' folder generated; shadcn alias preflight failed');const sl=v=>String(v||'').split(bs).join('/');const rd=f=>{try{return JSON.parse(fs.readFileSync(f,'utf8'))}catch{return {aliases:{}}}};const a2p=a=>{a=sl(a);return a.startsWith(at+'/')?'src/'+a.slice(2):a};const ui=a2p((rd('components.json').aliases||{}).ui||'src/components/ui');if(fs.existsSync(ui)){const out=fs.readdirSync(ui).filter(n=>n.endsWith('.ts')||n.endsWith('.tsx')).filter(n=>n!=='index.ts').sort().map(n=>{const b=n.endsWith('.tsx')?n.slice(0,-4):n.slice(0,-3);return 'export * from '+sq+'./'+b+sq+';'}).join(nl);fs.writeFileSync(p.join(ui,'index.ts'),out+nl)}\""
+  ],
+  "verificationCommands": [
+    "pnpm build"
+  ]
+}
+```
+
+Legacy ignored block from previous versions. The fenced block below is text only and must not be used as bootstrap metadata.
+
+```text
+{
+  "role": "frontend",
+  "order": 30,
+  "packageManager": "pnpm",
+  "scaffoldCommand": [
+    "node -e \"const cp=require('child_process');const env={...process.env,PNPM_CONFIG_IGNORE_SCRIPTS:'true'};cp.execSync('pnpm add @base-ui/react @fontsource-variable/inter class-variance-authority clsx geist lucide-react react-day-picker tailwind-merge',{stdio:'inherit',env});cp.execSync('pnpm add -D tw-animate-css',{stdio:'inherit',env})\"",
+    "node -e \"const fs=require('fs'),p=require('path'),at=String.fromCharCode(64),dlr=String.fromCharCode(36),bs=String.fromCharCode(92),q=String.fromCharCode(39),nl=String.fromCharCode(10);const sl=v=>{let s=String(v||'').split(bs).join('/');while(s.endsWith('/'))s=s.slice(0,-1);return s};const ex=d=>d&&fs.existsSync(d);const rd=f=>{try{return JSON.parse(fs.readFileSync(f,'utf8'))}catch{return null}};const a2p=a=>{a=sl(a);return a.startsWith(at+'/')?'src/'+a.slice(2):a};const p2a=d=>{d=sl(d);return d.startsWith('src/')?at+'/'+d.slice(4):d};const noTs=s=>s.endsWith('.ts')?s.slice(0,-3):s;const has=(v,x)=>sl(v).split('/').includes(x);const j=rd('components.json')||{style:'new-york',rsc:false,tsx:true,tailwind:{css:ex('src/app/global.css')?'src/app/global.css':'src/index.css',baseColor:'neutral',cssVariables:true},iconLibrary:'lucide',aliases:{}};j[dlr+'schema']=j[dlr+'schema']||'https://ui.shadcn.com/schema.json';const a=j.aliases||{};const ui0=a2p(a.ui||''),u0=a2p(a.utils||''),h0=a2p(a.hooks||''),defaultUi=!ui0||ui0==='src/components/ui'||ui0==='components/ui';const shared=ex('src/shared')||ex('src/shared/components')||ex('src/shared/hooks')||ex('src/shared/api')||ex('src/shared/types');const pkg=ex('packages/ui/src/components')||ex('packages/ui/src/components/ui'),libs=ex('libs/ui/src/components')||ex('libs/ui/src/components/ui');let ui=defaultUi?(shared?'src/shared/components/ui':pkg?'packages/ui/src/components/ui':libs?'libs/ui/src/components/ui':'src/components/ui'):ui0;ui=sl(ui);const comps=ui.endsWith('/ui')?ui.slice(0,-3):sl(p.dirname(ui));const defaultUtils=!u0||u0==='src/lib/utils'||u0==='lib/utils';let utils=defaultUtils?(has(ui,'shared')?'src/shared/utils/cn':ui.startsWith('packages/ui/')?'packages/ui/src/utils/cn':ui.startsWith('libs/ui/')?'libs/ui/src/utils/cn':'src/lib/utils'):u0;const lib=sl(a2p(a.lib||''))||(has(ui,'shared')?'src/shared':ui.startsWith('packages/ui/')?'packages/ui/src':ui.startsWith('libs/ui/')?'libs/ui/src':sl(p.dirname(noTs(utils))));const defaultHooks=!h0||h0==='src/hooks'||h0==='hooks';const hooks=defaultHooks?(has(ui,'shared')?'src/shared/hooks':ui.startsWith('packages/ui/')?'packages/ui/src/hooks':ui.startsWith('libs/ui/')?'libs/ui/src/hooks':'src/hooks'):h0;for(const d of [ui,comps,hooks,p.dirname(noTs(utils)+'.ts')])fs.mkdirSync(d,{recursive:true});const uf=noTs(utils)+'.ts';if(!ex(uf)){const util='import { clsx, type ClassValue } from '+q+'clsx'+q+';'+nl+'import { twMerge } from '+q+'tailwind-merge'+q+';'+nl+nl+'export function cn(...inputs: ClassValue[]) {'+nl+'  return twMerge(clsx(inputs));'+nl+'}'+nl;fs.writeFileSync(uf,util)}j.aliases={...a,components:p2a(comps),ui:p2a(ui),utils:p2a(noTs(utils)),lib:p2a(lib),hooks:p2a(hooks)};fs.writeFileSync('components.json',JSON.stringify(j,null,2)+nl)\"",
+    "node -e \"const fs=require('fs'),cp=require('child_process'),at=String.fromCharCode(64);const spec=at+'coss/style';const env={...process.env,PNPM_CONFIG_IGNORE_SCRIPTS:'true'};const cmd=fs.existsSync('components.json')?'pnpm dlx shadcn@latest add '+spec+' --yes --overwrite':'pnpm dlx shadcn@latest init '+spec+' --yes';cp.execSync(cmd,{stdio:'inherit',env})\"",
+    "node -e \"const fs=require('fs'),p=require('path'),at=String.fromCharCode(64),bs=String.fromCharCode(92),nl=String.fromCharCode(10),dq=String.fromCharCode(34),sq=String.fromCharCode(39);const sl=v=>{let s=String(v||'').split(bs).join('/');while(s.endsWith('/'))s=s.slice(0,-1);return s};const rd=f=>{try{return JSON.parse(fs.readFileSync(f,'utf8'))}catch{return {aliases:{}}}};const a2p=a=>{a=sl(a);return a.startsWith(at+'/')?'src/'+a.slice(2):a};const noTs=s=>s.endsWith('.ts')?s.slice(0,-3):s;const cfg=rd('components.json'),a=cfg.aliases||{},ui=sl(a2p(a.ui||'src/components/ui')),hooks=sl(a2p(a.hooks||'src/hooks')),utils=noTs(sl(a2p(a.utils||'src/lib/utils'))),root=at+'/';const merge=(s,d)=>{if(!fs.existsSync(s)||p.resolve(s)===p.resolve(d))return;fs.mkdirSync(d,{recursive:true});for(const e of fs.readdirSync(s,{withFileTypes:true})){const src=p.join(s,e.name),dst=p.join(d,e.name);if(e.isDirectory())merge(src,dst);else{fs.mkdirSync(p.dirname(dst),{recursive:true});fs.copyFileSync(src,dst)}}fs.rmSync(s,{recursive:true,force:true})};const mv=(s,d)=>{if(!fs.existsSync(s)||p.resolve(s)===p.resolve(d))return;fs.mkdirSync(p.dirname(d),{recursive:true});fs.copyFileSync(s,d);fs.rmSync(s,{force:true})};for(const d of [root+'components/ui',root+'shared/components/ui','components/ui','src/components/ui','src/shared/components/ui']){merge(d,ui);merge(a2p(d),ui)}for(const d of [root+'hooks',root+'shared/hooks','hooks','src/hooks','src/shared/hooks']){merge(d,hooks);merge(a2p(d),hooks)}for(const f of [root+'lib/utils.ts',root+'shared/utils/cn.ts','lib/utils.ts','src/lib/utils.ts','src/shared/utils/cn.ts']){mv(f,utils+'.ts');mv(a2p(f),utils+'.ts')}for(const d of [root+'components',root+'lib',root+'hooks',root+'shared',at])try{fs.rmSync(d,{recursive:true,force:true})}catch{}const exts=['.ts','.tsx','.css','.json'];const walk=(d,r=[])=>{if(!fs.existsSync(d))return r;for(const e of fs.readdirSync(d,{withFileTypes:true})){const f=p.join(d,e.name);if(e.isDirectory())walk(f,r);else if(exts.some(x=>e.name.endsWith(x)))r.push(f)}return r};const uiAlias=a.ui||root+'components/ui',hooksAlias=a.hooks||root+'hooks',utilsAlias=a.utils||root+'lib/utils',bad1='@import '+dq+'geist'+dq+';',bad2='@import '+sq+'geist'+sq+';';for(const f of walk('src')){let s=fs.readFileSync(f,'utf8');s=s.replaceAll(root+'components/ui/',uiAlias+'/').replaceAll(root+'shared/components/ui/',uiAlias+'/').replaceAll(root+'hooks/',hooksAlias+'/').replaceAll(root+'shared/hooks/',hooksAlias+'/').replaceAll(root+'lib/utils',utilsAlias).replaceAll(root+'shared/utils/cn',utilsAlias).replaceAll(utilsAlias+'.ts',utilsAlias);if(f.endsWith('.css'))s=s.split(nl).filter(l=>{const t=l.trim();return t!==bad1&&t!==bad2}).join(nl);fs.writeFileSync(f,s)}for(const c of ['tsconfig.app.json','tsconfig.json']){if(!fs.existsSync(c))continue;const j=rd(c);j.compilerOptions={...(j.compilerOptions||{}),baseUrl:(j.compilerOptions||{}).baseUrl||'.',ignoreDeprecations:'6.0',paths:{...((j.compilerOptions||{}).paths||{}),[at+'/*']:['./src/*']}};fs.writeFileSync(c,JSON.stringify(j,null,2)+nl)}\"",
+    "node -e \"const fs=require('fs'),p=require('path'),at=String.fromCharCode(64),bs=String.fromCharCode(92),nl=String.fromCharCode(10),sq=String.fromCharCode(39);const sl=v=>String(v||'').split(bs).join('/');const rd=f=>{try{return JSON.parse(fs.readFileSync(f,'utf8'))}catch{return {aliases:{}}}};const a2p=a=>{a=sl(a);return a.startsWith(at+'/')?'src/'+a.slice(2):a};const ui=a2p((rd('components.json').aliases||{}).ui||'src/components/ui');if(fs.existsSync(ui)){const out=fs.readdirSync(ui).filter(n=>n.endsWith('.ts')||n.endsWith('.tsx')).filter(n=>n!=='index.ts').sort().map(n=>{const b=n.endsWith('.tsx')?n.slice(0,-4):n.slice(0,-3);return 'export * from '+sq+'./'+b+sq+';'}).join(nl);fs.writeFileSync(p.join(ui,'index.ts'),out+nl)}if(fs.existsSync('src/app/AppRouter.tsx')){const app='import { AppRouter } from '+sq+'./app/AppRouter'+sq+';'+nl+nl+'export default function App() {'+nl+'  return <div className='+sq+'isolate relative min-h-screen'+sq+'><AppRouter /></div>;'+nl+'}'+nl;fs.writeFileSync('src/App.tsx',app)}\""
+  ],
+  "verificationCommands": [
+    "pnpm build"
+  ]
+}
+```
+
+Legacy ignored block from previous versions. The fenced block below is text only and must not be used as bootstrap metadata.
+
+```text
+{
+  "role": "frontend",
+  "order": 30,
+  "packageManager": "pnpm",
+  "scaffoldCommand": [
+    "node -e \"const cp=require('child_process');const env={...process.env,PNPM_CONFIG_IGNORE_SCRIPTS:'true'};cp.execSync('pnpm add @base-ui/react @fontsource-variable/inter class-variance-authority clsx geist lucide-react react-day-picker tailwind-merge',{stdio:'inherit',env});cp.execSync('pnpm add -D tw-animate-css',{stdio:'inherit',env})\"",
     "node -e \"const fs=require('fs'),p=require('path'),at=String.fromCharCode(64),dlr=String.fromCharCode(36),bs=String.fromCharCode(92),q=String.fromCharCode(39),nl=String.fromCharCode(10);const sl=v=>{let s=String(v||'').split(bs).join('/');while(s.endsWith('/'))s=s.slice(0,-1);return s};const ex=d=>d&&fs.existsSync(d);const rd=f=>{try{return JSON.parse(fs.readFileSync(f,'utf8'))}catch{return null}};const a2p=a=>{a=sl(a);return a.startsWith(at+'/')?'src/'+a.slice(2):a};const p2a=d=>{d=sl(d);return d.startsWith('src/')?at+'/'+d.slice(4):d};const noTs=s=>s.endsWith('.ts')?s.slice(0,-3):s;const has=(v,x)=>sl(v).split('/').includes(x);const j=rd('components.json')||{style:'new-york',rsc:false,tsx:true,tailwind:{css:ex('src/app/global.css')?'src/app/global.css':'src/index.css',baseColor:'neutral',cssVariables:true},iconLibrary:'lucide',aliases:{}};j[dlr+'schema']=j[dlr+'schema']||'https://ui.shadcn.com/schema.json';const a=j.aliases||{};const cs=['src/shared/components/ui','src/components/ui','components/ui','app/components/ui','packages/ui/src/components/ui','libs/ui/src/components/ui'];let ui=a2p(a.ui||'')||cs.find(ex)||'src/components/ui';ui=sl(ui);const comps=ui.endsWith('/ui')?ui.slice(0,-3):sl(p.dirname(ui));let utils=sl(a2p(a.utils||'')||a2p(a.lib?sl(a.lib)+'/utils':''));utils=utils||(has(comps,'shared')?'src/shared/utils/cn':'src/lib/utils');const lib=sl(a2p(a.lib||''))||(has(comps,'shared')?'src/shared':sl(p.dirname(noTs(utils))));const hooks=sl(a2p(a.hooks||''))||(has(comps,'shared')?'src/shared/hooks':'src/hooks');for(const d of [ui,comps,hooks,p.dirname(noTs(utils)+'.ts')])fs.mkdirSync(d,{recursive:true});const uf=noTs(utils)+'.ts';if(!ex(uf)){const util='import { clsx, type ClassValue } from '+q+'clsx'+q+';'+nl+'import { twMerge } from '+q+'tailwind-merge'+q+';'+nl+nl+'export function cn(...inputs: ClassValue[]) {'+nl+'  return twMerge(clsx(inputs));'+nl+'}'+nl;fs.writeFileSync(uf,util)}j.aliases={...a,components:p2a(comps),ui:p2a(ui),utils:p2a(noTs(utils)),lib:p2a(lib),hooks:p2a(hooks)};fs.writeFileSync('components.json',JSON.stringify(j,null,2)+nl)\"",
     "node -e \"const fs=require('fs'),cp=require('child_process'),at=String.fromCharCode(64);const spec=at+'coss/style';const env={...process.env,PNPM_CONFIG_IGNORE_SCRIPTS:'true'};const cmd=fs.existsSync('components.json')?'pnpm dlx shadcn@latest add '+spec+' --yes --overwrite':'pnpm dlx shadcn@latest init '+spec+' --yes';cp.execSync(cmd,{stdio:'inherit',env})\"",
     "node -e \"const fs=require('fs'),p=require('path'),at=String.fromCharCode(64),bs=String.fromCharCode(92),nl=String.fromCharCode(10),dq=String.fromCharCode(34),sq=String.fromCharCode(39);const sl=v=>{let s=String(v||'').split(bs).join('/');while(s.endsWith('/'))s=s.slice(0,-1);return s};const rd=f=>{try{return JSON.parse(fs.readFileSync(f,'utf8'))}catch{return {aliases:{}}}};const a2p=a=>{a=sl(a);return a.startsWith(at+'/')?'src/'+a.slice(2):a};const noTs=s=>s.endsWith('.ts')?s.slice(0,-3):s;const cfg=rd('components.json'),a=cfg.aliases||{},ui=sl(a2p(a.ui||'src/components/ui')),hooks=sl(a2p(a.hooks||'src/hooks')),utils=noTs(sl(a2p(a.utils||'src/lib/utils'))),root=at+'/';const merge=(s,d)=>{if(!fs.existsSync(s)||p.resolve(s)===p.resolve(d))return;fs.mkdirSync(d,{recursive:true});for(const e of fs.readdirSync(s,{withFileTypes:true})){const src=p.join(s,e.name),dst=p.join(d,e.name);if(e.isDirectory())merge(src,dst);else{fs.mkdirSync(p.dirname(dst),{recursive:true});fs.copyFileSync(src,dst)}}fs.rmSync(s,{recursive:true,force:true})};const mv=(s,d)=>{if(!fs.existsSync(s)||p.resolve(s)===p.resolve(d))return;fs.mkdirSync(p.dirname(d),{recursive:true});fs.copyFileSync(s,d);fs.rmSync(s,{force:true})};for(const d of [root+'components/ui',root+'shared/components/ui','components/ui','src/components/ui','src/shared/components/ui'])merge(a2p(d),ui);for(const d of [root+'hooks',root+'shared/hooks','hooks','src/hooks','src/shared/hooks'])merge(a2p(d),hooks);for(const f of [root+'lib/utils.ts',root+'shared/utils/cn.ts','lib/utils.ts','src/lib/utils.ts','src/shared/utils/cn.ts'])mv(a2p(f),utils+'.ts');const exts=['.ts','.tsx','.css','.json'];const walk=(d,r=[])=>{if(!fs.existsSync(d))return r;for(const e of fs.readdirSync(d,{withFileTypes:true})){const f=p.join(d,e.name);if(e.isDirectory())walk(f,r);else if(exts.some(x=>e.name.endsWith(x)))r.push(f)}return r};const uiAlias=a.ui||root+'components/ui',hooksAlias=a.hooks||root+'hooks',utilsAlias=a.utils||root+'lib/utils',bad1='@import '+dq+'geist'+dq+';',bad2='@import '+sq+'geist'+sq+';';for(const f of walk('src')){let s=fs.readFileSync(f,'utf8');s=s.replaceAll(root+'components/ui/',uiAlias+'/').replaceAll(root+'shared/components/ui/',uiAlias+'/').replaceAll(root+'hooks/',hooksAlias+'/').replaceAll(root+'shared/hooks/',hooksAlias+'/').replaceAll(root+'lib/utils',utilsAlias).replaceAll(root+'shared/utils/cn',utilsAlias).replaceAll(utilsAlias+'.ts',utilsAlias);if(f.endsWith('.css'))s=s.split(nl).filter(l=>{const t=l.trim();return t!==bad1&&t!==bad2}).join(nl);fs.writeFileSync(f,s)}for(const c of ['tsconfig.app.json','tsconfig.json']){if(!fs.existsSync(c))continue;const j=rd(c);j.compilerOptions={...(j.compilerOptions||{}),baseUrl:(j.compilerOptions||{}).baseUrl||'.',ignoreDeprecations:'6.0',paths:{...((j.compilerOptions||{}).paths||{}),[at+'/*']:['./src/*']}};fs.writeFileSync(c,JSON.stringify(j,null,2)+nl)}\"",
@@ -77,15 +116,16 @@ Legacy ignored block from the previous version. Do not use this text block as bo
 
 ### 1. 不要固定寫死 shared
 
-使用這個 skill 時，先決定 coss UI 的目標落點，再安裝或搬運元件。不要預設所有專案都放 `src/shared/components/ui`。
+使用這個 skill 時，先決定 coss UI 的目標落點，再安裝元件。不要先讓 shadcn 寫到根目錄 `@/components` 後再搬運；搬運只能是人工修復既有錯誤輸出，不是正常 bootstrap 流程。
 
 placement 優先順序：
 
 1. 使用者明確指定的路徑，例如 `src/features/cart/components/ui`、`src/shared/components/ui`、`packages/ui/src/components/ui`
-2. 既有 `components.json` 的 `aliases.ui`、`aliases.components`、`aliases.utils`、`aliases.hooks`
-3. 專案已存在的 UI 目錄
-4. 專案架構推斷出的最小合理落點
-5. 無法判斷時，才問使用者一個聚焦問題
+2. 明確自訂的 `components.json` aliases，例如 feature-local 或 package UI aliases
+3. 共用資料夾慣例：若存在 `src/shared`、`src/shared/components`、`src/shared/hooks`、`src/shared/api` 或 `src/shared/types`，使用 `src/shared/components/ui`
+4. 若沒有 shared 但存在或需要一般共用 UI，使用 `src/components/ui`
+5. monorepo UI package，例如 `packages/ui/src/components/ui` 或 `libs/ui/src/components/ui`
+6. 無法判斷時，才問使用者一個聚焦問題
 
 常見可接受落點：
 
@@ -101,7 +141,22 @@ libs/ui/src/components/ui/
 
 ### 2. 尊重既有 `components.json`
 
-若專案已有 `components.json`，優先沿用其中 aliases，不要任意改成 shared：
+若專案已有 `components.json`，先判斷 aliases 是否真的是專案慣例，不要盲目保留 bootstrap 預設值。
+
+`@/components/ui`、`@/lib/utils`、`@/hooks` 是 shadcn 常見 default aliases。如果同時偵測到 `src/shared` 架構，這些 default aliases 應在執行 shadcn 前改成 shared：
+
+```json
+{
+  "aliases": {
+    "components": "@/shared/components",
+    "ui": "@/shared/components/ui",
+    "utils": "@/shared/utils/cn",
+    "hooks": "@/shared/hooks"
+  }
+}
+```
+
+只有 feature-local、package UI 或使用者明確指定的 aliases 才應原樣保留，例如：
 
 ```json
 {
@@ -114,7 +169,7 @@ libs/ui/src/components/ui/
 }
 ```
 
-只有在 aliases 缺失或明顯指到不存在/錯誤結構時，才依 resolver 補齊。
+沒有 shared 架構時，`src/components/ui` 是合理的共用 UI fallback。
 
 ### 3. 共用工具跟著 UI placement
 
@@ -210,7 +265,7 @@ src/lib/utils.ts
 
 1. 查 coss 官方元件 API
 2. 跑 placement resolver，決定 UI、utils、hooks 的目標位置
-3. 搬運或安裝元件 source
+3. 在執行 shadcn 前寫好 `components.json` 與 `tsconfig` alias
 4. 改成目標專案的 import 路徑
 5. 放進 resolver 決定出的 UI 目錄
 
