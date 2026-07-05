@@ -1,6 +1,6 @@
 ---
 name: coss
-description: 當使用者在這個 React + Vite 專案中提到 coss ui、@coss/button、Base UI、shadcn CLI、共享 UI 元件、Button、Card、Dialog、Input、Toast、Spinner、shared/components/ui、shared/utils/cn.ts，或要把 coss ui 元件整合進 shared 時，優先使用這個 skill。這個 skill 專門規範如何在本專案正確使用、安裝、搬運與整合 coss ui 元件。
+description: 當使用者在 React / Vite 專案中提到 coss ui、@coss/button、Base UI、shadcn CLI、components.json、Button、Card、Dialog、Input、Toast、Spinner、shared/components/ui、src/components/ui、feature-local UI、packages/ui 或要把 coss ui 元件整合到既有 UI 架構時，優先使用這個 skill。這個 skill 專門規範如何依使用者指定、既有 aliases 與專案檔案規劃正確安裝、搬運與整合 coss ui 元件。
 license: MIT
 metadata:
   author: cosscom
@@ -17,9 +17,10 @@ metadata:
   "packageManager": "pnpm",
   "scaffoldCommand": [
     "node -e \"const cp=require('child_process');const env={...process.env,PNPM_CONFIG_IGNORE_SCRIPTS:'true'};cp.execSync('pnpm add @base-ui/react @fontsource-variable/inter class-variance-authority clsx geist lucide-react react-day-picker tailwind-merge',{stdio:'inherit',env});cp.execSync('pnpm add -D tw-animate-css',{stdio:'inherit',env})\"",
-    "node -e \"const fs=require('fs'),cp=require('child_process');const patch=()=>{if(!fs.existsSync('components.json'))return;const j=JSON.parse(fs.readFileSync('components.json','utf8'));j.aliases={...(j.aliases||{}),components:'@/shared/components',ui:'@/shared/components/ui',utils:'@/shared/utils/cn',lib:'@/shared',hooks:'@/shared/hooks'};fs.writeFileSync('components.json',JSON.stringify(j,null,2)+'\\n')};patch();const env={...process.env,PNPM_CONFIG_IGNORE_SCRIPTS:'true'};const cmd=fs.existsSync('components.json')?'pnpm dlx shadcn@latest add @coss/style --yes --overwrite':'pnpm dlx shadcn@latest init @coss/style --yes';cp.execSync(cmd,{stdio:'inherit',env});patch()\"",
-    "node -e \"const fs=require('fs'),p=require('path');const mergeDir=(a,b)=>{if(!fs.existsSync(a)||p.resolve(a)===p.resolve(b))return;fs.mkdirSync(b,{recursive:true});for(const e of fs.readdirSync(a,{withFileTypes:true})){const s=p.join(a,e.name),d=p.join(b,e.name);if(e.isDirectory())mergeDir(s,d);else{fs.mkdirSync(p.dirname(d),{recursive:true});fs.copyFileSync(s,d)}}fs.rmSync(a,{recursive:true,force:true})};const moveFile=(a,b)=>{if(!fs.existsSync(a)||p.resolve(a)===p.resolve(b))return;fs.mkdirSync(p.dirname(b),{recursive:true});fs.copyFileSync(a,b);fs.rmSync(a,{force:true})};const patch=()=>{if(!fs.existsSync('components.json'))return;const j=JSON.parse(fs.readFileSync('components.json','utf8'));j.aliases={...(j.aliases||{}),components:'@/shared/components',ui:'@/shared/components/ui',utils:'@/shared/utils/cn',lib:'@/shared',hooks:'@/shared/hooks'};fs.writeFileSync('components.json',JSON.stringify(j,null,2)+'\\n')};for(const d of ['@/components/ui','@/shared/components/ui','components/ui','src/components/ui'])mergeDir(d,'src/shared/components/ui');for(const d of ['@/hooks','@/shared/hooks','hooks','src/hooks'])mergeDir(d,'src/shared/hooks');for(const f of ['@/lib/utils.ts','@/shared/utils/cn.ts','lib/utils.ts','src/lib/utils.ts'])moveFile(f,'src/shared/utils/cn.ts');for(const d of ['@/components','@/shared/components','@/lib','@/shared/utils','@/shared','@','components','hooks','lib','src/components','src/hooks','src/lib'])try{fs.rmSync(d,{recursive:true,force:true})}catch{};const walk=(d,r=[])=>{if(!fs.existsSync(d))return r;for(const e of fs.readdirSync(d,{withFileTypes:true})){const f=p.join(d,e.name);if(e.isDirectory())walk(f,r);else if(/\\.(ts|tsx|css|json)$/.test(e.name))r.push(f)}return r};for(const f of walk('src')){let s=fs.readFileSync(f,'utf8');s=s.replaceAll('@/components/ui/','@/shared/components/ui/').replaceAll('@/components/','@/shared/components/').replaceAll('@/hooks/','@/shared/hooks/').replaceAll('@/lib/utils','@/shared/utils/cn').replaceAll('@/shared/utils/cn.ts','@/shared/utils/cn');if(f.endsWith('.css'))s=s.replace(/^@import\\s+[\\\"']geist[\\\"'];\\s*$/gm,'');fs.writeFileSync(f,s)}for(const cfg of ['tsconfig.app.json','tsconfig.json']){if(!fs.existsSync(cfg))continue;const j=JSON.parse(fs.readFileSync(cfg,'utf8'));j.compilerOptions={...(j.compilerOptions||{}),baseUrl:(j.compilerOptions||{}).baseUrl||'.',ignoreDeprecations:'6.0',paths:{...((j.compilerOptions||{}).paths||{}),'@/*':['./src/*']}};fs.writeFileSync(cfg,JSON.stringify(j,null,2))}patch()\"",
-    "node -e \"const fs=require('fs'),p=require('path');const ui='src/shared/components/ui';if(fs.existsSync(ui)){const out=fs.readdirSync(ui).filter(n=>/\\.(ts|tsx)$/.test(n)&&n!=='index.ts').sort().map(n=>'export * from \\\"./'+n.replace(/\\.(ts|tsx)$/,'')+'\\\";').join('\\n');fs.writeFileSync(p.join(ui,'index.ts'),out+'\\n')}if(fs.existsSync('src/app/AppRouter.tsx'))fs.writeFileSync('src/App.tsx','import { AppRouter } from \\\"./app/AppRouter\\\";\\n\\nexport default function App() {\\n  return <div className=\\\"isolate relative min-h-screen\\\"><AppRouter /></div>;\\n}\\n')\""
+    "node -e \"const fs=require('fs'),p=require('path');const at=String.fromCharCode(64);const slash=s=>String(s||'').replace(/\\\\/g,'/').replace(/\\/+$/,'');const exists=d=>d&&fs.existsSync(d);const read=f=>{try{return JSON.parse(fs.readFileSync(f,'utf8'))}catch{return null}};const aliasToPath=a=>{a=slash(a);return a.startsWith(at+'/')?'src/'+a.slice(2):a};const pathToAlias=d=>{d=slash(d);return d.startsWith('src/')?at+'/'+d.slice(4):d};const j=read('components.json')||{$schema:'https://ui.shadcn.com/schema.json',style:'new-york',rsc:false,tsx:true,tailwind:{css:exists('src/app/global.css')?'src/app/global.css':'src/index.css',baseColor:'neutral',cssVariables:true},iconLibrary:'lucide',aliases:{}};const a=j.aliases||{};const candidates=['src/shared/components/ui','src/components/ui','components/ui','app/components/ui','packages/ui/src/components/ui','libs/ui/src/components/ui'];let ui=aliasToPath(a.ui||'')||candidates.find(exists)||'src/components/ui';ui=slash(ui);const components=ui.endsWith('/ui')?ui.slice(0,-3):slash(p.dirname(ui));let utils=aliasToPath(a.utils||'')||aliasToPath(a.lib?slash(a.lib)+'/utils':'');utils=slash(utils||(/(^|\\/)shared(\\/|$)/.test(components)?'src/shared/utils/cn':'src/lib/utils'));const lib=slash(aliasToPath(a.lib||''))||slash(utils.replace(/\\/utils(?:\\/cn)?$/,'/lib').replace(/\\/cn$/,''));let hooks=slash(aliasToPath(a.hooks||''))||(/(^|\\/)shared(\\/|$)/.test(components)?'src/shared/hooks':'src/hooks');for(const d of [ui,components,hooks,p.dirname(utils.endsWith('.ts')?utils:utils+'.ts')])fs.mkdirSync(d,{recursive:true});const utilFile=utils.endsWith('.ts')?utils:utils+'.ts';if(!fs.existsSync(utilFile))fs.writeFileSync(utilFile,'import { clsx, type ClassValue } from \\\"clsx\\\";\\nimport { twMerge } from \\\"tailwind-merge\\\";\\n\\nexport function cn(...inputs: ClassValue[]) {\\n  return twMerge(clsx(inputs));\\n}\\n');j.aliases={...a,components:pathToAlias(components),ui:pathToAlias(ui),utils:pathToAlias(utils.replace(/\\.ts$/,'')),lib:pathToAlias(lib),hooks:pathToAlias(hooks)};fs.writeFileSync('components.json',JSON.stringify(j,null,2)+'\\n')\"",
+    "node -e \"const fs=require('fs'),cp=require('child_process');const at=String.fromCharCode(64);const spec=at+'coss/style';const env={...process.env,PNPM_CONFIG_IGNORE_SCRIPTS:'true'};const cmd=fs.existsSync('components.json')?'pnpm dlx shadcn@latest add '+spec+' --yes --overwrite':'pnpm dlx shadcn@latest init '+spec+' --yes';cp.execSync(cmd,{stdio:'inherit',env})\"",
+    "node -e \"const fs=require('fs'),p=require('path');const at=String.fromCharCode(64);const slash=s=>String(s||'').replace(/\\\\/g,'/').replace(/\\/+$/,'');const read=f=>{try{return JSON.parse(fs.readFileSync(f,'utf8'))}catch{return {aliases:{}}}};const aliasToPath=a=>{a=slash(a);return a.startsWith(at+'/')?'src/'+a.slice(2):a};const cfg=read('components.json');const a=cfg.aliases||{};const ui=slash(aliasToPath(a.ui||'src/components/ui'));const hooks=slash(aliasToPath(a.hooks||'src/hooks'));const utils=slash(aliasToPath(a.utils||'src/lib/utils')).replace(/\\.ts$/,'');const mergeDir=(s,d)=>{if(!fs.existsSync(s)||p.resolve(s)===p.resolve(d))return;fs.mkdirSync(d,{recursive:true});for(const e of fs.readdirSync(s,{withFileTypes:true})){const src=p.join(s,e.name),dst=p.join(d,e.name);if(e.isDirectory())mergeDir(src,dst);else{fs.mkdirSync(p.dirname(dst),{recursive:true});fs.copyFileSync(src,dst)}}fs.rmSync(s,{recursive:true,force:true})};const moveFile=(s,d)=>{if(!fs.existsSync(s)||p.resolve(s)===p.resolve(d))return;fs.mkdirSync(p.dirname(d),{recursive:true});fs.copyFileSync(s,d);fs.rmSync(s,{force:true})};const root=at+'/';for(const d of [root+'components/ui',root+'shared/components/ui','components/ui','src/components/ui','src/shared/components/ui'])mergeDir(aliasToPath(d),ui);for(const d of [root+'hooks',root+'shared/hooks','hooks','src/hooks','src/shared/hooks'])mergeDir(aliasToPath(d),hooks);for(const f of [root+'lib/utils.ts',root+'shared/utils/cn.ts','lib/utils.ts','src/lib/utils.ts','src/shared/utils/cn.ts'])moveFile(aliasToPath(f),utils+'.ts');const walk=(d,r=[])=>{if(!fs.existsSync(d))return r;for(const e of fs.readdirSync(d,{withFileTypes:true})){const f=p.join(d,e.name);if(e.isDirectory())walk(f,r);else if(/\\.(ts|tsx|css|json)$/.test(e.name))r.push(f)}return r};const uiAlias=a.ui||root+'components/ui';const hooksAlias=a.hooks||root+'hooks';const utilsAlias=a.utils||root+'lib/utils';for(const f of walk('src')){let s=fs.readFileSync(f,'utf8');s=s.replaceAll(root+'components/ui/',uiAlias+'/').replaceAll(root+'shared/components/ui/',uiAlias+'/').replaceAll(root+'hooks/',hooksAlias+'/').replaceAll(root+'shared/hooks/',hooksAlias+'/').replaceAll(root+'lib/utils',utilsAlias).replaceAll(root+'shared/utils/cn',utilsAlias).replaceAll(utilsAlias+'.ts',utilsAlias);if(f.endsWith('.css'))s=s.replace(/^@import\\s+[\\\"']geist[\\\"'];\\s*$/gm,'');fs.writeFileSync(f,s)}for(const cfgFile of ['tsconfig.app.json','tsconfig.json']){if(!fs.existsSync(cfgFile))continue;const j=read(cfgFile);j.compilerOptions={...(j.compilerOptions||{}),baseUrl:(j.compilerOptions||{}).baseUrl||'.',ignoreDeprecations:'6.0',paths:{...((j.compilerOptions||{}).paths||{}),[at+'/*']:['./src/*']}};fs.writeFileSync(cfgFile,JSON.stringify(j,null,2)+'\\n')}\"",
+    "node -e \"const fs=require('fs'),p=require('path');const at=String.fromCharCode(64);const read=f=>{try{return JSON.parse(fs.readFileSync(f,'utf8'))}catch{return {aliases:{}}}};const aliasToPath=a=>{a=String(a||'').replace(/\\\\/g,'/');return a.startsWith(at+'/')?'src/'+a.slice(2):a};const ui=aliasToPath((read('components.json').aliases||{}).ui||'src/components/ui');if(fs.existsSync(ui)){const out=fs.readdirSync(ui).filter(n=>/\\.(ts|tsx)$/.test(n)&&n!=='index.ts').sort().map(n=>'export * from \\\"./'+n.replace(/\\.(ts|tsx)$/,'')+'\\\";').join('\\n');fs.writeFileSync(p.join(ui,'index.ts'),out+'\\n')}if(fs.existsSync('src/app/AppRouter.tsx'))fs.writeFileSync('src/App.tsx','import { AppRouter } from \\\"./app/AppRouter\\\";\\n\\nexport default function App() {\\n  return <div className=\\\"isolate relative min-h-screen\\\"><AppRouter /></div>;\\n}\\n')\""
   ],
   "verificationCommands": [
     "pnpm build"
@@ -27,9 +28,9 @@ metadata:
 }
 ```
 
-這個 skill 用來處理本專案中的 `coss ui` 整合與使用方式。
+這個 skill 用來處理 React / Vite 專案中的 `coss ui` 整合與使用方式。
 
-這不是通用的 coss monorepo 維護指南，而是針對這個 `React + Vite + Tailwind CSS + feature-based` 專案的使用規範。
+這不是通用的 coss monorepo 維護指南，而是針對不同 React 檔案規劃自動判斷 UI placement 的使用規範。
 
 ## 這個 skill 要做什麼
 
@@ -37,7 +38,7 @@ metadata:
 
 1. 挑選適合的 coss ui 元件
 2. 正確整合 coss ui 到這個專案
-3. 依照本專案的 shared 結構放置元件
+3. 依照使用者指定、既有 `components.json` 或專案現有 UI 目錄放置元件
 4. 避免直接套用 coss 文件中的預設路徑而破壞現有架構
 5. 依照 Base UI 與 Tailwind CSS v4 的要求補齊必要設定
 
@@ -48,74 +49,117 @@ metadata:
 1. 使用者要安裝或導入 `coss ui`
 2. 使用者要新增 `Button`、`Card`、`Dialog`、`Input`、`Toast`、`Spinner` 等 coss 元件
 3. 使用者提到 `@coss/<component>`
-4. 使用者要把 UI 元件整合到 `shared/components/ui`
+4. 使用者要把 UI 元件整合到 shared、feature、package 或既有 UI 目錄
 5. 使用者要從 shadcn / Radix / Base UI 遷移到 coss ui
 6. 使用者要處理 coss ui 的 Tailwind token、Base UI isolation、`cn()` utility
 7. 使用者要修正 coss 元件的 import 路徑、組合方式或樣式設定
 
-## 本專案的整合原則
+## Placement Resolver
 
-### 1. 元件放在 `shared/components/ui`
+### 1. 不要固定寫死 shared
 
-本專案中，coss ui 元件應放在：
+使用這個 skill 時，先決定 coss UI 的目標落點，再安裝或搬運元件。不要預設所有專案都放 `src/shared/components/ui`。
+
+placement 優先順序：
+
+1. 使用者明確指定的路徑，例如 `src/features/cart/components/ui`、`src/shared/components/ui`、`packages/ui/src/components/ui`
+2. 既有 `components.json` 的 `aliases.ui`、`aliases.components`、`aliases.utils`、`aliases.hooks`
+3. 專案已存在的 UI 目錄
+4. 專案架構推斷出的最小合理落點
+5. 無法判斷時，才問使用者一個聚焦問題
+
+常見可接受落點：
 
 ```text
 src/shared/components/ui/
-```
-
-不要直接沿用文件中常見的：
-
-```text
+src/components/ui/
 components/ui/
-@/components/ui/
+app/components/ui/
+src/features/<feature>/components/ui/
+packages/ui/src/components/ui/
+libs/ui/src/components/ui/
 ```
 
-本專案已經有自己的 shared 結構，必須對齊現有架構。
+### 2. 尊重既有 `components.json`
 
-### 2. 共用工具放在 `shared/utils`
+若專案已有 `components.json`，優先沿用其中 aliases，不要任意改成 shared：
 
-若元件需要 `cn()` 等 utility，放在：
+```json
+{
+  "aliases": {
+    "components": "@/components",
+    "ui": "@/components/ui",
+    "utils": "@/lib/utils",
+    "hooks": "@/hooks"
+  }
+}
+```
+
+只有在 aliases 缺失或明顯指到不存在/錯誤結構時，才依 resolver 補齊。
+
+### 3. 共用工具跟著 UI placement
+
+若元件需要 `cn()` 等 utility，先看 `components.json.aliases.utils`。沒有設定時，再依專案結構推斷，例如：
 
 ```text
-src/shared/utils/
+src/lib/utils.ts
+src/shared/utils/cn.ts
+packages/ui/src/utils/cn.ts
 ```
 
-例如：
+不要因為 coss 文件範例使用 `@/lib/utils`，就強迫所有專案採用該位置。
 
-- `src/shared/utils/cn.ts`
+### 4. 元件出口由所在 UI 目錄管理
 
-### 3. 元件出口統一由 `index.ts` 管理
+若新增 coss ui 元件，請在 resolver 決定出的 UI 目錄補 `index.ts`：
 
-若新增 coss ui 元件，請同步更新：
+```text
+<resolved-ui-dir>/index.ts
+```
+
+讓專案內可以依當前 alias 或相對路徑統一引用。
+
+## 常見 placement 範例
+
+### Shared UI
+
+適合跨多個 feature 重用的 primitive：
 
 ```text
 src/shared/components/ui/index.ts
 ```
 
-讓專案內可以統一使用：
+### App UI
 
-```ts
-import { Button, Spinner } from '../../../shared/components/ui'
-```
-
-## 本專案目前的 coss ui 相關落點
-
-預設以這些位置為主：
+適合一般 Vite app 或沒有 feature 分層的專案：
 
 ```text
-src/
-  shared/
-    components/
-      ui/
-        button.tsx
-        spinner.tsx
-        index.ts
-    utils/
-      cn.ts
+src/components/ui/index.ts
+```
 
-  app/
-    global.css
-    App.tsx
+### Feature UI
+
+適合只屬於單一 feature 的組合元件或局部 primitive：
+
+```text
+src/features/cart/components/ui/index.ts
+```
+
+### Monorepo UI Package
+
+適合 workspace 共用 UI package：
+
+```text
+packages/ui/src/components/ui/index.ts
+```
+
+## 本 skill 的預設 fallback
+
+只有在沒有使用者指定、沒有 `components.json`、也沒有任何現有 UI 目錄時，Greenfield bootstrap 才使用：
+
+```text
+src/components/ui/
+src/lib/utils.ts
 ```
 
 ## Source of Truth
@@ -146,27 +190,34 @@ src/
 流程應該是：
 
 1. 查 coss 官方元件 API
-2. 搬運元件 source
-3. 改成本專案的 import 路徑
-4. 放進 `src/shared/components/ui/`
+2. 跑 placement resolver，決定 UI、utils、hooks 的目標位置
+3. 搬運或安裝元件 source
+4. 改成目標專案的 import 路徑
+5. 放進 resolver 決定出的 UI 目錄
 
 ### 3. 不要硬套文件中的 alias
 
-coss 文件常見寫法：
+coss / shadcn 文件常見寫法：
 
 ```ts
 import { Button } from '@/components/ui/button'
 ```
 
-在這個專案中不要照抄。
+不要未檢查就照抄。先看 `components.json.aliases.ui` 或實際 UI 目錄。
 
-應改成符合本專案結構的寫法，例如：
+可能維持為：
+
+```ts
+import { Button } from '@/components/ui/button'
+```
+
+也可能改成 shared：
 
 ```ts
 import { Button } from '../../../shared/components/ui'
 ```
 
-或在 shared 內部：
+或在 feature / package 內部：
 
 ```ts
 import { cn } from '../../utils/cn'
@@ -184,20 +235,22 @@ coss ui 建立在 Base UI 之上，因此需要保留：
 
 如果使用者要新增 Dialog、Popover、Select、Toast 這類 portal 元件，特別注意這些設定不能被移除。
 
-### 5. 全域 token 放在 `src/app/global.css`
+### 5. 全域 token 放在專案既有 CSS entry
 
 coss ui 依賴 Tailwind CSS v4 與 CSS 變數。
 
-本專案中，相關 token 應集中在：
+相關 token 應集中在專案既有 CSS entry，例如：
 
 ```text
 src/app/global.css
+src/index.css
+app/globals.css
 ```
 
 當你新增新元件時：
 
 1. 先檢查是否需要新的 color token
-2. 若需要，再補到 `global.css`
+2. 若需要，再補到既有 CSS entry
 3. 不要把這些 token 分散到 feature 內
 
 ## 安裝與整合方式
@@ -217,8 +270,9 @@ src/app/global.css
 7. Greenfield bootstrap 必須先明確安裝 coss runtime dependencies，再讓 shadcn 寫 registry files；不要依賴 shadcn 內部 dependency installer 作為唯一安裝步驟
 8. Greenfield bootstrap 中，只有沒有 `components.json` 時才執行 `init @coss/style`
 9. 若 `components.json` 已存在，代表 shadcn 已初始化；後續重試或既有專案整合應使用 `add @coss/style --yes --overwrite`，不可再次無條件執行 `init`
-10. 若 shadcn 產生 `@/components`、`@/shared`、`components` 或 `src/components` 實體資料夾，bootstrap 必須把 UI 檔案收斂到 `src/shared/components/ui`，不可保留 `@/components` 實體資料夾
-11. `components.json` aliases 必須指向 `@/shared/components`、`@/shared/components/ui`、`@/shared/utils/cn` 與 `@/shared/hooks`
+10. 若 shadcn 產生與 resolver 不一致的實體資料夾，bootstrap 必須把 UI 檔案收斂到 resolved UI directory
+11. `components.json` aliases 必須指向 resolved components/ui/utils/hooks，不可一律覆寫成 shared
+12. Machine-readable `opencode-bootstrap-json` command 中不要裸露 `@coss/<name>`；用 runtime 組字串避免 OpenCode reference resolver 把 registry spec 當本機路徑讀取
 
 CLI init 範例：
 
@@ -236,15 +290,16 @@ pnpm dlx shadcn@latest add @coss/style --yes --overwrite
 
 若前置設定缺失，先補齊設定，再執行 CLI。不要把同一批套件重裝當成主要修復方式。
 
-### 推薦做法：手動整合到 shared
+### 推薦做法：先決定 placement，再整合
 
-對這個專案來說，推薦做法不是直接讓 CLI 用預設路徑寫檔，而是：
+推薦做法不是直接讓 CLI 用預設路徑寫檔，而是：
 
 1. 參考 coss 文件或 registry source
-2. 安裝元件需要的依賴
-3. 把元件 source 放到 `src/shared/components/ui/`
-4. 修正 import 路徑
-5. 更新 `index.ts`
+2. 用 placement resolver 決定 UI / utils / hooks 位置
+3. 安裝元件需要的依賴
+4. 把元件 source 放到 resolved UI directory
+5. 修正 import 路徑
+6. 更新 resolved UI directory 的 `index.ts`
 
 ### 可用 CLI 取得元件內容，但不要盲目接受預設結構
 
@@ -262,11 +317,7 @@ pnpm dlx shadcn@latest view @coss/card
 
 用來查看 registry source。
 
-但最終落點仍要整理到本專案的：
-
-```text
-src/shared/components/ui/
-```
+但最終落點仍要整理到 resolver 決定出的 UI 目錄。
 
 ### 依賴安裝
 
@@ -283,17 +334,18 @@ pnpm add @base-ui/react class-variance-authority clsx lucide-react
 ### 新增 Button / Spinner 這類基礎元件
 
 1. 查元件文件或 registry source
-2. 安裝必要依賴
-3. 新增檔案到 `src/shared/components/ui/`
-4. 調整 import 路徑到 `src/shared/utils/cn.ts` 等本地工具
-5. 更新 `src/shared/components/ui/index.ts`
+2. 決定 resolved UI directory 與 utils alias
+3. 安裝必要依賴
+4. 新增檔案到 resolved UI directory
+5. 調整 import 路徑到 resolved utils
+6. 更新 resolved UI directory 的 `index.ts`
 
 ### 新增 Card / Input / Dialog 等元件
 
 1. 確認元件是否依賴其他 coss 元件
-2. 把相依元件也一併整理進 `shared/components/ui`
+2. 把相依元件也一併整理進相同 resolved UI directory
 3. 若需要 token 或 root isolation，檢查 `src/app/global.css` 與 `src/app/App.tsx`
-4. 若元件會在多個 feature 使用，就維持放在 `shared/components/ui`
+4. 若元件會在多個 feature 使用，優先放共用 UI 目錄；若只屬於單一 feature，可放 feature-local UI 目錄
 
 ## shadcn / coss Troubleshooting
 
@@ -331,28 +383,29 @@ pnpm dlx shadcn@latest init @coss/style
 
 ## 不要這樣做
 
-1. 不要把 coss 元件放到 `src/features/<feature>/components/`，除非它已經被你改寫成完全 feature 專用元件
-2. 不要保留 `@/components/ui/...` 這種與本專案不符的路徑
+1. 不要在沒有檢查使用者指定、`components.json` 或既有 UI 目錄前，直接把 coss 元件固定放到 shared
+2. 不要任意覆寫既有 `@/components/ui/...`、`@/lib/utils` 或 monorepo package aliases
 3. 不要只複製單一檔案卻漏掉相依元件
-4. 不要移除 `global.css` 裡 coss 需要的 token
+4. 不要移除 CSS entry 裡 coss 需要的 token
 5. 不要移除 `App.tsx` 的 `isolate relative` 容器
 6. 不要把 `@coss/style` 或其他 `@coss/<name>` registry spec 當成本機檔案路徑讀取
+7. 不要在 `opencode-bootstrap-json` command 裡裸露 `@coss/<name>`；用 runtime 組字串
 
 ## 元件使用原則
 
-1. 優先使用 `shared/components/ui` 的 re-export
+1. 優先使用 resolved UI directory 的 re-export
 2. 如果只是畫面按鈕，不要再重寫一顆新的 Button
 3. 如果元件需要客製樣式，先在使用端透過 `className` 或 props 擴充
-4. 若確定是通用元件變體，再回頭整理 shared 元件本身
+4. 若確定是通用元件變體，再回頭整理共用 UI 目錄；若只屬於單一 feature，維持 feature-local
 
 ## 修改時的自我檢查
 
 完成 coss ui 整合後，確認：
 
-1. 元件檔案是否放在 `src/shared/components/ui/`
-2. `index.ts` 是否有補出口
-3. import 路徑是否不再使用 `@/components/ui/...`
-4. `cn()` 是否來自 `src/shared/utils/cn.ts`
+1. 元件檔案是否放在 resolved UI directory
+2. resolved UI directory 的 `index.ts` 是否有補出口
+3. import 路徑是否符合 `components.json` aliases 或專案現有慣例
+4. `cn()` 是否來自 resolved utils alias/file
 5. `global.css` token 是否仍完整
 6. Base UI 的 isolation 設定是否仍存在
 
@@ -360,23 +413,23 @@ pnpm dlx shadcn@latest init @coss/style
 
 完成後，回覆時應明確說明：
 
-1. 新增或修改了哪些 `shared` 檔案
+1. resolver 選到的 UI / utils / hooks 落點
 2. 安裝了哪些依賴
-3. 哪個 coss 元件已整合進 `shared/components/ui`
-4. 是否有更新 `global.css` 或 `App.tsx`
+3. 哪個 coss 元件已整合進哪個 UI 目錄
+4. 是否有更新 `components.json`、CSS entry 或 `App.tsx`
 5. build / lint 結果
 
 ## 回覆範例
 
 ```md
-已幫你把 coss ui 整合到 `shared`。
+已幫你把 coss ui 整合到專案既有 UI 目錄。
 
 1. 安裝了 `@base-ui/react`、`class-variance-authority`、`clsx`、`lucide-react`
-2. 新增 `src/shared/components/ui/button.tsx`
-3. 新增 `src/shared/components/ui/spinner.tsx`
-4. 新增 `src/shared/components/ui/index.ts`
-5. 新增 `src/shared/utils/cn.ts`
-6. 更新 `src/app/global.css` 與 `src/app/App.tsx` 以支援 coss/Base UI
+2. Resolver 選到 `src/components/ui` 與 `src/lib/utils.ts`
+3. 新增 `src/components/ui/button.tsx`
+4. 新增 `src/components/ui/spinner.tsx`
+5. 新增 `src/components/ui/index.ts`
+6. 更新 `components.json`、CSS entry 與 `App.tsx` 以支援 coss/Base UI
 7. `pnpm build` 通過
 8. `pnpm lint` 通過
 ```

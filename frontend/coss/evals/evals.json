@@ -1,0 +1,27 @@
+{
+  "skill_name": "coss",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "In a React/Vite project that already has components.json aliases pointing ui to @/components/ui and utils to @/lib/utils, install coss Button and Spinner without moving them to shared.",
+      "expected_output": "The skill preserves the existing components.json placement, uses the resolved UI/utils paths, does not force src/shared/components/ui, and does not treat @coss registry specs as local files.",
+      "files": [],
+      "assertions": [
+        "Output explains that existing components.json aliases win over shared defaults.",
+        "Output keeps UI files under the resolved @/components/ui location unless the user explicitly asks otherwise.",
+        "Output does not instruct Read, Glob, ls, or local file access for coss/style or @coss/style."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "For a monorepo React app with packages/ui/src/components/ui already present, add coss Dialog and keep the component inside the UI package.",
+      "expected_output": "The skill detects the existing monorepo UI package, patches components.json toward packages/ui/src/components/ui or its existing alias, and updates imports/index exports there rather than forcing a shared folder.",
+      "files": [],
+      "assertions": [
+        "Output prefers the existing packages/ui/src/components/ui placement.",
+        "Output updates the resolved UI directory index export.",
+        "Output reports the resolved UI, utils, and hooks placement in the final summary."
+      ]
+    }
+  ]
+}
