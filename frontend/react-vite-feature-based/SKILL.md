@@ -65,7 +65,7 @@ src/
 
 ## Greenfield Bootstrap 規則
 
-建立新的 React / Vite / Tailwind 專案時，必須先完成 Tailwind v4 與 import alias 前置設定，再執行任何 shadcn / coss init。
+建立新的 React / Vite / Tailwind 專案時，必須先完成 Tailwind v4 與 import alias 前置設定，再執行任何 shadcn / coss CLI。
 
 必要設定：
 
@@ -113,6 +113,36 @@ export default defineConfig({
 ```
 
 若專案使用 feature-based 結構，建議入口使用 `src/app/global.css`。若既有專案已使用 `src/index.css`，不要強制搬移，只需確保該 CSS entry 有 `@import "tailwindcss";`。
+
+### coss ui 官方 CLI 規則
+
+依照 `https://coss.com/ui/docs/get-started`，不要手動安裝 `@base-ui/react`、`@fontsource-variable/inter`、`class-variance-authority`、`clsx`、`geist`、`lucide-react`、`react-day-picker`、`tailwind-merge` 這一串套件作為主要 bootstrap 流程。coss 官方說明是透過 shadcn CLI 安裝 registry spec，CLI 會建立檔案並安裝需要的依賴。
+
+新專案需要完整 coss style preset 時，使用：
+
+```bash
+pnpm dlx shadcn@latest init @coss/style
+```
+
+既有專案加入所有 UI primitives 時，使用：
+
+```bash
+pnpm dlx shadcn@latest add @coss/ui
+```
+
+既有專案需要完整 theme、colors、sidebar variables 與 fonts 時，使用：
+
+```bash
+pnpm dlx shadcn@latest add @coss/style
+```
+
+只需要 UI primitives 與 neutral colors 時，使用：
+
+```bash
+pnpm dlx shadcn@latest add @coss/ui @coss/colors-neutral
+```
+
+`@coss/style`、`@coss/ui`、`@coss/colors-neutral` 是 shadcn registry spec，不是本機檔案路徑；不要用 Read、Glob、`ls` 或任何檔案工具去讀 `coss/style`、`coss/ui`、`@coss/style` 這類路徑。
 
 ## 分層規則
 
