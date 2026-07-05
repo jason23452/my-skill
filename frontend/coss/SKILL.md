@@ -16,7 +16,8 @@ metadata:
   "order": 30,
   "packageManager": "pnpm",
   "scaffoldCommand": [
-    "node -e \"const fs=require('fs'),cp=require('child_process');const env={...process.env,PNPM_CONFIG_IGNORE_SCRIPTS:'true'};const args=fs.existsSync('components.json')?['dlx','shadcn@latest','add','@coss/style','--yes','--overwrite']:['dlx','shadcn@latest','init','@coss/style','--yes'];cp.execFileSync('pnpm',args,{stdio:'inherit',env})\"",
+    "node -e \"const cp=require('child_process');const env={...process.env,PNPM_CONFIG_IGNORE_SCRIPTS:'true'};cp.execSync('pnpm add @base-ui/react @fontsource-variable/inter class-variance-authority clsx geist lucide-react react-day-picker tailwind-merge',{stdio:'inherit',env});cp.execSync('pnpm add -D tw-animate-css',{stdio:'inherit',env})\"",
+    "node -e \"const fs=require('fs'),cp=require('child_process');const env={...process.env,PNPM_CONFIG_IGNORE_SCRIPTS:'true'};const cmd=fs.existsSync('components.json')?'pnpm dlx shadcn@latest add @coss/style --yes --overwrite':'pnpm dlx shadcn@latest init @coss/style --yes';cp.execSync(cmd,{stdio:'inherit',env})\"",
     "node -e \"const fs=require('fs'),p=require('path');const mv=(a,b)=>{if(!fs.existsSync(a))return;fs.mkdirSync(p.dirname(b),{recursive:true});fs.rmSync(b,{recursive:true,force:true});fs.renameSync(a,b)};const walk=(d,r=[])=>{if(!fs.existsSync(d))return r;for(const e of fs.readdirSync(d,{withFileTypes:true})){const f=p.join(d,e.name);if(e.isDirectory())walk(f,r);else if(/\\.(ts|tsx|css|json)$/.test(e.name))r.push(f)}return r};mv('@/components/ui','src/shared/components/ui');mv('@/hooks','src/shared/hooks');if(fs.existsSync('@/lib/utils.ts')){fs.mkdirSync('src/shared/utils',{recursive:true});fs.rmSync('src/shared/utils/cn.ts',{force:true});fs.renameSync('@/lib/utils.ts','src/shared/utils/cn.ts')}fs.rmSync('@',{recursive:true,force:true});for(const f of walk('src')){let s=fs.readFileSync(f,'utf8');s=s.replaceAll('@/components/ui/','@/shared/components/ui/').replaceAll('@/hooks/','@/shared/hooks/').replaceAll('@/lib/utils','@/shared/utils/cn');if(f.endsWith('.css'))s=s.replace(/^@import\\s+[\\\"']geist[\\\"'];\\s*$/gm,'');fs.writeFileSync(f,s)}for(const cfg of ['tsconfig.app.json','tsconfig.json']){if(!fs.existsSync(cfg))continue;const j=JSON.parse(fs.readFileSync(cfg,'utf8'));j.compilerOptions={...(j.compilerOptions||{}),ignoreDeprecations:'6.0'};fs.writeFileSync(cfg,JSON.stringify(j,null,2))}\"",
     "node -e \"const fs=require('fs'),p=require('path');const ui='src/shared/components/ui';if(fs.existsSync(ui)){const out=fs.readdirSync(ui).filter(n=>/\\.(ts|tsx)$/.test(n)&&n!=='index.ts').sort().map(n=>'export * from \\\"./'+n.replace(/\\.(ts|tsx)$/,'')+'\\\";').join('\\n');fs.writeFileSync(p.join(ui,'index.ts'),out+'\\n')}if(fs.existsSync('src/app/AppRouter.tsx'))fs.writeFileSync('src/App.tsx','import { AppRouter } from \\\"./app/AppRouter\\\";\\n\\nexport default function App() {\\n  return <div className=\\\"isolate relative min-h-screen\\\"><AppRouter /></div>;\\n}\\n')\""
   ],
@@ -213,12 +214,15 @@ src/app/global.css
 4. Tailwind CSS entry 必須包含 `@import "tailwindcss";`
 5. `vite.config.ts` 必須使用 `@tailwindcss/vite`
 6. `tsconfig.json` 或 `tsconfig.app.json` 必須設定 `baseUrl` 與 `@/*` paths
-7. Greenfield bootstrap 中，只有沒有 `components.json` 時才執行 `init @coss/style`
-8. 若 `components.json` 已存在，代表 shadcn 已初始化；後續重試或既有專案整合應使用 `add @coss/style --yes --overwrite`，不可再次無條件執行 `init`
+7. Greenfield bootstrap 必須先明確安裝 coss runtime dependencies，再讓 shadcn 寫 registry files；不要依賴 shadcn 內部 dependency installer 作為唯一安裝步驟
+8. Greenfield bootstrap 中，只有沒有 `components.json` 時才執行 `init @coss/style`
+9. 若 `components.json` 已存在，代表 shadcn 已初始化；後續重試或既有專案整合應使用 `add @coss/style --yes --overwrite`，不可再次無條件執行 `init`
 
 CLI init 範例：
 
 ```bash
+pnpm add @base-ui/react @fontsource-variable/inter class-variance-authority clsx geist lucide-react react-day-picker tailwind-merge
+pnpm add -D tw-animate-css
 pnpm dlx shadcn@latest init @coss/style
 ```
 
