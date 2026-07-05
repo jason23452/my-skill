@@ -1,6 +1,6 @@
-# Feature Template
+# Feature 範本
 
-Use this as a starting point when creating a database-backed feature. Replace `<feature>`, `<singular>`, and `<Thing>` consistently.
+建立 database-backed feature 時，以這份範本作為起點。請一致替換 `<feature>`、`<singular>` 與 `<Thing>`。
 
 ## `__init__.py`
 
@@ -162,9 +162,9 @@ class <Thing>Router:
 router = <Thing>Router().router
 ```
 
-## Register The Feature
+## 註冊 Feature
 
-In `app/features/router.py`:
+在 `app/features/router.py`：
 
 ```python
 from app.features.<feature> import router as <feature>_router
@@ -173,6 +173,6 @@ from app.features.<feature> import router as <feature>_router
 self.router.include_router(<feature>_router)
 ```
 
-## Migration Reminder
+## Migration 提醒
 
-After adding `models.py`, import the model in `migrations/env.py` and create a migration under `migrations/versions/` or with Alembic autogenerate.
+新增 `models.py` 後，在 `migrations/env.py` import model，並在 `migrations/versions/` 建立 migration，或使用 Alembic autogenerate 後再人工檢查。

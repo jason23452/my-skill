@@ -1,11 +1,11 @@
 ---
 name: backend-feature-fastapi
 description: >-
-  Use this skill for backend, 後端, API, FastAPI, SQLAlchemy, Alembic, or database-feature work that should follow this repository's backend architecture: uv-managed Python 3.12, FastAPI app factory, app/core settings, app/db async sessions, and app/features feature modules split into router, schemas, service, repository, models, and dependencies. Use it whenever the user asks to add or modify backend endpoints, feature modules, database models, repositories, services, migrations, or similar FastAPI backend code, even if they do not explicitly mention this architecture.
-compatibility: Python 3.12 FastAPI backend using uv, SQLAlchemy 2 async, asyncpg, Alembic, and pydantic-settings.
+  當使用者要做後端、API、FastAPI、SQLAlchemy、Alembic、資料庫功能或後端 feature 開發時，使用這個 skill。這個 skill 適用於 uv 管理的 Python 3.12 FastAPI 專案，架構包含 FastAPI app factory、app/core 設定、app/db async session，以及 app/features 依 feature 拆分 router、schemas、service、repository、models、dependencies。只要使用者要新增或修改後端 endpoint、feature module、database model、repository、service、migration 或類似 FastAPI 後端程式碼，即使沒有明確提到這個架構，也應優先使用。
+compatibility: Python 3.12 FastAPI 後端，使用 uv、SQLAlchemy 2 async、asyncpg、Alembic、pydantic-settings。
 ---
 
-# Backend Feature FastAPI
+# FastAPI 後端功能開發
 
 ## OpenCode Greenfield Bootstrap Metadata
 
@@ -27,56 +27,56 @@ compatibility: Python 3.12 FastAPI backend using uv, SQLAlchemy 2 async, asyncpg
 }
 ```
 
-Use this skill to build or modify backend features in the same style as this project. The goal is to preserve the project's feature-based architecture so future backend work remains predictable and easy to extend.
+使用這個 skill 來建立或修改符合本專案風格的後端功能。核心目標是維持 feature-based 後端架構，讓未來功能擴充、測試與維護都保持可預測。
 
-## Start Here
+## 開始前
 
-1. Identify the backend root. In this project it is `backend/`.
-2. Read `backend/README.md`, `backend/pyproject.toml`, `backend/app/features/router.py`, and the closest existing feature under `backend/app/features/` before editing.
-3. If the task adds a database-backed feature, also read `backend/app/db/session.py`, `backend/app/db/base.py`, `backend/migrations/env.py`, and the latest files in `backend/migrations/versions/`.
-4. Keep changes local to the relevant feature unless shared infrastructure is truly needed.
+1. 先確認後端根目錄。本專案通常是 `backend/`。
+2. 修改前先閱讀 `backend/README.md`、`backend/pyproject.toml`、`backend/app/features/router.py`，以及最接近需求的既有 `backend/app/features/` feature。
+3. 若任務會新增或修改資料庫功能，也要閱讀 `backend/app/db/session.py`、`backend/app/db/base.py`、`backend/migrations/env.py`，以及 `backend/migrations/versions/` 中最新的 migration。
+4. 除非真的需要共用基礎設施，否則把變更限制在相關 feature 內。
 
-Read `references/architecture.md` when you need a compact project map. Read `references/feature-template.md` when creating a new feature from scratch.
+需要快速理解專案地圖時，閱讀 `references/architecture.md`。從零建立新 feature 時，閱讀 `references/feature-template.md`。
 
-## Architecture Rules
+## 架構規則
 
-- `app/main.py` owns FastAPI app creation and only mounts the collected feature router. Do not import individual feature routers there.
-- `app/features/router.py` collects feature routers. Add new feature routers here.
-- `app/core/config.py` owns environment-backed settings through `pydantic-settings`.
-- `app/db/` owns shared SQLAlchemy base, async engine, and async session dependency.
-- Each feature owns its HTTP layer, schemas, service layer, repository layer, model, and dependency wiring.
-- Use absolute imports from `app...`.
-- Keep route prefixes versioned through `settings.api_prefix`; feature routers should use feature-local prefixes like `/users`, not `/api/v1/users`.
+- `app/main.py` 負責建立 FastAPI app，並只掛載集中後的 feature router。不要在這裡逐一 import 個別 feature router。
+- `app/features/router.py` 負責收集各 feature router。新增 feature router 時在這裡註冊。
+- `app/core/config.py` 負責透過 `pydantic-settings` 管理環境變數設定。
+- `app/db/` 負責共用 SQLAlchemy base、async engine 與 async session dependency。
+- 每個 feature 自己擁有 HTTP 層、schemas、service layer、repository layer、model 與 dependency wiring。
+- 使用從 `app...` 開始的絕對 import。
+- API prefix 由 `settings.api_prefix` 統一處理；feature router 使用 feature-local prefix，例如 `/users`，不要直接寫 `/api/v1/users`。
 
-## Feature Layout
+## Feature 結構
 
-For a database-backed feature, prefer this shape:
+資料庫-backed feature 優先使用這個結構：
 
 ```text
 app/features/<feature>/
-  __init__.py       # exports router
-  router.py         # FastAPI routes and request validation wiring
+  __init__.py       # 匯出 router
+  router.py         # FastAPI routes 與 request validation wiring
   schemas.py        # Pydantic request/response DTOs
-  service.py        # business rules and API errors
+  service.py        # business rules 與 API errors
   repository.py     # SQLAlchemy async data access
   models.py         # SQLAlchemy model
   dependencies.py   # FastAPI dependency wiring for service/repository
 ```
 
-For a feature without database access, omit `models.py`, `repository.py`, and `dependencies.py` unless they add real value. The `health` feature is the minimal pattern.
+不需要資料庫的 feature，可以省略 `models.py`、`repository.py`、`dependencies.py`，除非它們真的能降低複雜度。`health` feature 是最小模式。
 
-## Layer Responsibilities
+## 各層責任
 
-- Router: declare `APIRouter`, route methods, `response_model`, status codes, query/path/body validation, and dependency injection.
-- Schemas: define Pydantic request and response models. Use `ConfigDict(from_attributes=True)` for ORM-backed response schemas.
-- Service: implement business rules, orchestration, and `HTTPException` decisions such as conflict or not-found errors.
-- Repository: isolate async SQLAlchemy queries and persistence. Commit and refresh inside repository methods that mutate data.
-- Models: define SQLAlchemy 2 models with `Mapped[...]` and `mapped_column` against `app.db.base.Base`.
-- Dependencies: wire `AsyncSession` from `get_db_session` into repository and service instances.
+- Router：宣告 `APIRouter`、route methods、`response_model`、status codes、query/path/body validation 與 dependency injection。
+- Schemas：定義 Pydantic request / response models。ORM-backed response schema 使用 `ConfigDict(from_attributes=True)`。
+- Service：實作 business rules、流程協調，以及 conflict、not-found 等 `HTTPException` 決策。
+- Repository：隔離 async SQLAlchemy query 與 persistence。會修改資料的方法在 repository 內 commit 與 refresh。
+- Models：使用 SQLAlchemy 2 的 `Mapped[...]` 與 `mapped_column`，並繼承 `app.db.base.Base`。
+- Dependencies：把 `get_db_session` 提供的 `AsyncSession` 接到 repository 與 service instance。
 
-## Router Pattern
+## Router 模式
 
-Follow the existing class-based router style:
+沿用現有 class-based router 風格：
 
 ```python
 from typing import Annotated
@@ -110,22 +110,22 @@ class <Thing>Router:
 router = <Thing>Router().router
 ```
 
-Use `Annotated[Service, Depends(get_service)]` for injected services. Keep direct database access out of routers.
+注入 service 時使用 `Annotated[Service, Depends(get_service)]`。不要在 router 內直接存取資料庫。
 
-## Database And Migrations
+## 資料庫與 Migration
 
-When adding or changing SQLAlchemy models:
+新增或修改 SQLAlchemy models 時：
 
-1. Add or update the feature model in `app/features/<feature>/models.py`.
-2. Ensure `migrations/env.py` imports the model module so Alembic can see its metadata.
-3. Create or update a migration under `migrations/versions/`.
-4. Inspect generated migrations before accepting them; Alembic autogenerate is a draft, not a guarantee.
+1. 在 `app/features/<feature>/models.py` 新增或更新 feature model。
+2. 確認 `migrations/env.py` 有 import 該 model module，讓 Alembic 能讀到 metadata。
+3. 在 `migrations/versions/` 下建立或更新 migration。
+4. 接受前先檢查產生的 migration；Alembic autogenerate 只是草稿，不是保證正確。
 
-Use async SQLAlchemy APIs in repositories. Do not introduce sync sessions or sync database engines.
+Repository 使用 async SQLAlchemy API。不要引入 sync session 或 sync database engine。
 
-## Verification
+## 驗證
 
-Run verification from `backend/` when possible:
+可行時從 `backend/` 執行驗證：
 
 ```bash
 uv run python -m compileall app
@@ -133,15 +133,15 @@ uv run alembic upgrade head
 uv run dev
 ```
 
-If the environment does not have Postgres running, report that migration/runtime verification was not executed and still run syntax-level checks when possible.
+如果環境沒有 Postgres，說明 migration/runtime verification 無法執行；仍然要盡可能執行 syntax-level checks。
 
-## Response Style
+## 回覆方式
 
-When completing backend work, summarize:
+完成後端工作時，摘要包含：
 
-- Feature files added or modified.
-- Router registration and endpoint paths.
-- Database model and migration changes, if any.
-- Verification commands run and any commands that could not be run.
+- 新增或修改的 feature files。
+- Router registration 與 endpoint paths。
+- Database model 與 migration 變更，如果有。
+- 已執行的驗證指令，以及無法執行的指令。
 
-Keep explanations direct and focus on how the changes follow the project architecture.
+說明保持直接，聚焦在變更如何符合專案架構。
