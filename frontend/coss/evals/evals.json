@@ -12,7 +12,8 @@
         "Output does not instruct Read, Glob, ls, or local file access for coss/style or @coss/style.",
         "Bootstrap metadata does not include shell-expandable $schema, naked @coss/style command tokens, or shell-fragile regex/backslash JavaScript snippets.",
         "Bootstrap metadata keeps the coss/shadcn install in scaffoldCommand when the coss skill is selected.",
-        "Bootstrap metadata does not put pnpm build in the coss skill verificationCommands; final build should be provided once by the base frontend bootstrap after all scaffold commands finish."
+        "Bootstrap metadata does not put pnpm build in the coss skill verificationCommands; final build should be provided once by the base frontend bootstrap after all scaffold commands finish.",
+        "Default Vite greenfield bootstrap uses the faster @coss/ui plus @coss/colors-neutral path, not the full @coss/style preset unless explicitly opted in."
       ]
     },
     {
@@ -36,7 +37,21 @@
         "Output treats src/components/ui as the fallback only when no shared UI structure exists.",
         "Output avoids using literal @/components and @/lib directories as an intermediate install target.",
         "Bootstrap metadata patches components.json and tsconfig aliases before running shadcn add.",
-        "Bootstrap metadata still runs the official shadcn coss install during scaffold, but leaves build verification to the aggregate frontend plan."
+        "Bootstrap metadata still runs the official shadcn coss install during scaffold, but leaves build verification to the aggregate frontend plan.",
+        "Bootstrap metadata points components.json aliases at @/shared/components/ui and @/shared/utils/cn before running shadcn so generated components land in the common folder."
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "For a new Vite app, selected coss UI for shared primitives but did not ask for fonts, sidebar variables, or a full coss theme. Make the bootstrap faster while still installing coss into src/shared/components/ui.",
+      "expected_output": "The skill preconfigures shared aliases, uses the official shadcn CLI, defaults to @coss/ui with @coss/colors-neutral instead of @coss/style, and documents full-style as an explicit opt-in only.",
+      "files": [],
+      "assertions": [
+        "Bootstrap metadata defaults to @coss/ui plus @coss/colors-neutral for Vite greenfield speed.",
+        "Bootstrap metadata supports COSS_BOOTSTRAP_MODE=full-style for the official @coss/style preset.",
+        "Bootstrap metadata supports COSS_COMPONENTS for batch installing specified components in one shadcn command.",
+        "Bootstrap metadata uses a timeout and reports a coss shadcn registry install timeout instead of hanging indefinitely.",
+        "Bootstrap metadata includes a minimal post-check for class-variance-authority because generated coss primitives import it."
       ]
     }
   ]

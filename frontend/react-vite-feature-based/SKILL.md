@@ -118,11 +118,13 @@ export default defineConfig({
 
 依照 `https://coss.com/ui/docs/get-started`，不要手動安裝 `@base-ui/react`、`@fontsource-variable/inter`、`class-variance-authority`、`clsx`、`geist`、`lucide-react`、`react-day-picker`、`tailwind-merge` 這一串套件作為主要 bootstrap 流程。coss 官方說明是透過 shadcn CLI 安裝 registry spec，CLI 會建立檔案並安裝需要的依賴。
 
-新專案需要完整 coss style preset 時，使用：
+官方新專案完整 preset 是：
 
 ```bash
 pnpm dlx shadcn@latest init @coss/style
 ```
+
+但 `@coss/style` 會安裝所有 UI components、neutral color system、sidebar variables、base styles，以及 Inter / Geist Mono fonts，並偏向會配置 `layout.tsx` 的完整 setup。Vite Greenfield bootstrap 若只是需要 coss UI primitives 與共用資料夾落點，不要預設跑完整 preset；交給 `coss` skill 的 metadata 使用 faster path。
 
 既有專案加入所有 UI primitives 時，使用：
 
@@ -141,6 +143,8 @@ pnpm dlx shadcn@latest add @coss/style
 ```bash
 pnpm dlx shadcn@latest add @coss/ui @coss/colors-neutral
 ```
+
+Vite Greenfield 預設使用 `@coss/ui @coss/colors-neutral`，只有使用者明確要求完整 theme、fonts、sidebar variables，或 coss metadata 設定 `COSS_BOOTSTRAP_MODE=full-style` 時，才使用 `@coss/style`。
 
 `@coss/style`、`@coss/ui`、`@coss/colors-neutral` 是 shadcn registry spec，不是本機檔案路徑；不要用 Read、Glob、`ls` 或任何檔案工具去讀 `coss/style`、`coss/ui`、`@coss/style` 這類路徑。
 
