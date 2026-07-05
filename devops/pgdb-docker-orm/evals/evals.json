@@ -1,0 +1,41 @@
+{
+  "skill_name": "pgdb-docker-orm",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "我的 FastAPI 後端要用 Docker image 開一個本機 PostgreSQL，然後用 SQLAlchemy/Alembic 建 users 和 orders table。請幫我規劃需要改哪些檔案、compose 怎麼寫、migration 怎麼跑。",
+      "expected_output": "安全的 Docker Compose + SQLAlchemy/Alembic 流程，能區分 host/container 的 DATABASE_URL、使用 migration 管理 schema，並包含驗證命令。",
+      "files": [],
+      "expectations": [
+        "提到 Docker Compose PostgreSQL service，包含 image、環境變數、volume、port、healthcheck，或明確要求先檢查既有 Compose。",
+        "區分 container 內的 DATABASE_URL host，例如 db:5432，與主機上的 DATABASE_URL host，例如 localhost:5432。",
+        "使用 SQLAlchemy 或 SQLModel model 變更加上 Alembic revision/autogenerate 與 upgrade，而不是把 psql DDL 當成正式 schema 變更。",
+        "包含 Compose health、migration 狀態與 table 是否存在的驗證命令或檢查方式。"
+      ]
+    },
+    {
+      "id": 1,
+      "prompt": "專案已經有 docker compose 的 db service，但我改了 POSTGRES_DB 之後 backend 還是連不到新的 database。不要直接砍資料，先幫我判斷 pgdb volume 和 ORM migration 應該怎麼處理。",
+      "expected_output": "能說明既有 Postgres volume 初始化後不會因 POSTGRES_DB 改名而自動建立新 database，避免未經同意刪 volume，並區分 database 建立/連線問題與 ORM migration 問題。",
+      "files": [],
+      "expectations": [
+        "說明 Postgres volume 初始化後，再修改 POSTGRES_DB 不會自動重建或改名既有 database。",
+        "不建議在未取得使用者明確同意前刪除或重建 volume。",
+        "建議先檢查既有 database 清單、Compose 設定、logs 與 DATABASE_URL，再更動資料。",
+        "清楚區分 database 是否存在/連線設定問題與 ORM migration 狀態問題。"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "這是 Node 後端，用 Prisma。我要在 docker postgres 裡新增 product table，欄位有 sku unique、name、price、created_at，請給我開發步驟和驗證方式。",
+      "expected_output": "Prisma 導向流程：更新 schema.prisma、執行 prisma migrate dev 與 prisma generate、檢查 constraint/index，並能針對 Docker Postgres service 驗證。",
+      "files": [],
+      "expectations": [
+        "使用 Prisma 專屬步驟，包含修改 schema.prisma，並執行 prisma migrate dev 加 prisma generate 或專案等效 script。",
+        "Product model 表示 sku unique，並包含 name、price、created_at/createdAt 與合適的預設時間。",
+        "包含 Docker PostgreSQL 連線說明，或使用 Compose database service 的驗證命令。",
+        "提到 review 產生的 migration SQL，或檢查 constraint/index 後才視為 schema change 完成。"
+      ]
+    }
+  ]
+}
