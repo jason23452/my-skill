@@ -9,7 +9,7 @@ description: 使用 Docker image / Docker Compose 開發 PostgreSQL 資料庫，
 
 ```opencode-bootstrap-json
 {
-  "role": "database",
+  "role": "backend",
   "order": 20,
   "packageManager": "docker",
   "scaffoldCommand": [

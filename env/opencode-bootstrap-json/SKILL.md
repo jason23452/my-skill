@@ -17,7 +17,7 @@ description: 建立或補齊 opencode-bootstrap-json 區塊，用於新專案、
 
 ## 欄位說明
 
-- `role`: 這個 bootstrap entry 代表的簡短角色，例如 `frontend`、`backend`、`fullstack`、`database`、`docs`、`test`、`lint`，或 skill 專用角色。
+- `role`: 這個 bootstrap entry 代表的 repo routing 角色。Greenfield repo 分派只接受 `frontend`、`backend`、`any`：`frontend` 只套前端 repo，`backend` 只套後端 repo，`any` 代表明確通用並套到每個開發 repo。不要把未知 role 當成 `any`。
 - `order`: 數字執行順序。單一項目或順序未知時使用 `0`。如果使用者要求多個項目，使用遞增整數。
 - `packageManager`: package manager 或 runtime command 類型，例如 `npm`、`pnpm`、`yarn`、`bun`、`pip`、`poetry`、`uv`、`cargo`、`go`、`docker`；不適用時使用空字串。
 - `scaffoldCommand`: 用來建立或初始化專案的 command string 陣列。如果專案已存在，或沒有 scaffold 步驟，保持空陣列。
