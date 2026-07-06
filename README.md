@@ -10,6 +10,8 @@ my-skill/
     backend-feature-fastapi/
   devops/
     docker-build/
+  docs/
+    readme-i18n-greenfield/
   frontend/
     axios-token-baseurl-error/
     coss/
@@ -24,6 +26,10 @@ my-skill/
 ## DevOps
 
 - `docker-build`: 通用 Docker build / Dockerfile / Docker Compose build skill。涵蓋 build context、`.dockerignore`、multi-stage builds、BuildKit cache、image tagging、build failure troubleshooting 與驗證指令。
+
+## Docs
+
+- `readme-i18n-greenfield`: 用於建立或改寫中文優先的專業 `README.md`，必要時同步英文 sibling 與語言切換器；整合 create-readme 的 README 結構與 readme-i18n 的 Markdown preservation 規則，特別適合 Greenfield bootstrap 後避免 README 變成流水帳 evidence。
 
 ## Frontend
 

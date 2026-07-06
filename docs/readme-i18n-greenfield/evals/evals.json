@@ -1,0 +1,23 @@
+{
+  "skill_name": "readme-i18n-greenfield",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "這個 Greenfield Vite repo 的 README 很像 bootstrap log，請重寫成繁體中文 README.md。只能使用 package.json scripts、vite.config.ts 與實際存在的 src/ 結構，不要硬寫 Docker、Postgres 或 /api/health。",
+      "expected_output": "產生專業繁體中文 README.md，包含專案概述、tech stack、實際 commands、verification，且沒有不存在的 API/Docker/DB 假設。",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "幫 FastAPI backend repo 建立繁體中文 README.md。pyproject.toml 有 uv scripts，app/main.py 有 /health route，沒有 Dockerfile。README 要保留 uv commands、file paths、env var 名稱。",
+      "expected_output": "README.md 使用繁體中文，保留 uv commands 與 env vars，不新增 Docker 段落，正確描述 /health。",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "現有 README.md 已有 badge、code fences 與內部 anchor links。請改成中文優先 README.md，並在使用者要求時建立 README.en.md 與語言切換器；不要破壞 badge URL、commands、relative links 或 code fence 數量。",
+      "expected_output": "README.md 中文優先，必要時新增英文 sibling，更新單一語言切換器，保留 code fences/URLs/commands，並修正 same-file anchors。",
+      "files": []
+    }
+  ]
+}
