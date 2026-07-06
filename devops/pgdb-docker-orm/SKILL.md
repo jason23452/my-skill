@@ -21,6 +21,22 @@ description: 使用 Docker image / Docker Compose 開發 PostgreSQL 資料庫，
 }
 ```
 
+```opencode-bootstrap-json
+{
+  "role": "backend",
+  "order": 25,
+  "packageManager": "docker",
+  "scaffoldCommand": [
+    "node -e \"const fs=require('fs');const file=['compose.yaml','compose.yml','docker-compose.yml','docker-compose.yaml'].find(f=>fs.existsSync(f))||'compose.yaml';let s=fs.existsSync(file)?fs.readFileSync(file,'utf8'):'';if(!s.trim())s='services:\\n';const db='  db:\\n    image: postgres:17-alpine\\n    environment:\\n      POSTGRES_USER: postgres\\n      POSTGRES_PASSWORD: postgres\\n      POSTGRES_DB: app_db\\n    ports:\\n      - \\\"5432:5432\\\"\\n    volumes:\\n      - postgres_data:/var/lib/postgresql/data\\n    healthcheck:\\n      test: [\\\"CMD-SHELL\\\", \\\"pg_isready -U postgres -d app_db\\\"]\\n      interval: 5s\\n      timeout: 5s\\n      retries: 10\\n';if(!/\\n  db:|^  db:/m.test(s)){s=/^volumes:/m.test(s)?s.replace(/\\nvolumes:/,'\\n'+db+'\\nvolumes:'):s.trimEnd()+'\\n'+db}if(!/^volumes:/m.test(s))s=s.trimEnd()+'\\n\\nvolumes:\\n  postgres_data:\\n';else if(!/\\n  postgres_data:|^  postgres_data:/m.test(s))s=s.trimEnd()+'\\n  postgres_data:\\n';fs.writeFileSync(file,s.endsWith('\\n')?s:s+'\\n')\""
+  ],
+  "verificationCommands": ["docker compose config"],
+  "runtimeSmokeCommand": "docker compose up -d db",
+  "runtimeSmokeHealthUrl": ""
+}
+```
+
+如果 Compose 檔已存在，不要直接跳過 PostgreSQL bootstrap；應在保留既有 service 的前提下補上 `db` service、healthcheck 與 `postgres_data` volume，並讓 backend 使用 `postgresql+asyncpg://postgres:postgres@db:5432/app_db`。
+
 使用這個 skill 協助使用者用 Docker 建立與維護本機 PostgreSQL 開發資料庫，同時讓後端資料表變更透過 ORM 與 migration 系統管理。
 
 ## 核心原則

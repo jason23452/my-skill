@@ -27,6 +27,23 @@ compatibility: Python 3.12 FastAPI 後端，使用 uv、SQLAlchemy 2 async、asy
 }
 ```
 
+```opencode-bootstrap-json
+{
+  "role": "backend",
+  "order": 15,
+  "packageManager": "uv",
+  "scaffoldCommand": [
+    "uv add \"fastapi[standard]>=0.115.0\" \"pydantic-settings>=2.0.0\"",
+    "node -e \"const fs=require('fs'),p=require('path');const w=(f,s)=>{fs.mkdirSync(p.dirname(f),{recursive:true});fs.writeFileSync(f,s)};w('app/__init__.py','');w('app/core/__init__.py','');w('app/core/config.py','from pydantic_settings import BaseSettings, SettingsConfigDict\\n\\nclass Settings(BaseSettings):\\n    api_prefix: str = \\\"/api\\\"\\n    cors_origins: list[str] = [\\\"http://localhost:5173\\\", \\\"http://127.0.0.1:5173\\\"]\\n    database_url: str = \\\"postgresql+asyncpg://postgres:postgres@db:5432/app_db\\\"\\n    model_config = SettingsConfigDict(env_file=\\\".env\\\", extra=\\\"ignore\\\")\\n\\nsettings = Settings()\\n');w('app/features/__init__.py','');w('app/features/router.py','from fastapi import APIRouter\\n\\nrouter = APIRouter()\\n\\n@router.get(\\\"/health\\\", tags=[\\\"health\\\"])\\ndef health():\\n    return {\\\"status\\\": \\\"ok\\\", \\\"service\\\": \\\"backend\\\"}\\n');w('app/main.py','from fastapi import FastAPI\\nfrom fastapi.middleware.cors import CORSMiddleware\\n\\nfrom app.core.config import settings\\nfrom app.features.router import router as feature_router\\n\\napp = FastAPI(title=\\\"Greenfield Backend\\\")\\napp.add_middleware(CORSMiddleware, allow_origins=settings.cors_origins, allow_credentials=True, allow_methods=[\\\"*\\\"], allow_headers=[\\\"*\\\"])\\napp.include_router(feature_router, prefix=settings.api_prefix)\\n\\n@app.get(\\\"/health\\\", tags=[\\\"health\\\"])\\ndef root_health():\\n    return {\\\"status\\\": \\\"ok\\\", \\\"service\\\": \\\"backend\\\"}\\n');\""
+  ],
+  "verificationCommands": [
+    "uv run python -m compileall app"
+  ],
+  "runtimeSmokeCommand": "uv run fastapi dev app/main.py --host 127.0.0.1 --port $PORT",
+  "runtimeSmokeHealthUrl": "http://127.0.0.1:$PORT/api/health"
+}
+```
+
 使用這個 skill 來建立或修改符合本專案風格的後端功能。核心目標是維持 feature-based 後端架構，讓未來功能擴充、測試與維護都保持可預測。
 
 ## 開始前

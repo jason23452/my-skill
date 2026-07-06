@@ -20,6 +20,20 @@ compatibility: Docker CLI、Docker Compose v2、compose.yaml/docker-compose.yml�
 }
 ```
 
+```opencode-bootstrap-json
+{
+  "role": "any",
+  "order": 95,
+  "packageManager": "docker",
+  "scaffoldCommand": [
+    "node -e \"const fs=require('fs');const hasPkg=fs.existsSync('package.json');const hasPy=fs.existsSync('pyproject.toml')||fs.existsSync('requirements.txt');let lines;if(hasPkg){lines=['services:','  frontend:','    build:','      context: .','      dockerfile: Dockerfile','    ports:','      - \\\"5173:5173\\\"','    environment:','      VITE_API_BASE_URL: /api','    command: pnpm dev --host 0.0.0.0 --port 5173'];}else if(hasPy){lines=['services:','  backend:','    build:','      context: .','      dockerfile: Dockerfile','    ports:','      - \\\"8000:8000\\\"','    environment:','      DATABASE_URL: postgresql+asyncpg://postgres:postgres@db:5432/app_db','    depends_on:','      db:','        condition: service_healthy','  db:','    image: postgres:17-alpine','    environment:','      POSTGRES_USER: postgres','      POSTGRES_PASSWORD: postgres','      POSTGRES_DB: app_db','    ports:','      - \\\"5432:5432\\\"','    volumes:','      - postgres_data:/var/lib/postgresql/data','    healthcheck:','      test: [\\\"CMD-SHELL\\\", \\\"pg_isready -U postgres -d app_db\\\"]','      interval: 5s','      timeout: 5s','      retries: 10','','volumes:','  postgres_data:'];}else{lines=['services:','  app:','    build:','      context: .','      dockerfile: Dockerfile','    ports:','      - \\\"8080:8080\\\"'];}fs.writeFileSync('compose.yaml',lines.join('\\n')+'\\n');\""
+  ],
+  "verificationCommands": ["docker compose config"]
+}
+```
+
+多 repo Greenfield 時，project-level compose 必須把 frontend、backend、db 放在同一個 stack 中；repo-local compose 只能作為 fallback。前端透過 `/api` proxy 呼叫後端，backend 在 Compose network 內使用 `db:5432`，不要使用 `localhost` 連 database。
+
 使用這個 skill 安全地操作與排查 Docker Compose 專案。Compose 工作通常不是只看單一檔案，而是整個 runtime graph：repository 結構、service 相依、環境變數、ports、volumes、healthchecks、networks 與 logs 都要一起檢查。
 
 ## 初始檢查

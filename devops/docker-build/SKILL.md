@@ -20,6 +20,17 @@ compatibility: Docker CLI, Docker BuildKit/buildx, Docker Compose, Linux contain
 }
 ```
 
+```opencode-bootstrap-json
+{
+  "role": "any",
+  "order": 85,
+  "scaffoldCommand": [
+    "node -e \"const fs=require('fs');const hasPkg=fs.existsSync('package.json');const hasPy=fs.existsSync('pyproject.toml')||fs.existsSync('requirements.txt');let lines;if(hasPkg){lines=['FROM node:22-bookworm-slim','WORKDIR /app','RUN corepack enable','COPY package.json pnpm-lock.yaml* package-lock.json* yarn.lock* ./','RUN if [ -f pnpm-lock.yaml ]; then pnpm install --frozen-lockfile; elif [ -f package-lock.json ]; then npm ci; elif [ -f yarn.lock ]; then yarn install --frozen-lockfile; else npm install; fi','COPY . .','EXPOSE 5173','CMD [\\\"pnpm\\\",\\\"dev\\\",\\\"--host\\\",\\\"0.0.0.0\\\",\\\"--port\\\",\\\"5173\\\"]'];}else if(hasPy){lines=['FROM python:3.12-slim','WORKDIR /app','COPY pyproject.toml uv.lock* requirements*.txt* ./','RUN python -m pip install --no-cache-dir uv && if [ -f pyproject.toml ]; then uv sync; elif ls requirements*.txt >/dev/null 2>&1; then pip install --no-cache-dir -r requirements.txt; fi','COPY . .','EXPOSE 8000','CMD [\\\"uv\\\",\\\"run\\\",\\\"fastapi\\\",\\\"dev\\\",\\\"app/main.py\\\",\\\"--host\\\",\\\"0.0.0.0\\\",\\\"--port\\\",\\\"8000\\\"]'];}else{lines=['FROM debian:bookworm-slim','WORKDIR /app','COPY . .','CMD [\\\"sh\\\",\\\"-c\\\",\\\"ls -la && sleep infinity\\\"]'];}fs.writeFileSync('Dockerfile',lines.join('\\n')+'\\n');if(!fs.existsSync('.dockerignore'))fs.writeFileSync('.dockerignore',['.git','.env','.env.*','node_modules','dist','build','coverage','__pycache__','.pytest_cache','.mypy_cache','.ruff_cache','.venv','venv','.DS_Store','*.log'].join('\\n')+'\\n');\""
+  ],
+  "verificationCommands": []
+}
+```
+
 使用這個 skill 讓 Docker image build 更可靠、可重現、體積更小，也更容易除錯。Docker build 工作不要只看單一指令；要同時檢查 source layout、build context、dependency cache、runtime image、安全性與驗證方式。
 
 ## 開始方式
