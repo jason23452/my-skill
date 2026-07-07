@@ -353,8 +353,8 @@ function writeUiIndex() {
 
 function installCossUi() {
   const requested = requestedComponents()
+  ensureRuntimeDependencies()
   if (cossArtifactFilesReady(requested)) {
-    ensureRuntimeDependencies()
     if (!cossArtifactsReady(requested)) throw new Error("coss ui artifacts exist but required runtime dependencies could not be installed")
     logStatus("coss ui artifacts and runtime dependencies already present; skipping shadcn add")
     return Promise.resolve()

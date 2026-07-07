@@ -21,7 +21,7 @@ Bootstrap follows the official coss install path: run the shadcn CLI and let it 
   "order": 30,
   "packageManager": "pnpm",
   "scaffoldCommand": [
-    "if test -f .opencode/skills/coss/scripts/coss-ui-bootstrap.cjs; then node .opencode/skills/coss/scripts/coss-ui-bootstrap.cjs; else node ${OPENCODE_PROJECT_SKILLS_PRESEEDED_DIR:-/app/.opencode/skills}/coss/scripts/coss-ui-bootstrap.cjs; fi"
+    "COSS_SHADCN_TIMEOUT_MS=${COSS_SHADCN_TIMEOUT_MS:-1800000}; export COSS_SHADCN_TIMEOUT_MS; if test -f .opencode/skills/coss/scripts/coss-ui-bootstrap.cjs; then node .opencode/skills/coss/scripts/coss-ui-bootstrap.cjs; else node ${OPENCODE_PROJECT_SKILLS_PRESEEDED_DIR:-/app/.opencode/skills}/coss/scripts/coss-ui-bootstrap.cjs; fi"
   ],
   "verificationCommands": []
 }
