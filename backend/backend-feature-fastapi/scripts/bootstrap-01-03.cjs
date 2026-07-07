@@ -1,0 +1,3 @@
+#!/usr/bin/env node
+
+const fs=require('fs'),p=require('path');const w=(f,s)=>{fs.mkdirSync(p.dirname(f),{recursive:true});fs.writeFileSync(f,s)};try{fs.rmSync('main.py',{force:true})}catch{};w('app/__init__.py','');w('app/features/__init__.py','');w('app/features/router.py','from fastapi import APIRouter\n\nrouter = APIRouter()\n\n@router.get(\"/\")\ndef root():\n    return {\"status\": \"ok\"}\n\n@router.get(\"/health\")\ndef health():\n    return {\"status\": \"ok\"}\n');w('app/main.py','from fastapi import FastAPI\nfrom app.features.router import router as feature_router\n\napp = FastAPI()\napp.include_router(feature_router)\n');

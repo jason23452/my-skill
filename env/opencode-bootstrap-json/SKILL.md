@@ -14,6 +14,7 @@ description: 建立或補齊 opencode-bootstrap-json 區塊，用於新專案、
 3. 如果無法有把握地判斷欄位內容，保留空值，不要猜測。
 4. 只有在缺少某個值會阻礙產生有用 bootstrap plan 時，才問一個聚焦的追問。
 5. 除非使用者要求編輯檔案，否則用標記為 `opencode-bootstrap-json` 的 fenced code block 輸出 JSON。
+6. 如果要把 metadata 寫進某個 skill，任何長指令或多步驟檔案產生邏輯都要搬到該 skill 的 bundled script，metadata 只保留短 script launcher。
 
 ## 欄位說明
 
@@ -25,11 +26,33 @@ description: 建立或補齊 opencode-bootstrap-json 區塊，用於新專案、
 - `runtimeSmokeCommand`: 用來啟動 app 或 service 進行基本 runtime smoke test 的單一 command string。沒有 runtime component 時保持空字串。
 - `runtimeSmokeHealthUrl`: smoke command 啟動後要檢查的 URL，例如 `http://localhost:5173`、`http://localhost:3000/health`；不適用時保持空字串。
 
+## 長指令與 bundled scripts
+
+避免在 metadata 裡放超長 command。OpenCode permission、shell quoting、Windows escaping 與 log rendering 都會因為巨大 `node -e "..."` 變慢或破壞語法。
+
+當 `scaffoldCommand` 或 `verificationCommands` 符合任一條件時，改成 bundled script：
+
+- command 超過約 300 字元。
+- command 包含 `node -e`、大量 quote/backslash、regex、JSON/string template 或多個檔案寫入。
+- command 需要多步驟控制流程、watchdog、polling、timeout 或跨平台 path handling。
+
+做法：
+
+1. 在同一個 skill 目錄建立 `scripts/bootstrap-<name>.cjs`。
+2. 把實作放進 script；用 `.cjs` 避免目標專案的 `type: module` 影響執行。
+3. metadata 只寫短 launcher，優先執行 target project 已初始化的 skill script，否則 fallback 到 Docker/global preseeded skills：
+
+```json
+"if test -f .opencode/skills/<skill-name>/scripts/bootstrap-<name>.cjs; then node .opencode/skills/<skill-name>/scripts/bootstrap-<name>.cjs; else node ${OPENCODE_PROJECT_SKILLS_PRESEEDED_DIR:-/app/.opencode/skills}/<skill-name>/scripts/bootstrap-<name>.cjs; fi"
+```
+
+保留 inline command 只適合簡短穩定的 CLI，例如 `pnpm add axios`、`uv init`、`uv add "fastapi[standard]>=0.115.0"`。不要在 Greenfield bootstrap runtime 再安裝 skills；skills 應由 global/preseeded skills manager 提供。
+
 ## 輸出格式
 
 使用這個固定結構：
 
-```opencode-bootstrap-json
+```jsonc
 {
   "role": "",
   "order": 0,
@@ -43,9 +66,11 @@ description: 建立或補齊 opencode-bootstrap-json 區塊，用於新專案、
 
 ## 範例
 
+以下範例用 `jsonc` fence，避免這個說明 skill 本身被 Greenfield bootstrap parser 誤判成 executable metadata。實際回覆使用者或寫入其他 skill metadata 時，仍要使用 `opencode-bootstrap-json` fence。
+
 **既有 Vite frontend：**
 
-```opencode-bootstrap-json
+```jsonc
 {
   "role": "frontend",
   "order": 0,
@@ -59,7 +84,7 @@ description: 建立或補齊 opencode-bootstrap-json 區塊，用於新專案、
 
 **新的 FastAPI backend：**
 
-```opencode-bootstrap-json
+```jsonc
 {
   "role": "backend",
   "order": 0,
@@ -68,5 +93,24 @@ description: 建立或補齊 opencode-bootstrap-json 區塊，用於新專案、
   "verificationCommands": ["uv run pytest"],
   "runtimeSmokeCommand": "uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000",
   "runtimeSmokeHealthUrl": "http://localhost:8000/health"
+}
+```
+
+**skill metadata 需要產生多個檔案時：**
+
+把實作放在 `scripts/bootstrap-app-files.cjs`，metadata 只放短 launcher：
+
+```jsonc
+{
+  "role": "frontend",
+  "order": 10,
+  "packageManager": "pnpm",
+  "scaffoldCommand": [
+    "pnpm create vite . --template react-ts --no-interactive",
+    "if test -f .opencode/skills/react-vite-feature-based/scripts/bootstrap-app-files.cjs; then node .opencode/skills/react-vite-feature-based/scripts/bootstrap-app-files.cjs; else node ${OPENCODE_PROJECT_SKILLS_PRESEEDED_DIR:-/app/.opencode/skills}/react-vite-feature-based/scripts/bootstrap-app-files.cjs; fi"
+  ],
+  "verificationCommands": ["pnpm build"],
+  "runtimeSmokeCommand": "pnpm dev --host 127.0.0.1 --port $PORT --strictPort",
+  "runtimeSmokeHealthUrl": "http://127.0.0.1:$PORT/"
 }
 ```

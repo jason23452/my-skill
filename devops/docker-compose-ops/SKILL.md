@@ -14,7 +14,7 @@ compatibility: Docker CLI、Docker Compose v2、compose.yaml/docker-compose.yml�
   "role": "any",
   "order": 90,
   "scaffoldCommand": [
-    "node -e \"const fs=require('fs');const hasPkg=fs.existsSync('package.json');const hasPy=fs.existsSync('pyproject.toml')||fs.existsSync('requirements.txt');const service=hasPkg?'frontend':hasPy?'backend':'app';const port=hasPkg?'5173':hasPy?'8000':'8080';const lines=['services:','  '+service+':','    build:','      context: .','      dockerfile: Dockerfile','    ports:','      - '+port+':'+port,'    environment:','      - NODE_ENV=development'];fs.writeFileSync('compose.yaml',lines.join('\\n')+'\\n');\""
+    "if test -f .opencode/skills/docker-compose-ops/scripts/bootstrap-01-01.cjs; then node .opencode/skills/docker-compose-ops/scripts/bootstrap-01-01.cjs; else node ${OPENCODE_PROJECT_SKILLS_PRESEEDED_DIR:-/app/.opencode/skills}/docker-compose-ops/scripts/bootstrap-01-01.cjs; fi"
   ],
   "verificationCommands": []
 }
@@ -26,9 +26,11 @@ compatibility: Docker CLI、Docker Compose v2、compose.yaml/docker-compose.yml�
   "order": 95,
   "packageManager": "docker",
   "scaffoldCommand": [
-    "node -e \"const fs=require('fs');const hasPkg=fs.existsSync('package.json');const hasPy=fs.existsSync('pyproject.toml')||fs.existsSync('requirements.txt');let lines;if(hasPkg){lines=['services:','  frontend:','    build:','      context: .','      dockerfile: Dockerfile','    ports:','      - \\\"5173:5173\\\"','    environment:','      VITE_API_BASE_URL: /api','    command: pnpm dev --host 0.0.0.0 --port 5173'];}else if(hasPy){lines=['services:','  backend:','    build:','      context: .','      dockerfile: Dockerfile','    ports:','      - \\\"8000:8000\\\"','    environment:','      DATABASE_URL: postgresql+asyncpg://postgres:postgres@db:5432/app_db','    depends_on:','      db:','        condition: service_healthy','  db:','    image: postgres:17-alpine','    environment:','      POSTGRES_USER: postgres','      POSTGRES_PASSWORD: postgres','      POSTGRES_DB: app_db','    ports:','      - \\\"5432:5432\\\"','    volumes:','      - postgres_data:/var/lib/postgresql/data','    healthcheck:','      test: [\\\"CMD-SHELL\\\", \\\"pg_isready -U postgres -d app_db\\\"]','      interval: 5s','      timeout: 5s','      retries: 10','','volumes:','  postgres_data:'];}else{lines=['services:','  app:','    build:','      context: .','      dockerfile: Dockerfile','    ports:','      - \\\"8080:8080\\\"'];}fs.writeFileSync('compose.yaml',lines.join('\\n')+'\\n');\""
+    "if test -f .opencode/skills/docker-compose-ops/scripts/bootstrap-02-01.cjs; then node .opencode/skills/docker-compose-ops/scripts/bootstrap-02-01.cjs; else node ${OPENCODE_PROJECT_SKILLS_PRESEEDED_DIR:-/app/.opencode/skills}/docker-compose-ops/scripts/bootstrap-02-01.cjs; fi"
   ],
-  "verificationCommands": ["docker compose config"]
+  "verificationCommands": [
+    "docker compose config"
+  ]
 }
 ```
 

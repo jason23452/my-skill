@@ -17,7 +17,7 @@ compatibility: Python 3.12 FastAPI 後端，使用 uv、SQLAlchemy 2 async、asy
   "scaffoldCommand": [
     "uv init --app --name greenfield-backend --no-readme --no-workspace --vcs none",
     "uv add \"fastapi[standard]>=0.115.0\"",
-    "node -e \"const fs=require('fs'),p=require('path');const w=(f,s)=>{fs.mkdirSync(p.dirname(f),{recursive:true});fs.writeFileSync(f,s)};try{fs.rmSync('main.py',{force:true})}catch{};w('app/__init__.py','');w('app/features/__init__.py','');w('app/features/router.py','from fastapi import APIRouter\\n\\nrouter = APIRouter()\\n\\n@router.get(\\\"/\\\")\\ndef root():\\n    return {\\\"status\\\": \\\"ok\\\"}\\n\\n@router.get(\\\"/health\\\")\\ndef health():\\n    return {\\\"status\\\": \\\"ok\\\"}\\n');w('app/main.py','from fastapi import FastAPI\\nfrom app.features.router import router as feature_router\\n\\napp = FastAPI()\\napp.include_router(feature_router)\\n');\""
+    "if test -f .opencode/skills/backend-feature-fastapi/scripts/bootstrap-01-03.cjs; then node .opencode/skills/backend-feature-fastapi/scripts/bootstrap-01-03.cjs; else node ${OPENCODE_PROJECT_SKILLS_PRESEEDED_DIR:-/app/.opencode/skills}/backend-feature-fastapi/scripts/bootstrap-01-03.cjs; fi"
   ],
   "verificationCommands": [
     "uv run python -m compileall app"
@@ -34,7 +34,7 @@ compatibility: Python 3.12 FastAPI 後端，使用 uv、SQLAlchemy 2 async、asy
   "packageManager": "uv",
   "scaffoldCommand": [
     "uv add \"fastapi[standard]>=0.115.0\" \"pydantic-settings>=2.0.0\"",
-    "node -e \"const fs=require('fs'),p=require('path');const w=(f,s)=>{fs.mkdirSync(p.dirname(f),{recursive:true});fs.writeFileSync(f,s)};w('app/__init__.py','');w('app/core/__init__.py','');w('app/core/config.py','from pydantic_settings import BaseSettings, SettingsConfigDict\\n\\nclass Settings(BaseSettings):\\n    api_prefix: str = \\\"/api\\\"\\n    cors_origins: list[str] = [\\\"http://localhost:5173\\\", \\\"http://127.0.0.1:5173\\\"]\\n    database_url: str = \\\"postgresql+asyncpg://postgres:postgres@db:5432/app_db\\\"\\n    model_config = SettingsConfigDict(env_file=\\\".env\\\", extra=\\\"ignore\\\")\\n\\nsettings = Settings()\\n');w('app/features/__init__.py','');w('app/features/router.py','from fastapi import APIRouter\\n\\nrouter = APIRouter()\\n\\n@router.get(\\\"/health\\\", tags=[\\\"health\\\"])\\ndef health():\\n    return {\\\"status\\\": \\\"ok\\\", \\\"service\\\": \\\"backend\\\"}\\n');w('app/main.py','from fastapi import FastAPI\\nfrom fastapi.middleware.cors import CORSMiddleware\\n\\nfrom app.core.config import settings\\nfrom app.features.router import router as feature_router\\n\\napp = FastAPI(title=\\\"Greenfield Backend\\\")\\napp.add_middleware(CORSMiddleware, allow_origins=settings.cors_origins, allow_credentials=True, allow_methods=[\\\"*\\\"], allow_headers=[\\\"*\\\"])\\napp.include_router(feature_router, prefix=settings.api_prefix)\\n\\n@app.get(\\\"/health\\\", tags=[\\\"health\\\"])\\ndef root_health():\\n    return {\\\"status\\\": \\\"ok\\\", \\\"service\\\": \\\"backend\\\"}\\n');\""
+    "if test -f .opencode/skills/backend-feature-fastapi/scripts/bootstrap-02-02.cjs; then node .opencode/skills/backend-feature-fastapi/scripts/bootstrap-02-02.cjs; else node ${OPENCODE_PROJECT_SKILLS_PRESEEDED_DIR:-/app/.opencode/skills}/backend-feature-fastapi/scripts/bootstrap-02-02.cjs; fi"
   ],
   "verificationCommands": [
     "uv run python -m compileall app"

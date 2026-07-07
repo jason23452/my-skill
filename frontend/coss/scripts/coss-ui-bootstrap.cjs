@@ -1,0 +1,252 @@
+#!/usr/bin/env node
+
+const fs = require("fs")
+const path = require("path")
+const cp = require("child_process")
+
+const at = String.fromCharCode(64)
+const bs = String.fromCharCode(92)
+const slash = String.fromCharCode(47)
+const colon = String.fromCharCode(58)
+
+function readJson(file, fallback) {
+  try {
+    return JSON.parse(fs.readFileSync(file, "utf8"))
+  } catch {
+    return fallback
+  }
+}
+
+function writeJson(file, value) {
+  fs.writeFileSync(file, `${JSON.stringify(value, null, 2)}\n`)
+}
+
+function normalizePath(value) {
+  let output = String(value || "").split(bs).join("/")
+  while (output.endsWith("/")) output = output.slice(0, -1)
+  return output
+}
+
+function aliasToPath(alias) {
+  const normalized = normalizePath(alias)
+  return normalized.startsWith(`${at}/`) ? `src/${normalized.slice(2)}` : normalized
+}
+
+function pathToAlias(dir) {
+  const normalized = normalizePath(dir)
+  return normalized.startsWith("src/") ? `${at}/${normalized.slice(4)}` : normalized
+}
+
+function withoutTs(file) {
+  return file.endsWith(".ts") ? file.slice(0, -3) : file
+}
+
+function hasDependency(name) {
+  const pkg = readJson("package.json", {})
+  return Boolean((pkg.dependencies || {})[name] || (pkg.devDependencies || {})[name])
+}
+
+function ensureComponentsConfig() {
+  const shared = fs.existsSync("src/shared") || fs.existsSync("src/shared/components") || fs.existsSync("src/shared/hooks")
+  const ui = shared ? "src/shared/components/ui" : "src/components/ui"
+  const utils = shared ? "src/shared/utils/cn" : "src/lib/utils"
+  const hooks = shared ? "src/shared/hooks" : "src/hooks"
+
+  for (const dir of [ui, path.dirname(`${withoutTs(utils)}.ts`), hooks]) fs.mkdirSync(dir, { recursive: true })
+
+  const utilsFile = `${withoutTs(utils)}.ts`
+  if (!fs.existsSync(utilsFile)) {
+    fs.writeFileSync(utilsFile, [
+      "import { clsx, type ClassValue } from 'clsx';",
+      "import { twMerge } from 'tailwind-merge';",
+      "",
+      "export function cn(...inputs: ClassValue[]) {",
+      "  return twMerge(clsx(inputs));",
+      "}",
+      "",
+    ].join("\n"))
+  }
+
+  const config = readJson("components.json", {
+    style: "new-york",
+    rsc: false,
+    tsx: true,
+    tailwind: {
+      css: fs.existsSync("src/app/global.css") ? "src/app/global.css" : "src/index.css",
+      baseColor: "neutral",
+      cssVariables: true,
+    },
+    iconLibrary: "lucide",
+    aliases: {},
+  })
+
+  config.$schema = config.$schema || "https://ui.shadcn.com/schema.json"
+  config.aliases = {
+    ...(config.aliases || {}),
+    components: pathToAlias(path.dirname(ui)),
+    ui: pathToAlias(ui),
+    utils: pathToAlias(withoutTs(utils)),
+    hooks: pathToAlias(hooks),
+  }
+  config.registries = {
+    ...(config.registries || {}),
+    [at + "coss"]: "https://coss.com/ui/r/{name}.json",
+  }
+
+  writeJson("components.json", config)
+}
+
+function cleanComponent(value) {
+  let name = String(value || "").trim().toLowerCase()
+  const coss = "coss"
+  const cut = (prefix) => {
+    if (!name.startsWith(prefix)) return false
+    name = name.slice(prefix.length)
+    return true
+  }
+  cut(at + coss + slash) || cut(coss + slash) || cut(at + coss + colon) || cut(coss + colon)
+  if (name.startsWith(at)) name = name.slice(1)
+  return name.split("").filter((ch) => "abcdefghijklmnopqrstuvwxyz0123456789-".includes(ch)).join("")
+}
+
+function requestedComponents() {
+  return String(process.env.COSS_COMPONENTS || "")
+    .replaceAll(",", " ")
+    .split(" ")
+    .map(cleanComponent)
+    .filter(Boolean)
+}
+
+function installSpecs(requested) {
+  const mode = String(process.env.COSS_BOOTSTRAP_MODE || "fast").toLowerCase()
+  if (mode === "full-style" || mode === "style" || mode === "full") return [at + "coss/style"]
+  if (requested.length) return [...new Set(requested.map((name) => at + "coss/" + name).concat(at + "coss/colors-neutral"))]
+  return [at + "coss/ui", at + "coss/colors-neutral"]
+}
+
+function cossArtifactsReady(requested) {
+  const config = readJson("components.json", { aliases: {} })
+  const ui = aliasToPath((config.aliases || {}).ui || "src/components/ui")
+  const utils = aliasToPath((config.aliases || {}).utils || "src/lib/utils")
+  if (!fs.existsSync(ui)) return false
+
+  const files = fs.readdirSync(ui).filter((name) => (name.endsWith(".ts") || name.endsWith(".tsx")) && name !== "index.ts")
+  const min = requested.length ? 1 : 10
+  const registry = (config.registries || {})[at + "coss"] || JSON.stringify(config).includes("coss.com/ui/r/{name}.json")
+
+  return files.length >= min
+    && Boolean(registry)
+    && hasDependency("clsx")
+    && hasDependency("tailwind-merge")
+    && (fs.existsSync(utils) || fs.existsSync(`${utils}.ts`))
+}
+
+function writeUiIndex() {
+  const config = readJson("components.json", { aliases: {} })
+  const ui = aliasToPath((config.aliases || {}).ui || "src/components/ui")
+  if (!fs.existsSync(ui)) return
+
+  const output = fs.readdirSync(ui)
+    .filter((name) => (name.endsWith(".ts") || name.endsWith(".tsx")) && name !== "index.ts")
+    .sort()
+    .map((name) => {
+      const base = name.endsWith(".tsx") ? name.slice(0, -4) : name.slice(0, -3)
+      return `export * from "./${base}";`
+    })
+    .join("\n")
+
+  fs.writeFileSync(path.join(ui, "index.ts"), `${output}\n`)
+}
+
+function installCossUi() {
+  const requested = requestedComponents()
+  if (cossArtifactsReady(requested)) {
+    console.warn("coss ui artifacts already present; skipping shadcn add")
+    return Promise.resolve()
+  }
+
+  const env = { ...process.env, PNPM_CONFIG_IGNORE_SCRIPTS: "true", CI: "1" }
+  const specs = installSpecs(requested)
+  const timeout = Number(process.env.COSS_SHADCN_TIMEOUT_MS || 600000)
+  const idle = Number(process.env.COSS_SHADCN_IDLE_MS || 10000)
+  const stable = Number(process.env.COSS_SHADCN_STABLE_MS || 15000)
+  const poll = Number(process.env.COSS_SHADCN_POLL_MS || 2000)
+
+  return new Promise((resolve, reject) => {
+    const child = cp.spawn("pnpm", ["dlx", "shadcn@latest", "add", ...specs, "--yes", "--overwrite"], {
+      stdio: ["ignore", "pipe", "pipe"],
+      env,
+      shell: process.platform === "win32",
+    })
+
+    let lastOutputAt = Date.now()
+    let firstReadyAt = 0
+    let done = false
+    let early = false
+    let force = null
+
+    const finish = (error) => {
+      if (done) return
+      done = true
+      clearInterval(ticker)
+      clearTimeout(timer)
+      if (force) clearTimeout(force)
+      if (error) reject(error)
+      else resolve()
+    }
+
+    const stopEarly = (message) => {
+      if (done || early) return
+      early = true
+      console.warn(message)
+      child.kill("SIGTERM")
+      force = setTimeout(() => {
+        if (!done) child.kill("SIGKILL")
+      }, 5000)
+      if (force.unref) force.unref()
+    }
+
+    const pipe = (stream, output) => stream && stream.on("data", (chunk) => {
+      lastOutputAt = Date.now()
+      output.write(chunk)
+    })
+    pipe(child.stdout, process.stdout)
+    pipe(child.stderr, process.stderr)
+
+    const ticker = setInterval(() => {
+      const ready = cossArtifactsReady(requested)
+      const now = Date.now()
+      if (ready && !firstReadyAt) firstReadyAt = now
+      if (!ready) firstReadyAt = 0
+      if (ready && (now - lastOutputAt >= idle || now - firstReadyAt >= stable)) stopEarly("coss ui artifacts are stable; continuing bootstrap")
+    }, poll)
+    if (ticker.unref) ticker.unref()
+
+    const timer = setTimeout(() => {
+      if (cossArtifactsReady(requested)) {
+        stopEarly("coss shadcn timed out after generating artifacts; continuing bootstrap")
+        return
+      }
+      child.kill("SIGTERM")
+      finish(new Error(`coss shadcn timeout after ${timeout}ms`))
+    }, timeout)
+    if (timer.unref) timer.unref()
+
+    child.on("close", (code) => {
+      if (early || code === 0 || cossArtifactsReady(requested)) finish()
+      else finish(new Error(`coss shadcn exited with code ${code || 1}`))
+    })
+    child.on("error", finish)
+  })
+}
+
+async function main() {
+  ensureComponentsConfig()
+  await installCossUi()
+  writeUiIndex()
+}
+
+main().catch((error) => {
+  console.error(error && error.message ? error.message : error)
+  process.exit(1)
+})
