@@ -9,6 +9,12 @@ const bs = String.fromCharCode(92)
 const slash = String.fromCharCode(47)
 const colon = String.fromCharCode(58)
 
+const REQUIRED_RUNTIME_DEPENDENCIES = [
+  "class-variance-authority",
+  "clsx",
+  "tailwind-merge",
+]
+
 const DEFAULT_UI_COMPONENTS = [
   "accordion",
   "alert",
@@ -121,6 +127,31 @@ function withoutTs(file) {
 function hasDependency(name) {
   const pkg = readJson("package.json", {})
   return Boolean((pkg.dependencies || {})[name] || (pkg.devDependencies || {})[name])
+}
+
+function pnpmEnv() {
+  const env = { ...process.env, PNPM_CONFIG_IGNORE_SCRIPTS: "true", CI: "1" }
+  try {
+    const modules = fs.readFileSync(path.join("node_modules", ".modules.yaml"), "utf8")
+    const match = modules.match(/["']?virtualStoreDirMaxLength["']?\s*:\s*(\d+)/)
+    if (match) env.npm_config_virtual_store_dir_max_length = match[1]
+  } catch {}
+  return env
+}
+
+function ensureRuntimeDependencies() {
+  const missing = REQUIRED_RUNTIME_DEPENDENCIES.filter((name) => !hasDependency(name))
+  if (!missing.length) return
+
+  logStatus(`coss installing missing runtime dependencies: ${missing.join(" ")}`)
+  const result = cp.spawnSync("pnpm", ["add", ...missing], {
+    stdio: "inherit",
+    env: pnpmEnv(),
+    shell: process.platform === "win32",
+  })
+
+  if (result.error) throw result.error
+  if (result.status !== 0) throw new Error(`pnpm add ${missing.join(" ")} exited with code ${result.status || 1}`)
 }
 
 function ensureTsconfigAlias(file) {
@@ -295,6 +326,7 @@ function cossArtifactsReady(requested) {
   const registry = (config.registries || {})[at + "coss"] || JSON.stringify(config).includes("coss.com/ui/r/{name}.json")
 
   return Boolean(registry)
+    && hasDependency("class-variance-authority")
     && hasDependency("clsx")
     && hasDependency("tailwind-merge")
     && (fs.existsSync(utils) || fs.existsSync(`${utils}.ts`))
@@ -320,12 +352,13 @@ function writeUiIndex() {
 
 function installCossUi() {
   const requested = requestedComponents()
+  ensureRuntimeDependencies()
   if (cossArtifactsReady(requested)) {
     logStatus("coss ui artifacts already present; skipping shadcn add")
     return Promise.resolve()
   }
 
-  const env = { ...process.env, PNPM_CONFIG_IGNORE_SCRIPTS: "true", CI: "1" }
+  const env = pnpmEnv()
   const specs = installSpecs(requested)
   const timeout = Number(process.env.COSS_SHADCN_TIMEOUT_MS || 1200000)
   const idle = Number(process.env.COSS_SHADCN_IDLE_MS || 10000)
