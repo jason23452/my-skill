@@ -15,6 +15,8 @@ This OpenCode-only metadata installs coss UI registry artifacts during Greenfiel
 
 Bootstrap follows the official coss install path: run the shadcn CLI and let it finish because the CLI creates files and installs dependencies. Do not terminate the CLI just because component files appear on disk; dependency installation can happen after artifact generation. If the CLI times out after artifacts were generated, verify/fallback install runtime dependencies such as `class-variance-authority`, `clsx`, and `tailwind-merge` before treating bootstrap as successful.
 
+Registry specs such as `@coss/ui`, `@coss/colors-neutral`, `@coss/style`, `coss/ui`, and `coss/colors-neutral` are remote shadcn registry identifiers, not workspace files. Never call Read/Glob/ls on those strings. If such a read already failed with file-not-found, ignore that read error and diagnose the actual CLI process, `package.json`, lockfile, and generated UI files instead.
+
 ```opencode-bootstrap-json
 {
   "role": "frontend",
