@@ -30,14 +30,6 @@ npx shadcn@latest add @coss/ui @coss/colors-neutral
 
 `@coss/style` automatically installs `@coss/fonts` (Inter for `--font-sans` and `--font-heading`, Geist Mono for `--font-mono`), which configures all three font variables in `layout.tsx`. No manual font wiring needed.
 
-For this workspace's Vite greenfield bootstrap, default to the faster existing-project path after `components.json` aliases are prepared:
-
-```bash
-pnpm dlx shadcn@latest add @coss/ui @coss/colors-neutral --yes --overwrite
-```
-
-Use `@coss/style` only when the user explicitly wants the full theme/fonts/sidebar setup or `COSS_BOOTSTRAP_MODE=full-style` is set.
-
 ### `add` (primary)
 
 ```bash
