@@ -9,6 +9,63 @@ const bs = String.fromCharCode(92)
 const slash = String.fromCharCode(47)
 const colon = String.fromCharCode(58)
 
+const DEFAULT_UI_COMPONENTS = [
+  "accordion",
+  "alert",
+  "alert-dialog",
+  "autocomplete",
+  "avatar",
+  "badge",
+  "breadcrumb",
+  "button",
+  "calendar",
+  "card",
+  "checkbox",
+  "checkbox-group",
+  "collapsible",
+  "combobox",
+  "command",
+  "context-menu",
+  "dialog",
+  "drawer",
+  "empty",
+  "field",
+  "fieldset",
+  "form",
+  "frame",
+  "group",
+  "input",
+  "otp-field",
+  "input-group",
+  "kbd",
+  "label",
+  "menu",
+  "meter",
+  "number-field",
+  "pagination",
+  "popover",
+  "preview-card",
+  "progress",
+  "radio-group",
+  "scroll-area",
+  "select",
+  "separator",
+  "sheet",
+  "sidebar",
+  "skeleton",
+  "slider",
+  "spinner",
+  "switch",
+  "table",
+  "tabs",
+  "textarea",
+  "toast",
+  "toggle",
+  "toggle-group",
+  "toolbar",
+  "tooltip",
+]
+
 function logStatus(message) {
   console.warn(message)
   if (process.platform === "win32") return
@@ -218,21 +275,30 @@ function installSpecs(requested) {
   return [at + "coss/ui", at + "coss/colors-neutral"]
 }
 
+function expectedUiComponents(requested) {
+  const names = requested.filter((name) => name !== "colors-neutral" && name !== "style")
+  if (!names.length || names.includes("ui")) return DEFAULT_UI_COMPONENTS
+  return names
+}
+
+function componentFileExists(ui, name) {
+  return fs.existsSync(path.join(ui, `${name}.tsx`)) || fs.existsSync(path.join(ui, `${name}.ts`))
+}
+
 function cossArtifactsReady(requested) {
   const config = readJson("components.json", { aliases: {} })
   const ui = aliasToPath((config.aliases || {}).ui || "src/components/ui")
   const utils = aliasToPath((config.aliases || {}).utils || "src/lib/utils")
   if (!fs.existsSync(ui)) return false
 
-  const files = fs.readdirSync(ui).filter((name) => (name.endsWith(".ts") || name.endsWith(".tsx")) && name !== "index.ts")
-  const min = requested.length ? 1 : 10
+  const expected = expectedUiComponents(requested)
   const registry = (config.registries || {})[at + "coss"] || JSON.stringify(config).includes("coss.com/ui/r/{name}.json")
 
-  return files.length >= min
-    && Boolean(registry)
+  return Boolean(registry)
     && hasDependency("clsx")
     && hasDependency("tailwind-merge")
     && (fs.existsSync(utils) || fs.existsSync(`${utils}.ts`))
+    && expected.every((name) => componentFileExists(ui, name))
 }
 
 function writeUiIndex() {
@@ -261,7 +327,7 @@ function installCossUi() {
 
   const env = { ...process.env, PNPM_CONFIG_IGNORE_SCRIPTS: "true", CI: "1" }
   const specs = installSpecs(requested)
-  const timeout = Number(process.env.COSS_SHADCN_TIMEOUT_MS || 600000)
+  const timeout = Number(process.env.COSS_SHADCN_TIMEOUT_MS || 1200000)
   const idle = Number(process.env.COSS_SHADCN_IDLE_MS || 10000)
   const stable = Number(process.env.COSS_SHADCN_STABLE_MS || 15000)
   const poll = Number(process.env.COSS_SHADCN_POLL_MS || 2000)
@@ -324,6 +390,8 @@ function installCossUi() {
     if (heartbeat.unref) heartbeat.unref()
 
     const timer = setTimeout(() => {
+      repairMisplacedAliasArtifacts()
+      writeUiIndex()
       if (cossArtifactsReady(requested)) {
         stopEarly("coss shadcn timed out after generating artifacts; continuing bootstrap")
         return
