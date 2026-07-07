@@ -317,6 +317,10 @@ function componentFileExists(ui, name) {
 }
 
 function cossArtifactsReady(requested) {
+  return cossArtifactFilesReady(requested) && REQUIRED_RUNTIME_DEPENDENCIES.every(hasDependency)
+}
+
+function cossArtifactFilesReady(requested) {
   const config = readJson("components.json", { aliases: {} })
   const ui = aliasToPath((config.aliases || {}).ui || "src/components/ui")
   const utils = aliasToPath((config.aliases || {}).utils || "src/lib/utils")
@@ -326,9 +330,6 @@ function cossArtifactsReady(requested) {
   const registry = (config.registries || {})[at + "coss"] || JSON.stringify(config).includes("coss.com/ui/r/{name}.json")
 
   return Boolean(registry)
-    && hasDependency("class-variance-authority")
-    && hasDependency("clsx")
-    && hasDependency("tailwind-merge")
     && (fs.existsSync(utils) || fs.existsSync(`${utils}.ts`))
     && expected.every((name) => componentFileExists(ui, name))
 }
@@ -352,18 +353,16 @@ function writeUiIndex() {
 
 function installCossUi() {
   const requested = requestedComponents()
-  ensureRuntimeDependencies()
-  if (cossArtifactsReady(requested)) {
-    logStatus("coss ui artifacts already present; skipping shadcn add")
+  if (cossArtifactFilesReady(requested)) {
+    ensureRuntimeDependencies()
+    if (!cossArtifactsReady(requested)) throw new Error("coss ui artifacts exist but required runtime dependencies could not be installed")
+    logStatus("coss ui artifacts and runtime dependencies already present; skipping shadcn add")
     return Promise.resolve()
   }
 
   const env = pnpmEnv()
   const specs = installSpecs(requested)
-  const timeout = Number(process.env.COSS_SHADCN_TIMEOUT_MS || 1200000)
-  const idle = Number(process.env.COSS_SHADCN_IDLE_MS || 10000)
-  const stable = Number(process.env.COSS_SHADCN_STABLE_MS || 15000)
-  const poll = Number(process.env.COSS_SHADCN_POLL_MS || 2000)
+  const timeout = Number(process.env.COSS_SHADCN_TIMEOUT_MS || 1800000)
 
   return new Promise((resolve, reject) => {
     logStatus(`coss shadcn install starting: ${specs.join(" ")}`)
@@ -374,31 +373,16 @@ function installCossUi() {
     })
 
     let lastOutputAt = Date.now()
-    let firstReadyAt = 0
     let done = false
-    let early = false
-    let force = null
+    let timedOut = false
 
     const finish = (error) => {
       if (done) return
       done = true
-      clearInterval(ticker)
       clearInterval(heartbeat)
       clearTimeout(timer)
-      if (force) clearTimeout(force)
       if (error) reject(error)
       else resolve()
-    }
-
-    const stopEarly = (message) => {
-      if (done || early) return
-      early = true
-      logStatus(message)
-      child.kill("SIGTERM")
-      force = setTimeout(() => {
-        if (!done) child.kill("SIGKILL")
-      }, 5000)
-      if (force.unref) force.unref()
     }
 
     const pipe = (stream, output) => stream && stream.on("data", (chunk) => {
@@ -408,35 +392,30 @@ function installCossUi() {
     pipe(child.stdout, process.stdout)
     pipe(child.stderr, process.stderr)
 
-    const ticker = setInterval(() => {
-      const ready = cossArtifactsReady(requested)
-      const now = Date.now()
-      if (ready && !firstReadyAt) firstReadyAt = now
-      if (!ready) firstReadyAt = 0
-      if (ready && (now - lastOutputAt >= idle || now - firstReadyAt >= stable)) stopEarly("coss ui artifacts are stable; continuing bootstrap")
-    }, poll)
-    if (ticker.unref) ticker.unref()
-
     const heartbeat = setInterval(() => {
       logStatus(`coss shadcn install still running: ${specs.join(" ")}`)
     }, Number(process.env.COSS_SHADCN_HEARTBEAT_MS || 10000))
     if (heartbeat.unref) heartbeat.unref()
 
     const timer = setTimeout(() => {
-      repairMisplacedAliasArtifacts()
-      writeUiIndex()
-      if (cossArtifactsReady(requested)) {
-        stopEarly("coss shadcn timed out after generating artifacts; continuing bootstrap")
-        return
-      }
+      timedOut = true
+      logStatus(`coss shadcn timeout after ${timeout}ms; terminating CLI and checking generated artifacts`)
       child.kill("SIGTERM")
-      finish(new Error(`coss shadcn timeout after ${timeout}ms`))
     }, timeout)
     if (timer.unref) timer.unref()
 
     child.on("close", (code) => {
-      if (early || code === 0 || cossArtifactsReady(requested)) finish()
-      else finish(new Error(`coss shadcn exited with code ${code || 1}`))
+      repairMisplacedAliasArtifacts()
+      writeUiIndex()
+      try {
+        ensureRuntimeDependencies()
+      } catch (error) {
+        finish(error)
+        return
+      }
+      if (code === 0 || cossArtifactsReady(requested)) finish()
+      else if (timedOut && cossArtifactFilesReady(requested)) finish()
+      else finish(new Error(`coss shadcn ${timedOut ? `timeout after ${timeout}ms` : `exited with code ${code || 1}`}`))
     })
     child.on("error", finish)
   })

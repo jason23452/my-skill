@@ -9,6 +9,8 @@ Use this guide when installing, previewing, or discovering coss components via t
   - `pnpm dlx shadcn@latest ...`
   - `bunx --bun shadcn@latest ...`
 - Do not invent flags. Use only documented CLI flags.
+- Let the shadcn CLI finish normally. The official coss docs state that the CLI creates files and installs dependencies; do not kill it as soon as component files appear, because dependency installation may still be running.
+- If a wrapper times out after files were generated, run a dependency verification/fallback before declaring success. Components such as Alert, Badge, and Empty can import `class-variance-authority`; `clsx` and `tailwind-merge` are also required by the local `cn` utility.
 
 ## Core Commands for coss Usage
 
@@ -29,6 +31,8 @@ npx shadcn@latest add @coss/ui @coss/colors-neutral
 ```
 
 `@coss/style` automatically installs `@coss/fonts` (Inter for `--font-sans` and `--font-heading`, Geist Mono for `--font-mono`), which configures all three font variables in `layout.tsx`. No manual font wiring needed.
+
+According to `https://coss.com/ui/docs/get-started`, the CLI installs dependencies for imported components. Manual fallback dependency installation is a recovery step for interrupted/time-limited automation, not the primary install path.
 
 ### `add` (primary)
 

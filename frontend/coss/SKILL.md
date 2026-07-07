@@ -13,6 +13,8 @@ metadata:
 
 This OpenCode-only metadata installs coss UI registry artifacts during Greenfield bootstrap. The coss agent skills are expected to come from the global/preseeded skills manager, not from runtime bootstrap. The rest of this file remains the official coss skill guidance and references.
 
+Bootstrap follows the official coss install path: run the shadcn CLI and let it finish because the CLI creates files and installs dependencies. Do not terminate the CLI just because component files appear on disk; dependency installation can happen after artifact generation. If the CLI times out after artifacts were generated, verify/fallback install runtime dependencies such as `class-variance-authority`, `clsx`, and `tailwind-merge` before treating bootstrap as successful.
+
 ```opencode-bootstrap-json
 {
   "role": "frontend",
@@ -101,6 +103,14 @@ Quick CLI pattern:
 
 ```bash
 npx shadcn@latest add @coss/<component>
+```
+
+For Greenfield bootstrap, prefer the official commands from `https://coss.com/ui/docs/get-started`:
+
+```bash
+pnpm dlx shadcn@latest init @coss/style
+pnpm dlx shadcn@latest add @coss/ui
+pnpm dlx shadcn@latest add @coss/ui @coss/colors-neutral
 ```
 
 Quick manual pattern:
