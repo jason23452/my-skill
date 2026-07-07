@@ -17,6 +17,18 @@ function readJson(file, fallback) {
   }
 }
 
+function stripJsonc(value) {
+  return String(value || "").replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, "")
+}
+
+function readJsonc(file, fallback) {
+  try {
+    return JSON.parse(stripJsonc(fs.readFileSync(file, "utf8")))
+  } catch {
+    return fallback
+  }
+}
+
 function writeJson(file, value) {
   fs.writeFileSync(file, `${JSON.stringify(value, null, 2)}\n`)
 }
@@ -44,6 +56,26 @@ function withoutTs(file) {
 function hasDependency(name) {
   const pkg = readJson("package.json", {})
   return Boolean((pkg.dependencies || {})[name] || (pkg.devDependencies || {})[name])
+}
+
+function ensureTsconfigAlias(file) {
+  const config = readJsonc(file, null)
+  if (!config) return
+  config.compilerOptions = {
+    ...(config.compilerOptions || {}),
+    baseUrl: (config.compilerOptions || {}).baseUrl || ".",
+    paths: {
+      ...((config.compilerOptions || {}).paths || {}),
+      "@/*": ["./src/*"],
+    },
+  }
+  writeJson(file, config)
+}
+
+function ensureProjectAliases() {
+  for (const file of ["tsconfig.json", "tsconfig.app.json"]) {
+    if (fs.existsSync(file)) ensureTsconfigAlias(file)
+  }
 }
 
 function ensureComponentsConfig() {
@@ -94,6 +126,60 @@ function ensureComponentsConfig() {
   }
 
   writeJson("components.json", config)
+}
+
+function moveDirContents(source, target) {
+  if (!fs.existsSync(source)) return false
+  fs.mkdirSync(target, { recursive: true })
+  let moved = false
+  for (const name of fs.readdirSync(source)) {
+    const from = path.join(source, name)
+    const to = path.join(target, name)
+    if (fs.existsSync(to)) {
+      console.warn(`coss repair kept existing ${normalizePath(to)}; leaving ${normalizePath(from)} in place`)
+      continue
+    }
+    fs.renameSync(from, to)
+    moved = true
+  }
+  return moved
+}
+
+function removeEmptyParents(dir, stopAt) {
+  let current = normalizePath(dir)
+  const stop = normalizePath(stopAt)
+  while (current && current !== stop && fs.existsSync(current)) {
+    try {
+      if (fs.readdirSync(current).length) return
+      fs.rmdirSync(current)
+    } catch {
+      return
+    }
+    current = normalizePath(path.dirname(current))
+  }
+  if (current === stop && fs.existsSync(current)) {
+    try {
+      if (!fs.readdirSync(current).length) fs.rmdirSync(current)
+    } catch {}
+  }
+}
+
+function repairMisplacedAliasArtifacts() {
+  const config = readJson("components.json", { aliases: {} })
+  const aliases = config.aliases || {}
+  const repairs = [
+    [aliases.ui || `${at}/components/ui`, aliasToPath(aliases.ui || "src/components/ui")],
+    [aliases.utils || `${at}/lib/utils`, aliasToPath(aliases.utils || "src/lib/utils")],
+    [aliases.hooks || `${at}/hooks`, aliasToPath(aliases.hooks || "src/hooks")],
+  ]
+  for (const [alias, target] of repairs) {
+    const source = normalizePath(alias)
+    if (!source.startsWith(`${at}/`) || source === target) continue
+    if (moveDirContents(source, target)) {
+      console.warn(`coss repair moved ${source} -> ${target}`)
+      removeEmptyParents(path.dirname(source), at)
+    }
+  }
 }
 
 function cleanComponent(value) {
@@ -189,6 +275,7 @@ function installCossUi() {
       if (done) return
       done = true
       clearInterval(ticker)
+      clearInterval(heartbeat)
       clearTimeout(timer)
       if (force) clearTimeout(force)
       if (error) reject(error)
@@ -222,6 +309,11 @@ function installCossUi() {
     }, poll)
     if (ticker.unref) ticker.unref()
 
+    const heartbeat = setInterval(() => {
+      console.warn(`coss shadcn install still running: ${specs.join(" ")}`)
+    }, Number(process.env.COSS_SHADCN_HEARTBEAT_MS || 10000))
+    if (heartbeat.unref) heartbeat.unref()
+
     const timer = setTimeout(() => {
       if (cossArtifactsReady(requested)) {
         stopEarly("coss shadcn timed out after generating artifacts; continuing bootstrap")
@@ -241,8 +333,11 @@ function installCossUi() {
 }
 
 async function main() {
+  ensureProjectAliases()
   ensureComponentsConfig()
+  repairMisplacedAliasArtifacts()
   await installCossUi()
+  repairMisplacedAliasArtifacts()
   writeUiIndex()
 }
 
