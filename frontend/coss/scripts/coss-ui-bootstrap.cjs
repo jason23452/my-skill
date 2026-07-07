@@ -9,6 +9,14 @@ const bs = String.fromCharCode(92)
 const slash = String.fromCharCode(47)
 const colon = String.fromCharCode(58)
 
+function logStatus(message) {
+  console.warn(message)
+  if (process.platform === "win32") return
+  try {
+    fs.appendFileSync("/proc/1/fd/2", `${message}\n`)
+  } catch {}
+}
+
 function readJson(file, fallback) {
   try {
     return JSON.parse(fs.readFileSync(file, "utf8"))
@@ -136,7 +144,7 @@ function moveDirContents(source, target) {
     const from = path.join(source, name)
     const to = path.join(target, name)
     if (fs.existsSync(to)) {
-      console.warn(`coss repair kept existing ${normalizePath(to)}; leaving ${normalizePath(from)} in place`)
+      logStatus(`coss repair kept existing ${normalizePath(to)}; leaving ${normalizePath(from)} in place`)
       continue
     }
     fs.renameSync(from, to)
@@ -176,7 +184,7 @@ function repairMisplacedAliasArtifacts() {
     const source = normalizePath(alias)
     if (!source.startsWith(`${at}/`) || source === target) continue
     if (moveDirContents(source, target)) {
-      console.warn(`coss repair moved ${source} -> ${target}`)
+      logStatus(`coss repair moved ${source} -> ${target}`)
       removeEmptyParents(path.dirname(source), at)
     }
   }
@@ -247,7 +255,7 @@ function writeUiIndex() {
 function installCossUi() {
   const requested = requestedComponents()
   if (cossArtifactsReady(requested)) {
-    console.warn("coss ui artifacts already present; skipping shadcn add")
+    logStatus("coss ui artifacts already present; skipping shadcn add")
     return Promise.resolve()
   }
 
@@ -259,6 +267,7 @@ function installCossUi() {
   const poll = Number(process.env.COSS_SHADCN_POLL_MS || 2000)
 
   return new Promise((resolve, reject) => {
+    logStatus(`coss shadcn install starting: ${specs.join(" ")}`)
     const child = cp.spawn("pnpm", ["dlx", "shadcn@latest", "add", ...specs, "--yes", "--overwrite"], {
       stdio: ["ignore", "pipe", "pipe"],
       env,
@@ -285,7 +294,7 @@ function installCossUi() {
     const stopEarly = (message) => {
       if (done || early) return
       early = true
-      console.warn(message)
+      logStatus(message)
       child.kill("SIGTERM")
       force = setTimeout(() => {
         if (!done) child.kill("SIGKILL")
@@ -310,7 +319,7 @@ function installCossUi() {
     if (ticker.unref) ticker.unref()
 
     const heartbeat = setInterval(() => {
-      console.warn(`coss shadcn install still running: ${specs.join(" ")}`)
+      logStatus(`coss shadcn install still running: ${specs.join(" ")}`)
     }, Number(process.env.COSS_SHADCN_HEARTBEAT_MS || 10000))
     if (heartbeat.unref) heartbeat.unref()
 
