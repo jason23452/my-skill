@@ -12,6 +12,18 @@
       "sourceType": "github",
       "skillPath": "apps/ui/skills/coss-particles/SKILL.md",
       "computedHash": "189b06158600d157cf08da5915dda370732dde4e949aff4baabb7f37349d4fdd"
+    },
+    "task-coordination-strategies": {
+      "source": "wshobson/agents",
+      "sourceType": "github",
+      "skillPath": "plugins/agent-teams/skills/task-coordination-strategies/SKILL.md",
+      "computedHash": "a68e3c45fbe7a2f414cd4e6fb65163b778154581ae7e1961027d9b5ea60f392a"
+    },
+    "to-issues": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "skillPath": "skills/engineering/to-tickets/SKILL.md",
+      "computedHash": "e1a958344e520b91794235638aec0b26b0a37ac346f9f3925fa0b62d8a1db7e2"
     }
   }
 }
