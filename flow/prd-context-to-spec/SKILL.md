@@ -1,6 +1,6 @@
 ---
 name: prd-context-to-spec
-description: 將已定稿 prd.md 與已凍結 project-context.md 轉成 repo-aware spec.md。當流程位於 Bootstrap Result Gate、Project Context Freeze 之後，需要產生、審查或修補 spec.md、Feature Spec、Acceptance Criteria Mapping、PRD-to-spec、project-context-to-spec 時必須使用本 skill。
+description: 將已定稿 prd.md 與已凍結 project-context.md 轉成 repo-aware spec.md。當流程位於 Bootstrap Result Gate、Project Context Freeze 之後，需要產生、審查或修補 spec.md、功能規格、驗收條件映射、PRD-to-spec、project-context-to-spec 時必須使用本 skill。
 ---
 
 # PRD Context To Spec
@@ -76,47 +76,47 @@ blocked output 使用：
 - 不憑常識發明 API、DB table、route、env var、script 或 deployment rule。
 - 若 PRD 與 project context 衝突，寫入 `Open Questions` 或標記 `decision_required`，不要自行默默選邊。
 - 非阻塞但需要暫定的理解寫入 `Assumptions`。
-- 每條 PRD acceptance criterion 都必須出現在 `Acceptance Criteria Mapping`。
+- 每條 PRD acceptance criterion 都必須出現在 `驗收條件映射`。
 
 ## spec.md 輸出格式
 
 使用以下固定章節：
 
 ```md
-# Feature Spec
+# 功能規格
 
-## Goal
+## 目標
 
-## In Scope
+## 範圍內
 
-## Out of Scope
+## 不在範圍內
 
-## User Stories
+## 使用者故事
 
-## Functional Requirements
+## 功能需求
 
-## Non-functional Requirements
+## 非功能需求
 
-## Business Rules
+## 業務規則
 
-## Data Requirements
+## 資料需求
 
-## API / Integration Expectations
+## API / 整合期望
 
-## States and Edge Cases
+## 狀態與邊界情境
 
-## Error Handling
+## 錯誤處理
 
-## Acceptance Criteria Mapping
+## 驗收條件映射
 
-## Assumptions
+## 假設
 
-## Open Questions
+## 待釐清問題
 ```
 
 ## 章節撰寫規則
 
-### Goal
+### 目標
 
 用 2 到 4 句說明此 feature 的目標。
 
@@ -129,13 +129,13 @@ blocked output 使用：
 
 避免寫入未確認的工程解法。
 
-### In Scope
+### 範圍內
 
 列出本 spec 必須交付的能力。
 
 每個項目要能被 design、engineering、QA 理解與追溯。
 
-### Out of Scope
+### 不在範圍內
 
 列出排除事項、非目標、延後項目與明確不做的內容。
 
@@ -146,7 +146,7 @@ blocked output 使用：
 - `project-context.md` constraints。
 - Bootstrap 階段明確留下的限制。
 
-### User Stories
+### 使用者故事
 
 將 PRD actors 與 scenarios 轉成簡潔 user story：
 
@@ -154,9 +154,9 @@ blocked output 使用：
 - As a [actor], I want [capability], so that [outcome].
 ```
 
-此章只放使用者或 stakeholder 行為。系統規則放到 `Business Rules`。
+此章只放使用者或 stakeholder 行為。系統規則放到 `業務規則`。
 
-### Functional Requirements
+### 功能需求
 
 使用穩定 ID：
 
@@ -181,7 +181,7 @@ blocked output 使用：
 - Behavior 與 Success Result 要可觀察、可測試。
 - `AC Mapping` 必須連到 PRD 的 `AC-xx`。
 
-### Non-functional Requirements
+### 非功能需求
 
 只寫 PRD 或 project context 已支持的要求。
 
@@ -199,7 +199,7 @@ blocked output 使用：
 
 若沒有已確認要求，寫 `No confirmed requirement`，不要補常識。
 
-### Business Rules
+### 業務規則
 
 整理跨 UI、API、資料與測試都必須一致的產品規則。
 
@@ -218,7 +218,7 @@ blocked output 使用：
 - pricing、inventory、ownership、permission、workflow rules
 - content display rules
 
-### Data Requirements
+### 資料需求
 
 描述資料需求、欄位概念、保存需求、讀寫行為與生命週期。
 
@@ -228,7 +228,7 @@ blocked output 使用：
 - 若 PRD 需要資料但 baseline project 尚未確認 persistence layer，寫出資料需求，並把實作形狀放入 `Open Questions` 或 `Assumptions`。
 - 分清楚 confirmed data requirements 與 assumptions。
 
-### API / Integration Expectations
+### API / 整合期望
 
 描述功能層級的 API 或 integration expectation。
 
@@ -242,7 +242,7 @@ blocked output 使用：
 
 除非已確認，不要指定 endpoint path、payload schema、framework implementation。
 
-### States and Edge Cases
+### 狀態與邊界情境
 
 列出使用者可觀察狀態與邊界情境。
 
@@ -259,7 +259,7 @@ blocked output 使用：
 - Network / backend failure
 - PRD AC 中的 boundary values
 
-### Error Handling
+### 錯誤處理
 
 定義 failure 如何被呈現或處理。
 
@@ -271,7 +271,7 @@ blocked output 使用：
 - validation messages
 - logging / operational expectation，如果 project context 已支持
 
-### Acceptance Criteria Mapping
+### 驗收條件映射
 
 每條 PRD `AC-xx` 都必須映射。
 
@@ -290,7 +290,7 @@ blocked output 使用：
 - 若一條 AC 對應多個 FR / BR，全部列出。
 - Verification Notes 要說明 QA 或 test 如何證明行為成立。
 
-### Assumptions
+### 假設
 
 放入非阻塞、可日後修正的暫定理解。
 
@@ -300,7 +300,7 @@ blocked output 使用：
 - 可追溯到 PRD 或 project context。
 - 不把未確認技術方案偽裝成既定事實。
 
-### Open Questions
+### 待釐清問題
 
 放入阻塞問題、矛盾或需要使用者決策的事項。
 
@@ -318,7 +318,7 @@ blocked output 使用：
 
 - 沒有重新開啟 Brownfield / Greenfield 分支。
 - 沒有改寫或重新定稿 PRD 意圖。
-- 每條 PRD AC 都在 `Acceptance Criteria Mapping` 中。
+- 每條 PRD AC 都在 `驗收條件映射` 中。
 - 每條 FR 都可測、可驗收。
 - `project-context.md` 的技術棧、scripts、repo constraints 已反映。
 - 未確認技術細節沒有被寫成事實。

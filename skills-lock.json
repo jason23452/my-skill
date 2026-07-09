@@ -13,17 +13,47 @@
       "skillPath": "apps/ui/skills/coss-particles/SKILL.md",
       "computedHash": "189b06158600d157cf08da5915dda370732dde4e949aff4baabb7f37349d4fdd"
     },
+    "breakdown-feature-prd": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "skillPath": "skills/breakdown-feature-prd/SKILL.md",
+      "computedHash": "dcbf3e230aa64b2b9be353ef5638fd5937a3ed1c611ea695955a33660578c715"
+    },
+    "prd": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "skillPath": "skills/prd/SKILL.md",
+      "computedHash": "7db649f64114e8540e14087904a69872a72eae1c99a5478e6f21d16474ef6558"
+    },
+    "skill-creator": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "skillPath": "skills/skill-creator/SKILL.md",
+      "computedHash": "bea1483a5330166292685a98cfe74eb72f3c0236504c5b110c3b82c45398df2b"
+    },
     "task-coordination-strategies": {
       "source": "wshobson/agents",
       "sourceType": "github",
       "skillPath": "plugins/agent-teams/skills/task-coordination-strategies/SKILL.md",
-      "computedHash": "a68e3c45fbe7a2f414cd4e6fb65163b778154581ae7e1961027d9b5ea60f392a"
+      "computedHash": "fb1296b4dfd0f49e51f91ac3ab0b3528b55e6af9cf940dc540503b611dd6b239"
     },
     "to-issues": {
       "source": "mattpocock/skills",
       "sourceType": "github",
       "skillPath": "skills/engineering/to-tickets/SKILL.md",
-      "computedHash": "e1a958344e520b91794235638aec0b26b0a37ac346f9f3925fa0b62d8a1db7e2"
+      "computedHash": "42458805ff4288e8de395ce6c9b2c36f0b02c551ac5dbc120d6bb96d0c77224a"
+    },
+    "to-spec": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "skillPath": "skills/engineering/to-spec/SKILL.md",
+      "computedHash": "ee1475811df1d5c5beff60e72ccc60228eea19b4b1614e02a8a1dd756196a592"
+    },
+    "writing-great-skills": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "skillPath": "skills/productivity/writing-great-skills/SKILL.md",
+      "computedHash": "0bf19ac4909262fe547326ef4b016c25e384d07a98bc5836e6ce4123ac49000b"
     }
   }
 }
