@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "skills": {
+    "frontend-design": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "skillPath": "skills/frontend-design/SKILL.md",
+      "computedHash": "b3725aeaa81a117555a506c3661c030fdb014f4fa8816049c5b48fe154c3fb39"
+    },
+    "web-design-guidelines": {
+      "source": "vercel-labs/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/web-design-guidelines/SKILL.md",
+      "computedHash": "4a22b01bd8f1a167a2dcbe5094ec23162e06e376f8259bbca9d2813b3fd891d9"
+    }
+  }
+}
