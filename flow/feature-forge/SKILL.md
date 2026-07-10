@@ -1,81 +1,81 @@
 ---
 name: feature-forge
-description: Conduct structured requirements workshops for User Story / PRD discovery, questionPlan generation, EARS functional requirements, Given/When/Then acceptance criteria, edge cases, and validation. Use when requirements are vague, user stories are too broad, acceptance criteria are not testable, scope is unclear, or User Story -> PRD flow needs deeper questions.
+description: 進行結構化需求工作坊，用於 User Story / PRD discovery、questionPlan 產生、EARS 功能需求、Given/When/Then 驗收條件、邊界情境與定稿驗證。當需求模糊、User Story 顆粒太粗、驗收條件不可測、scope 不清，或 User Story -> PRD 流程需要更深入提問時使用。
 source: jeffallan/claude-skills@feature-forge
 license: MIT
 ---
 
 # Feature Forge
 
-Requirements specialist conducting structured workshops to define comprehensive User Story / PRD specifications.
+本 skill 是結構化需求工作坊專家，用來把模糊想法整理成可審查、可驗收、可交接的 User Story / PRD 規格。
 
-This skill is the authority for discovery interview quality, requirement gaps, `questionPlan` generation, acceptance criteria quality, and readiness validation before drafting or finalizing.
+它是需求探索訪談品質、需求缺口、`questionPlan`、驗收條件品質，以及草稿 / 定稿前就緒度驗證的權威來源。
 
-## SDD Integration Boundaries
+## SDD 整合邊界
 
-- In this flow, do not write directly to `./docs/prds/`.
-- Do not invent implementation plans, APIs, database schemas, architecture, packages, or deployment details.
-- Technical facts may only be captured as constraints, dependencies, risks, non-functional requirements, or open questions.
-- Primary outputs are `workshopAssessment`, `gapAnalysis`, `questionPlan`, `markdownPlan`, `qualityWarnings`, and validation issues for planner / writer / validator.
-- User Story stage focuses on product requirements only. Do not ask repo, target workspace, Brownfield / Greenfield, or implementation planning questions.
+- 在本流程中不要直接寫入 `./docs/prds/`。
+- 不要自行發明實作計畫、API、資料庫 schema、架構、套件或部署細節。
+- 技術事實只可整理成限制、相依性、風險、非功能需求或待確認問題。
+- 主要輸出是 `workshopAssessment`、`gapAnalysis`、`questionPlan`、`markdownPlan`、`qualityWarnings` 與驗證問題，供 planner / writer / validator 使用。
+- User Story 階段只處理產品需求，不詢問 repo、target workspace、Brownfield / Greenfield 或實作規劃。
 
-## Role Definition
+## 角色視角
 
-Operate with two perspectives:
+同時使用兩種視角判斷需求：
 
-- PM Hat: user value, business goals, success metrics, personas, scope, and non-goals.
-- Dev Hat: technical feasibility constraints, security, performance, permissions, integrations, edge cases, error handling, and testability.
+- PM Hat：使用者價值、商業目標、成功指標、persona、範圍與非目標。
+- Dev Hat：可行性限制、安全、效能、權限、整合、邊界情境、錯誤處理與可測性。
 
-## Core Workflow
+## 核心流程
 
-1. Discover: understand feature goal, target users, user value, and current problem.
-2. Interview: ask systematic PM and Dev questions. Use `questionPlan` with structured options whenever answers can be represented as choices.
-3. Document: produce User Story / PRD-ready structures, including EARS-style functional requirements when writing PRD FR cards.
-4. Validate: check acceptance criteria, edge cases, non-functional requirements, and assumptions before finalization.
-5. Plan: provide implementation checklist only when the downstream flow explicitly asks for engineering planning; User Story / PRD discovery must not become implementation design.
+1. 探索：理解功能目標、目標使用者、使用者價值與目前問題。
+2. 訪談：用 PM Hat 與 Dev Hat 系統性提問；可預測選項時使用 `questionPlan` 結構化提問。
+3. 文件化：整理成 User Story / PRD 可直接使用的結構；PRD FR card 可使用 EARS 需求語法。
+4. 驗證：定稿前檢查驗收條件、邊界情境、非功能需求與假設。
+5. 規劃：只有後續工程規劃流程明確要求時才提供實作檢查清單；User Story / PRD 需求探索不可變成實作設計。
 
 ## Gap Analysis Dimensions
 
-### User Story Gaps
+### User Story 缺口
 
-- `problem`: what user problem is being solved, who experiences it, and why now.
-- `targetUser`: primary actor, excluded actors, and relevant context.
-- `singleSlice`: whether this run covers one user-value slice rather than multiple independent capabilities.
-- `entryPoint`: where or when the user starts the flow.
-- `trigger`: the concrete user action or system event.
-- `desiredOutcome`: what visible result, state, feedback, data change, or next step indicates success.
-- `scope`: in-scope behavior, out-of-scope behavior, MVP vs later work.
-- `acceptance`: Given / When / Then scenarios with objective pass/fail criteria.
-- `edgeCases`: failure, empty state, permission, validation, boundary, or recovery behavior.
+- `problem`：解決什麼使用者問題、誰遇到、為什麼現在要解。
+- `targetUser`：主要 actor、排除角色與使用情境。
+- `singleSlice`：本 run 是否只有一個使用者價值切片，而不是多個獨立能力。
+- `entryPoint`：使用者從哪裡或何時開始流程。
+- `trigger`：具體使用者動作或系統事件。
+- `desiredOutcome`：成功後可見的結果、狀態、回饋、資料變化或下一步。
+- `scope`：本次包含、不包含、MVP 與後續版本。
+- `acceptance`：Given / When / Then 是否具備客觀 pass/fail 判準。
+- `edgeCases`：失敗、空狀態、權限、驗證、邊界或復原行為。
 
-### PRD Gaps
+### PRD 缺口
 
-- `problemAndGoal`: problem and outcome are clear before solution details.
-- `personasAndScenarios`: personas, usage frequency, journey, and scenario are traceable.
-- `scopeAndNonGoals`: in scope, out of scope, MVP / later, dependencies, and constraints are explicit.
-- `frCards`: each FR is a single capability with Actor, Entry Point, Trigger, Input / State, Behavior, Success Result, Failure / Boundary, Permission, Non-Goals, Acceptance Criteria.
-- `acScenarios`: each AC has Requirement, Given, When, Then, and Test Data.
-- `nonFunctional`: performance, security, privacy, accessibility, reliability, localization, and observability concerns are captured where relevant.
-- `errorHandling`: invalid input, unauthorized / forbidden, empty, conflict, unavailable dependency, and recovery behavior are testable.
-- `traceability`: User Story, FR, AC, risk, non-goal, and source evidence can be traced.
-- `risks`: permission, privacy, data retention, integration, rollout, operational, legal, or stakeholder risks are handled.
+- `problemAndGoal`：先清楚問題與目標，再進入解法細節。
+- `personasAndScenarios`：persona、使用頻率、使用者旅程與情境可追溯。
+- `scopeAndNonGoals`：範圍內、範圍外、MVP / 後續版本、相依性與限制明確。
+- `frCards`：每個 FR 是單一能力，包含角色、入口、觸發、輸入 / 狀態、行為、成功結果、失敗 / 邊界、權限、非目標、驗收條件。
+- `acScenarios`：每個 AC 都有對應需求、Given、When、Then、測試資料。
+- `nonFunctional`：必要時涵蓋效能、安全、隱私、無障礙、可靠性、本地化、可觀測性。
+- `errorHandling`：無效輸入、未登入 / 無權限、空狀態、衝突、相依服務不可用與復原行為可測。
+- `traceability`：User Story、FR、AC、風險、非目標與來源證據可互相追溯。
+- `risks`：權限、隱私、資料保留、整合、發布、營運、法規或 stakeholder alignment 風險已處理。
 
-## Interview Strategy
+## 訪談策略
 
-Use `references/interview-questions.md` for detailed PM / Dev interview patterns.
+詳細 PM / Dev 訪談模式見 `references/interview-questions.md`。
 
-Question rules:
+提問規則：
 
-- Every question must map to a concrete gap and document field.
-- Ask one micro-decision per question.
-- Ask blocking testability gaps first, then scope, then supplemental context.
-- Use structured options for priority, scope, format, permission, error handling, status behavior, and yes/no-with-nuance decisions.
-- Use open-ended questions only when the answer cannot be represented with predictable choices.
-- The first option should be the recommended answer when a safe recommendation exists, with label suffix `(Recommended)`.
-- Each option description must be a complete requirement sentence that can be written directly into User Story / PRD markdown.
-- Do not ask implementation questions. Convert them into user-visible behavior, constraints, acceptance criteria, or risk questions.
+- 每個問題都必須對應具體缺口與文件欄位。
+- 每題只處理一個微決策。
+- 先問阻塞可測性的缺口，再問範圍，最後補背景。
+- 優先順序、範圍、格式、權限、錯誤處理、狀態行為、帶有細節的 yes/no 等可預期答案，優先使用結構化選項。
+- 只有答案無法預設選項時才使用開放式問題。
+- 若有安全推薦答案，第一個 option 放推薦選項，label 末尾加 `(Recommended)`。
+- 每個選項說明必須是可直接寫入 User Story / PRD 的完整需求句。
+- 不問實作方式；改問使用者可見行為、限制、驗收條件或風險。
 
-## QuestionPlan Schema
+## QuestionPlan 結構
 
 ```json
 {
@@ -93,72 +93,72 @@ Question rules:
 }
 ```
 
-## Functional Requirement Style
+## 功能需求寫法
 
-Use EARS syntax for PRD functional requirements where possible. See `references/ears-syntax.md`.
+PRD 功能需求可使用 EARS 語法，詳見 `references/ears-syntax.md`。
 
-Core patterns:
+核心語法模式：
 
 ```text
-The system shall <action>.
-When <trigger>, the system shall <response>.
-While <state>, the system shall <action>.
-While <state>, when <trigger>, the system shall <response>.
-Where <feature enabled>, the system shall <action>.
+系統應 <執行動作>。
+當 <觸發條件> 時，系統應 <回應>。
+在 <狀態> 期間，系統應 <執行動作>。
+在 <狀態> 期間，當 <觸發條件> 時，系統應 <回應>。
+若 <功能啟用>，系統應 <執行動作>。
 ```
 
-## Acceptance Criteria Style
+## 驗收條件寫法
 
-Use Given / When / Then acceptance criteria. See `references/acceptance-criteria.md`.
+使用 Given / When / Then 驗收條件，詳見 `references/acceptance-criteria.md`。
 
-Each important capability needs at least:
+每個重要能力至少需要：
 
-- One success scenario.
-- One failure, permission, empty state, validation, boundary, or recovery scenario where relevant.
-- Concrete test data when the result depends on inputs, state, limits, or permissions.
+- 一個成功情境。
+- 視需求補一個失敗、權限、空狀態、驗證、邊界或復原情境。
+- 結果依賴輸入、狀態、限制或權限時，必須提供具體測試資料。
 
-## Readiness Gates
+## 就緒度門檻
 
-Do not rely on numeric scores. Use readiness categories:
+不要使用數字分數。使用就緒度分類：
 
-- `ready-to-write`: enough confirmed information exists to produce a detailed draft; non-blocking gaps may be retained as assumptions, risks, or open questions.
-- `needs-questions`: blocking or important gaps would make the draft untestable, too broad, or misleading; generate `questionPlan` before writing or finalizing.
-- `blocked`: required skills, source evidence, or essential decisions are missing and no safe questionPlan can be produced.
+- `ready-to-write`：已確認資訊足以產生詳細草稿；非阻塞缺口可保留為假設、風險或待確認問題。
+- `needs-questions`：阻塞或重要缺口會讓草稿不可測、範圍太大或誤導；寫作或定稿前必須產生 `questionPlan`。
+- `blocked`：必要 skill、來源證據或核心決策缺失，且無法產生安全的 questionPlan。
 
-Finalization requires:
+定稿條件：
 
-- No blocking open questions.
-- Single-slice User Story or decomposed PRD FR cards.
-- Testable AC with Given / When / Then and test data where needed.
-- Known scope, non-goals, edge cases, and risks captured.
-- No unconfirmed implementation details written as confirmed requirements.
+- 沒有阻塞性待確認問題。
+- User Story 是單一 slice，或 PRD FR cards 已拆成可驗收能力。
+- AC 使用 Given / When / Then，必要時具備測試資料。
+- 範圍、非目標、邊界情境與風險已記錄。
+- 未確認實作細節沒有被寫成已確認需求。
 
-## Anti-Patterns
+## 反模式
 
-- Generating a spec without a workshop assessment.
-- Asking generic questions such as "是否需要補充更多細節".
-- Accepting vague requirements such as "make it fast", "完整支援", "正常運作", or "優化體驗" without testable conditions.
-- Combining create, edit, delete, publish, permissions, validation, and reporting into one User Story.
-- Writing unconfirmed APIs, DB tables, architecture, dependencies, or deployment as product requirements.
-- Skipping security, permissions, error handling, or edge cases when they affect acceptance.
+- 沒有工作坊評估就直接產生規格。
+- 問泛問句，例如「是否需要補充更多細節」。
+- 接受「make it fast」、「完整支援」、「正常運作」、「優化體驗」等不可測語句。
+- 把建立、編輯、刪除、發布、權限、驗證、報表混成一條 User Story。
+- 把未確認 API、資料表、架構、相依套件或部署方式寫成產品需求。
+- 會影響驗收時跳過安全、權限、錯誤處理或邊界情境。
 
-## Reference Guide
+## 參考文件
 
-Load detailed guidance based on context:
+依情境載入以下 reference：
 
-| Topic | Reference | Load When |
+| 主題 | 參考檔 | 使用時機 |
 | --- | --- | --- |
-| Interview Questions | `references/interview-questions.md` | Gathering requirements or generating `questionPlan` |
-| EARS Syntax | `references/ears-syntax.md` | Writing PRD functional requirements |
-| Acceptance Criteria | `references/acceptance-criteria.md` | Writing or validating Given / When / Then AC |
-| Specification Template | `references/specification-template.md` | Structuring final spec-like PRD output |
-| Pre-Discovery Subagents | `references/pre-discovery-subagents.md` | Multi-domain features needing front-loaded context |
+| 訪談問題 | `references/interview-questions.md` | 蒐集需求或產生 `questionPlan` |
+| EARS 語法 | `references/ears-syntax.md` | 撰寫 PRD 功能需求 |
+| 驗收條件 | `references/acceptance-criteria.md` | 撰寫或驗證 Given / When / Then AC |
+| 規格模板 | `references/specification-template.md` | 參考類 spec 的 PRD 結構 |
+| 前置探索 Subagents | `references/pre-discovery-subagents.md` | 多 domain feature 需要先補技術 context 時 |
 
-## Completion Criteria
+## 完成標準
 
-After using this skill, planner / validator must be able to explain:
+使用本 skill 後，planner / validator 必須能說明：
 
-- Which PM Hat and Dev Hat gaps were checked.
-- Which issues are blocking, important, or non-blocking.
-- Which `questionPlan` items map to which User Story / PRD fields.
-- Why the artifact is `ready-to-write`, `needs-questions`, or `blocked`.
+- 已檢查哪些 PM Hat 與 Dev Hat 缺口。
+- 哪些問題是阻塞、重要或非阻塞。
+- 哪些 `questionPlan` 對應哪些 User Story / PRD 欄位。
+- 為什麼產出物是 `ready-to-write`、`needs-questions` 或 `blocked`。

@@ -1,44 +1,44 @@
-# Specification Template
+# 規格模板
 
-Use this as a structure reference. The local `prd` and `breakdown-feature-prd` skills still define the final Chinese document shape.
+這是結構參考。最終中文文件格式仍以本地 `prd` 與 `breakdown-feature-prd` skills 為準。
 
 ```markdown
-# Feature: [Name]
+# Feature: [名稱]
 
-## Overview
-[Feature value and target user]
+## 概要
+[功能價值與目標使用者]
 
-## Functional Requirements
+## 功能需求
 
-### FR-001: [Requirement Name]
-While <precondition>, when <trigger>, the system shall <response>.
+### FR-001: [需求名稱]
+在 <前置條件> 期間，當 <觸發條件> 時，系統應 <回應>。
 
-## Non-Functional Requirements
+## 非功能需求
 
-- Performance:
-- Security:
-- Privacy:
-- Accessibility:
-- Reliability:
+- 效能：
+- 安全：
+- 隱私：
+- 無障礙：
+- 可靠性：
 
-## Acceptance Criteria
+## 驗收條件
 
-### AC-001: [Scenario Name]
-Given [context]
-When [action]
-Then [expected result]
+### AC-001: [情境名稱]
+Given [前置情境]
+When [動作]
+Then [預期結果]
 
-## Error Handling
+## 錯誤處理
 
-| Error Condition | User-Visible Result | Recovery |
+| 錯誤條件 | 使用者可見結果 | 復原方式 |
 | --- | --- | --- |
-| Invalid input | Specific field error | User can correct and retry |
+| 無效輸入 | 具體欄位錯誤 | 使用者可修正並重試 |
 
-## Out of Scope
+## 範圍外
 
-- [Explicit non-goal]
+- [明確非目標]
 
-## Open Questions
+## 待確認問題
 
-- [Blocking or non-blocking decision]
+- [阻塞或非阻塞決策]
 ```

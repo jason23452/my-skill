@@ -1,41 +1,41 @@
-# Acceptance Criteria
+# 驗收條件
 
-## Given / When / Then Format
+## Given / When / Then 格式
 
 ```markdown
-### AC-001: [Scenario Name]
-Given [context/precondition]
-When [action taken]
-Then [expected result]
+### AC-001: [情境名稱]
+Given [前置情境 / 前置條件]
+When [執行的動作]
+Then [預期結果]
 ```
 
-## Scenario Types
+## 情境類型
 
-- Happy path: valid state, valid action, success result.
-- Error: invalid state or input, action, specific error or recovery result.
-- Edge case: boundary condition, action, graceful handling.
-- Authorization: user role, protected action, appropriate access result.
-- Empty state: no data or unavailable content, action, useful fallback.
-- Conflict: duplicate, stale state, concurrent change, resolution behavior.
+- 成功路徑：有效狀態、有效動作、成功結果。
+- 錯誤情境：無效狀態或輸入、動作、具體錯誤或復原結果。
+- 邊界情境：邊界條件、動作、妥善處理方式。
+- 授權情境：使用者角色、受保護動作、正確存取結果。
+- 空狀態：沒有資料或內容不可用時，提供有用 fallback。
+- 衝突情境：重複、過期狀態、同時變更與解決方式。
 
-## Quality Rules
+## 品質規則
 
-- AC must be independently testable.
-- AC must be objective pass/fail, not vague quality language.
-- Success and failure should not be mixed in one AC.
-- Test data is required when outcome depends on inputs, state, thresholds, permissions, or counts.
-- Each AC should trace back to a User Story or PRD FR.
+- AC 必須可獨立測試。
+- AC 必須有客觀 pass/fail 判準，不可只有模糊品質描述。
+- 成功與失敗不要混在同一條 AC。
+- 結果依賴輸入、狀態、門檻、權限或數量時，必須提供測試資料。
+- 每條 AC 應能追溯到 User Story 或 PRD FR。
 
-## Examples
+## 範例
 
 ```markdown
-### AC-001: Successful Submission
-Given an authenticated user has completed all required fields
-When they submit the form
-Then the system saves the record and shows a success confirmation
+### AC-001: 成功送出
+Given 已登入使用者完成所有必填欄位
+When 使用者送出表單
+Then 系統儲存紀錄並顯示成功確認訊息
 
-### AC-002: Missing Required Field
-Given an authenticated user leaves a required field blank
-When they submit the form
-Then the system blocks submission and shows the field-level error message
+### AC-002: 缺少必填欄位
+Given 已登入使用者留空一個必填欄位
+When 使用者送出表單
+Then 系統阻擋送出並顯示欄位層級錯誤訊息
 ```

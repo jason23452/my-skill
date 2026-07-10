@@ -1,22 +1,22 @@
-# Pre-Discovery With Subagents
+# 使用 Subagents 進行前置探索
 
-Use only when feature discovery needs technical facts before asking stakeholder questions.
+只有在 feature discovery 需要先取得技術事實，再詢問 stakeholder 時使用。
 
-## When To Use
+## 使用時機
 
-- Feature spans three or more layers such as auth, database, UI, integration, or file handling.
-- Codebase patterns are unknown.
-- Security, privacy, or operational constraints could change the requirement.
+- Feature 橫跨三個以上層面，例如 auth、database、UI、integration 或 file handling。
+- 既有 codebase pattern 不明。
+- 安全、隱私或營運限制可能改變需求。
 
-## When Not To Use
+## 不使用時機
 
-- User Story stage only needs product discovery.
-- The feature is single-slice and product behavior is the main unknown.
-- The current agent permissions deny task or repo exploration.
+- User Story 階段只需要產品 discovery。
+- Feature 是單一切片，主要未知點是產品行為。
+- 目前 agent permission 禁止 task 或 repo exploration。
 
-## Pattern
+## 執行模式
 
-1. Identify affected domains.
-2. Launch read-only subagents where permitted.
-3. Feed factual findings into `questionPlan` as constraints or risks.
-4. Ask the user for decisions, not implementation guesses.
+1. 找出受影響 domains。
+2. 在權限允許時啟動 read-only subagents。
+3. 將事實發現作為限制或風險放入 `questionPlan`。
+4. 問使用者決策，不要猜實作方式。

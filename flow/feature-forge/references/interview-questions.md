@@ -1,53 +1,53 @@
-# Interview Questions
+# 訪談問題
 
-## PM Hat Questions
+## PM Hat 問題
 
-Focus on user value and business goals.
+聚焦使用者價值與商業目標。
 
-| Area | Questions |
+| 面向 | 問題 |
 | --- | --- |
-| Problem | What problem does this solve? Who experiences it? How often? |
-| Users | Who are the target users? What are their goals and context? |
-| Value | How will users benefit? What business result changes? |
-| Scope | What is in scope? What is explicitly out of scope? MVP vs later? |
-| Success | How will success be measured or demonstrated? |
-| Priority | Is this must-have, should-have, or nice-to-have? |
+| 問題 | 這解決什麼問題？誰遇到？多久發生一次？ |
+| 使用者 | 目標使用者是誰？他們的目標與情境是什麼？ |
+| 價值 | 使用者會得到什麼好處？哪個商業結果會改變？ |
+| 範圍 | 本次包含什麼？明確不包含什麼？MVP 與後續版本如何區分？ |
+| 成功 | 如何衡量或展示成功？ |
+| 優先順序 | 這是必做、重要或可延後？ |
 
-## Dev Hat Questions
+## Dev Hat 問題
 
-Focus on feasibility, constraints, and edge cases without turning discovery into implementation design.
+聚焦可行性、限制與邊界情境，但不要把需求探索變成實作設計。
 
-| Area | Questions |
+| 面向 | 問題 |
 | --- | --- |
-| Integration | What existing systems, workflows, data sources, or dependencies are affected? |
-| Security | Who can access this? Any sensitive data, PII, privacy, or audit concerns? |
-| Performance | What volume, latency, or concurrency expectations matter to acceptance? |
-| Edge Cases | What happens for empty states, invalid input, duplicates, conflicts, dependency failures, or limits? |
-| Data | What user-visible data is created, updated, retained, hidden, or deleted? |
-| Recovery | How should users understand and recover from failure? |
+| 整合 | 會影響哪些既有系統、流程、資料來源或相依性？ |
+| 安全 | 誰能存取？是否涉及敏感資料、PII、隱私或稽核？ |
+| 效能 | 哪些資料量、延遲或併發期待會影響驗收？ |
+| 邊界情境 | 空狀態、無效輸入、重複、衝突、相依服務失敗或限制超過時怎麼辦？ |
+| 資料 | 哪些使用者可見資料會被建立、更新、保留、隱藏或刪除？ |
+| 復原 | 使用者如何理解失敗並復原？ |
 
-## QuestionPlan Usage
+## QuestionPlan 使用方式
 
-Use structured options when answers are finite:
+答案有限且可預期時，使用結構化選項：
 
-- Priority: must-have, should-have, nice-to-have.
-- Scope: MVP, full version, phased.
-- Format or channel choices.
-- Permission and visibility behavior.
-- Error handling behavior.
-- Empty, invalid, duplicate, conflict, or unavailable states.
+- 優先順序：必做、重要、可延後。
+- 範圍：MVP、完整版本、分階段。
+- 格式或渠道選項。
+- 權限與可見性行為。
+- 錯誤處理行為。
+- 空狀態、無效、重複、衝突或不可用狀態。
 
-Use open-ended questions only for unbounded answers:
+答案無法預設選項時，才使用開放式問題：
 
-- Describe the user journey.
-- What problem does this solve?
-- What current workflow is being replaced?
+- 描述使用者旅程。
+- 這解決什麼問題？
+- 目前要取代哪個工作流程？
 
-## Interview Flow
+## 訪談流程
 
-1. Discovery: problem, users, value.
-2. Details: journey, scope, constraints.
-3. Edge cases: failures, limits, security, permissions.
-4. Validation: confirm AC and trade-offs.
+1. 探索：問題、使用者、價值。
+2. 細節：旅程、範圍、限制。
+3. 邊界情境：失敗、限制、安全、權限。
+4. 驗證：確認 AC 與取捨。
 
-Each question must map to a specific field such as `actor`, `entryPoint`, `visibleOutcome`, `FR-01.Trigger`, `FR-01.Failure / Boundary`, `AC-02.Test Data`, `Non-Goals`, or `Risks`.
+每個問題都必須對應具體欄位，例如 `actor`、`entryPoint`、`visibleOutcome`、`FR-01.Trigger`、`FR-01.Failure / Boundary`、`AC-02.Test Data`、`Non-Goals` 或 `Risks`。
