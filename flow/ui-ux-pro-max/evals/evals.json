@@ -1,0 +1,41 @@
+{
+  "skill_name": "ui-ux-pro-max",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "幫我設計一個 AI 搜尋產品的 Next.js landing page，要有設計系統、hero、CTA、深色模式與手機版。",
+      "expected_output": "Agent should use the skill workflow to derive product context, generate or reference a design system, make concrete UI/UX decisions, and mention responsive/accessibility/dark-mode checks.",
+      "files": [],
+      "expectations": [
+        "The output identifies product type, audience, page goal, visual direction, and stack.",
+        "The output includes concrete design-system decisions such as palette, typography, spacing, motion, and component states.",
+        "The output addresses responsive behavior, accessibility, dark mode, and reduced motion.",
+        "The output avoids generic claims like 'make it modern' without implementation guidance."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Review this dashboard UI for UX problems, especially charts, tables, forms, and mobile layout.",
+      "expected_output": "Agent should review from a UX/accessibility perspective and prioritize actionable findings over aesthetic opinions.",
+      "files": [],
+      "expectations": [
+        "The output prioritizes findings by user impact.",
+        "The output checks charts, tables, forms, responsive layout, loading/error/empty states, and accessibility.",
+        "Each finding includes impact and a concrete recommendation.",
+        "The output distinguishes guideline-based issues from subjective preference."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "這個 React Native app 的列表點擊區太小、深色模式看不清楚，幫我改善 UI/UX。",
+      "expected_output": "Agent should apply mobile/app UI rules, touch target requirements, dark-mode contrast guidance, and React Native stack awareness.",
+      "files": [],
+      "expectations": [
+        "The output mentions minimum touch target size and press feedback.",
+        "The output treats light and dark mode contrast separately.",
+        "The output considers safe areas, accessibility labels, and screen reader order.",
+        "The output stays relevant to React Native/mobile rather than desktop-only web patterns."
+      ]
+    }
+  ]
+}

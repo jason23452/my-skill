@@ -1,0 +1,44 @@
+{
+  "skill_name": "web-design-guidelines",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Review src/components/LoginForm.tsx for accessibility and Web Interface Guidelines issues.",
+      "expected_output": "Agent should fetch the latest Vercel Labs Web Interface Guidelines, read the specified file, and return file:line findings.",
+      "files": [
+        "src/components/LoginForm.tsx"
+      ],
+      "expectations": [
+        "The output states or demonstrates that the latest guidelines were fetched before review.",
+        "The output only reviews the specified file unless related context is necessary.",
+        "Findings use file:line style references.",
+        "The output focuses on guideline violations, not subjective redesign ideas."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "check my site against best practices",
+      "expected_output": "Agent should ask for files or a pattern because no review scope was provided.",
+      "files": [],
+      "expectations": [
+        "The output asks which files or glob pattern to review.",
+        "The output does not guess the whole repository scope.",
+        "The output keeps the question concise."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Audit app/**/*.tsx for UI/UX problems, but do not change files.",
+      "expected_output": "Agent should fetch guidelines, inspect matching files, and report findings without editing.",
+      "files": [
+        "app/**/*.tsx"
+      ],
+      "expectations": [
+        "The output does not modify files.",
+        "The output reports findings in priority order.",
+        "The output includes reviewed scope and residual risks.",
+        "If no findings are found, the output explicitly says No findings."
+      ]
+    }
+  ]
+}
