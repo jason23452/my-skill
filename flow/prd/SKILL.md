@@ -12,7 +12,7 @@ license: MIT
 
 本 skill 的 discovery 與 question 品質必須搭配：
 
-- `requirements-clarity`：先做 clarity score、gapAnalysis 與 blocking questionPlan。
+- `feature-forge`：先做需求工作坊、PM / Dev Hat gapAnalysis、readiness gate 與 blocking questionPlan。
 - `github-prd-discovery`：補強問題陳述、成功指標、scope、user stories、acceptance criteria 與 risk discovery。
 
 ## 使用時機
@@ -31,11 +31,11 @@ license: MIT
 
 寫 PRD 前先補齊關鍵空白。不要在資訊不足時直接假設。
 
-先用 `requirements-clarity` 評分：
+先用 `feature-forge` 評估 readiness：
 
-- `>= 90`: 可以進入定稿或下一階段。
-- `75-89`: 可以產生詳細草稿，但必須保留 non-blocking open questions。
-- `< 75`: 不可定稿，必須先產生 questionPlan。
+- `ready-to-write`: 可以產生詳細草稿；non-blocking gaps 必須保留為 assumptions、risks 或 open questions。
+- `needs-questions`: 不可定稿；blocking / important gaps 必須先產生 questionPlan。
+- `blocked`: 不可寫草稿或定稿；必須回報缺少的來源、決策或 skill 載入問題。
 
 至少釐清：
 
@@ -130,7 +130,7 @@ license: MIT
 ### 必須做
 
 - 先補齊 discovery gaps，再寫 PRD。
-- 先用 `requirements-clarity` 找出 blocking gaps，再用 `github-prd-discovery` 排定 PRD discovery question 順序。
+- 先用 `feature-forge` 找出 blocking gaps，再用 `github-prd-discovery` 排定 PRD discovery question 順序。
 - 對 AI 系統明確定義 eval、品質指標與安全邊界。
 - 用具體數字或可驗收行為取代模糊形容詞。
 - 產出 draft 後，請使用者針對 scope、metrics、acceptance criteria、non-goals 回饋。
