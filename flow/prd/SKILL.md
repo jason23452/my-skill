@@ -10,6 +10,11 @@ license: MIT
 
 本 skill 用於設計 production-grade 的產品需求文件，將商業願景、使用者問題與工程執行需求連接起來。產出的 PRD 應該能成為產品、設計、工程、QA 與 stakeholder 的共同 source of truth。
 
+本 skill 的 discovery 與 question 品質必須搭配：
+
+- `requirements-clarity`：先做 clarity score、gapAnalysis 與 blocking questionPlan。
+- `github-prd-discovery`：補強問題陳述、成功指標、scope、user stories、acceptance criteria 與 risk discovery。
+
 ## 使用時機
 
 在以下情境使用本 skill：
@@ -26,6 +31,12 @@ license: MIT
 
 寫 PRD 前先補齊關鍵空白。不要在資訊不足時直接假設。
 
+先用 `requirements-clarity` 評分：
+
+- `>= 90`: 可以進入定稿或下一階段。
+- `75-89`: 可以產生詳細草稿，但必須保留 non-blocking open questions。
+- `< 75`: 不可定稿，必須先產生 questionPlan。
+
 至少釐清：
 
 - 核心問題：現在為什麼要做？不做的成本是什麼？
@@ -34,7 +45,11 @@ license: MIT
 - 範圍限制：時程、預算、技術棧、相依系統、法規、安全、資料限制。
 - 非目標：這次明確不做什麼？哪些需求延後？
 
+再用 `github-prd-discovery` 檢查提問順序：problem before solution、outcome before output、scope before details、scenario before field、acceptance before finalize、risk before handoff。
+
 若使用者已提供充分背景，可以只問缺失的 2 到 5 個關鍵問題；不要為了流程而重複訪談已明確的內容。
+
+每個問題必須對應具體 PRD 欄位，例如 `FR-xx.Entry Point`、`FR-xx.Failure / Boundary`、`AC-xx.Test Data`、`Non-Goals` 或 `Risks`。不要問「是否補充更多細節」這類無法直接改善文件的問題。
 
 ### Phase 2: Analysis And Scoping
 
@@ -72,6 +87,7 @@ license: MIT
 - 每個 user story 都要能連到問題、persona 或 business goal。
 - 每個 acceptance criterion 都要能用測試、人工 QA、log、metric 或 demo 證明。
 - 技術限制要標明來源：使用者提供、repo evidence、既有架構、法規或暫定假設。
+- 每個 blocking open question 都要能連回一個 PRD 欄位、FR 或 AC；無法追溯的問題不要問。
 
 ## PRD 輸出結構
 
@@ -114,6 +130,7 @@ license: MIT
 ### 必須做
 
 - 先補齊 discovery gaps，再寫 PRD。
+- 先用 `requirements-clarity` 找出 blocking gaps，再用 `github-prd-discovery` 排定 PRD discovery question 順序。
 - 對 AI 系統明確定義 eval、品質指標與安全邊界。
 - 用具體數字或可驗收行為取代模糊形容詞。
 - 產出 draft 後，請使用者針對 scope、metrics、acceptance criteria、non-goals 回饋。
@@ -123,6 +140,7 @@ license: MIT
 - 不要在沒有足夠資訊時直接產完整 PRD。
 - 不要發明使用者沒確認的技術棧、API、DB、預算或 deadline。
 - 不要把 feature list 當成 PRD；必須有問題、目標、使用者、驗收與風險。
+- 不要產生沒有欄位映射的泛問句，例如「是否要更完整」、「是否優化體驗」、「是否支援更多情境」。
 
 ## 範例片段
 
