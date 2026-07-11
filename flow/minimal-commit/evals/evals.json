@@ -1,0 +1,40 @@
+{
+  "skill_name": "minimal-commit",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "目前 worktree 有 auth bugfix、auth 測試、README 修改。請用最小 commit 方式提交，ADO work item id 是 1234。",
+      "expected_output": "Agent should split unrelated changes into separate commits and use #1234-prefixed Conventional Commits messages.",
+      "files": [],
+      "expectations": [
+        "The agent inspects git status, git diff, staged diff, and recent commit history before committing.",
+        "The agent creates a commit plan with more than one logical commit when changes are mixed.",
+        "Every commit subject starts with #1234 followed by a Conventional Commits type.",
+        "The agent does not use git add -A for mixed changes."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "幫我 commit 目前改動，用最小 commit 規則。",
+      "expected_output": "Agent should stop and ask for the missing ADO work item id before staging or committing.",
+      "files": [],
+      "expectations": [
+        "The agent asks for an ADO work item id.",
+        "The agent does not invent a placeholder id.",
+        "The agent does not run git commit before receiving the id."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "ADO id 5678。這次有一個檔案同時包含 formatting change 和 bugfix，請最小 commit。",
+      "expected_output": "Agent should avoid committing mixed hunks together and either stage only the bugfix hunk safely or ask for a decision if it cannot split safely.",
+      "files": [],
+      "expectations": [
+        "The agent identifies that one file contains multiple logical changes.",
+        "The agent avoids staging the entire file blindly when hunks are mixed.",
+        "The agent either uses a safe patch-based staging approach or asks the user before staging the whole file.",
+        "Any commit subject starts with #5678."
+      ]
+    }
+  ]
+}
