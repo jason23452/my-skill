@@ -35,6 +35,18 @@ description: 建立、修復或審查 responsive layout、mobile-first UI、cont
 
 ## 工作流程
 
+### 0. 先界定 responsive scope
+
+若任務是整體系統排版、admin/dashboard、app shell、route hierarchy、`design/ui-layout.md` 或多頁 frontend system，不可只檢查單一頁面。先建立 system-level responsive contract：
+
+- desktop shell：sidebar、rail、top nav、tabs、secondary panel、action bar 的預設排列。
+- tablet shell：sidebar 是否收斂、panel 是否轉 drawer、table/list/detail 是否重新分層。
+- mobile shell：navigation 入口、content order、sticky primary action、safe area、drawer/sheet 使用方式。
+- page template behavior：dashboard、list、detail、form、settings、empty/error/loading 在不同寬度的排列。
+- data-dense behavior：table、filter、pagination、bulk action、row action、detail panel 如何在窄螢幕保留可操作性。
+
+完成條件：能描述整個 frontend system 在 375px、768px、1024px、1440px 的 layout 行為，而不是只說「mobile 單欄」。
+
 ### 1. 先判斷 responsive 問題類型
 
 從需求、截圖、程式碼或現有畫面判斷：
@@ -131,5 +143,13 @@ description: 建立、修復或審查 responsive layout、mobile-first UI、cont
 - 使用的 layout strategy：Flexbox、Grid、container query、fluid type、breakpoints。
 - 需要修改的 CSS / component / layout 位置。
 - 測試寬度與驗證方式。
+
+若輸出是 `design/ui-layout.md` 或 system layout spec，還必須包含：
+
+- app shell collapse table：desktop / tablet / mobile。
+- page template responsive matrix：dashboard、list、detail、form、settings、state pages。
+- action placement responsive rules：primary、secondary、bulk、danger、sticky。
+- panel/drawer/modal responsive rules：right panel 何時變 drawer、modal 何時改 full-screen sheet。
+- data-dense fallback：table/list/detail 在 mobile 的改寫策略。
 
 若使用者要求實作，直接修改相關檔案並驗證。若只要求規劃，輸出清楚的 responsive layout spec。

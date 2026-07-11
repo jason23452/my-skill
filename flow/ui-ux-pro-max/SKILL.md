@@ -40,8 +40,12 @@ description: 當使用者要設計、建立、重構、審查、改善或修復 
 - 視覺方向：minimal、editorial、playful、technical、luxury、brutalist、glass、dark、dense、spacious。
 - 技術 stack：讀 package/config 或使用者指定。不要憑空假設。
 - 既有設計系統：若 repo 已有 tokens、theme、components，優先延續；不要重新發明。
+- frontend surface 範圍：單頁、單一 flow、多頁 app、admin console、前台 + 後台、dashboard、設定區或資料維護系統。
+- 系統級 layout evidence：現有 routes、app shell、navigation、page templates、shared layout components、sidebar/drawer/table/form patterns。
 
 完成條件：能用 2 到 5 句說明「這個介面服務誰、要完成什麼、視覺應該支持什麼」。
+
+若任務是產生或審查 `design/ui-layout.md`、整體前端排版、app shell、dashboard/admin 系統、route hierarchy 或 page templates，完成條件還必須包含：能說明整個 frontend system 的 app shell、route hierarchy、page template taxonomy、grid/container policy、responsive policy 與 action placement policy。不可只描述單一頁面 main content。
 
 ### 2. 產生或讀取設計系統
 
@@ -141,6 +145,21 @@ python <skill-path>/scripts/search.py "<keyword>" --stack <stack>
 - chart 無法被理解或無法被輔助技術讀取。
 
 完成條件：輸出不只說「更好看」，而是能指出具體改善、實作位置與驗收方式。
+
+### 6. 系統排版輸出規則
+
+當輸出目標是 `design/ui-layout.md`、system layout spec、admin/dashboard layout、或 UIUX designer agent 的 layout planning 時，必須把文件主體寫成 `System Layout Contract`：
+
+- `System Shell Policy`：全域導覽與 app shell 選擇，包含不採用其他 shell 的理由。
+- `Route / Surface Hierarchy`：global nav、section nav、page tabs、detail、settings、modal、drawer、panel 的層級。
+- `Page Template Policies`：dashboard、list/index、detail、form/editor、settings、empty/loading/error 的共用模板。
+- `Grid / Container / Spacing Policy`：desktop/tablet/mobile grid、container width、panel ratio、spacing scale、density。
+- `Action Placement Rules`：primary、secondary、danger、bulk、sticky action 的位置與響應式變化。
+- `Panel / Drawer / Modal Rules`：何時使用 panel、drawer、modal、inline expansion 或 full page。
+- `Responsive Layout Rules`：shell collapse、content stacking、touch target、sticky action、table/list/detail 改寫。
+- `Representative Screens`：用少量代表畫面驗證 contract，但不可讓單一 feature 取代整份 layout policy。
+
+完成條件：feature-specific component、state、form、microcopy 只能放在後段 notes；若它們變成文件主體，必須重寫。
 
 ## 優先級 Checklist
 

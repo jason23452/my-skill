@@ -1,11 +1,11 @@
 ---
 name: design-taste-frontend
-description: 用於 landing page、作品集與既有頁面 redesign 的 anti-slop frontend design skill。協助 agent 先讀懂 brief、判斷設計方向、避免模板化 layout，並用高標準檢查 typography、layout、motion、content、RWD 與互動狀態。
+description: 用於 landing page、作品集、既有頁面 redesign、admin/dashboard 與整體系統排版規劃的 anti-slop frontend design skill。協助 agent 先讀懂 brief、判斷設計方向、避免模板化 layout，並用高標準檢查 app shell、route hierarchy、page templates、typography、layout、motion、content、RWD 與互動狀態。
 ---
 
 # 前端設計品味
 
-這個 skill 用於提升前端頁面設計品味，特別適合：landing page、portfolio、marketing site、品牌頁、既有網站 redesign。它不是 dashboard / data table / 複雜後台 UI 的主要規範；若是後台或資料密集產品，只取用其中的 typography、density、state 與 accessibility 檢查。
+這個 skill 用於提升前端頁面設計品味，特別適合：landing page、portfolio、marketing site、品牌頁、既有網站 redesign，也可用於 admin / dashboard / management console 的整體系統排版決策。後台或資料密集產品使用本 skill 時，重點不是做花俏視覺，而是避免單一功能頁模板化、缺少 app shell 決策、route hierarchy 不清、page template 無法複用，以及 RWD collapse 只靠口頭描述。
 
 核心目標：先讀懂使用者想要什麼，再決定 layout、視覺語氣與 motion。不要套用固定模板，不要產出看起來像 AI 預設的紫色漸層、置中 hero、三張等寬卡片、Inter + slate、到處 glassmorphism 的頁面。
 
@@ -58,7 +58,26 @@ VISUAL_DENSITY: 1-10    # 1 = art gallery 留白，10 = cockpit 資訊密集
 
 若要產生或大幅重寫 `design/ui-layout.md`，必須先形成 layout decision。若沒有足夠線索，回 `blocked` 或輸出 question plan，讓使用者選 layout 方向。
 
-至少提供 2-3 個具體 layout 選項，每個選項必須包含：
+`design/ui-layout.md` 預設是整體系統排版政策文件，不是單一 PRD 功能頁的欄位/狀態規格。除非使用者明確要求只規劃單頁，否則 layout decision 必須先回答整個 frontend system 如何排版，再把本輪 feature 放入代表性 surface。
+
+完成條件：輸出中必須能分辨「System Layout Contract」與「Feature-specific Layout Notes」。前者是主體，後者只能補充本輪功能的 placement。
+
+### System Layout Contract
+
+產生 `design/ui-layout.md` 或 layout preview 時，必須先定義以下全域 contract：
+
+- App shell：left sidebar、navigation rail、top nav、drawer、tabs、no persistent shell 的選擇與不採用原因。
+- Route hierarchy：global nav、section nav、page tabs、detail route、settings、modal/drawer surface 的層級。
+- Page template taxonomy：dashboard / overview、list / index、detail、form / editor、settings、empty / loading / error 的共用模板。
+- Grid and container policy：container max width、sidebar/panel ratio、content width、column rules、breakpoints。
+- Density and rhythm：資料密度、section rhythm、header/action/footer 高度、card/list/table spacing。
+- Action placement：primary、secondary、danger、bulk、sticky action 的固定規則。
+- Responsive policy：desktop/tablet/mobile 的 shell collapse、content stacking、drawer/panel behavior、sticky action。
+- Visual composition：視覺焦點、surface 層級、留白比例、content density 與 style treatment。
+
+若產物主要篇幅是畫面清單、欄位清單、表單驗證、狀態矩陣或 microcopy，而不是上述 contract，必須視為 layout planning 失敗並重寫。
+
+至少提供 2-3 個具體 layout 選項，每個選項必須是一套可套用到整個 frontend system 的 layout policy，而不是單頁 main content 排法。每個選項必須包含：
 
 - 適用原因
 - 資訊層級
@@ -66,6 +85,9 @@ VISUAL_DENSITY: 1-10    # 1 = art gallery 留白，10 = cockpit 資訊密集
 - section rhythm
 - mobile collapse strategy
 - 風險
+- app shell / navigation model
+- page template coverage
+- grid / density / action placement policy
 
 常用 layout 選項：
 
