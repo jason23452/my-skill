@@ -17,7 +17,8 @@ compatibility: Python 3.12 FastAPI 後端，使用 uv、SQLAlchemy 2 async、asy
   "scaffoldCommand": [
     "uv init --app --name greenfield-backend --no-readme --no-workspace --vcs none",
     "uv add \"fastapi[standard]>=0.115.0\"",
-    "if test -f .opencode/skills/backend-feature-fastapi/scripts/bootstrap-01-03.cjs; then node .opencode/skills/backend-feature-fastapi/scripts/bootstrap-01-03.cjs; else node ${OPENCODE_PROJECT_SKILLS_PRESEEDED_DIR:-/app/.opencode/skills}/backend-feature-fastapi/scripts/bootstrap-01-03.cjs; fi"
+    "if test -f .opencode/skills/backend-feature-fastapi/scripts/bootstrap-01-03.cjs; then node .opencode/skills/backend-feature-fastapi/scripts/bootstrap-01-03.cjs; else node ${OPENCODE_PROJECT_SKILLS_PRESEEDED_DIR:-/app/.opencode/skills}/backend-feature-fastapi/scripts/bootstrap-01-03.cjs; fi",
+    "uv sync"
   ],
   "verificationCommands": [
     "uv run python -m compileall app"
@@ -34,7 +35,8 @@ compatibility: Python 3.12 FastAPI 後端，使用 uv、SQLAlchemy 2 async、asy
   "packageManager": "uv",
   "scaffoldCommand": [
     "uv add \"fastapi[standard]>=0.115.0\" \"pydantic-settings>=2.0.0\"",
-    "if test -f .opencode/skills/backend-feature-fastapi/scripts/bootstrap-02-02.cjs; then node .opencode/skills/backend-feature-fastapi/scripts/bootstrap-02-02.cjs; else node ${OPENCODE_PROJECT_SKILLS_PRESEEDED_DIR:-/app/.opencode/skills}/backend-feature-fastapi/scripts/bootstrap-02-02.cjs; fi"
+    "if test -f .opencode/skills/backend-feature-fastapi/scripts/bootstrap-02-02.cjs; then node .opencode/skills/backend-feature-fastapi/scripts/bootstrap-02-02.cjs; else node ${OPENCODE_PROJECT_SKILLS_PRESEEDED_DIR:-/app/.opencode/skills}/backend-feature-fastapi/scripts/bootstrap-02-02.cjs; fi",
+    "uv sync"
   ],
   "verificationCommands": [
     "uv run python -m compileall app"
