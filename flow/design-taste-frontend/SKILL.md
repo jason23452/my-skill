@@ -7,7 +7,7 @@ description: 用於 landing page、作品集、既有頁面 redesign、admin/das
 
 這個 skill 用於提升前端頁面設計品味，特別適合：landing page、portfolio、marketing site、品牌頁、既有網站 redesign，也可用於 admin / dashboard / management console 的整體系統排版決策。後台或資料密集產品使用本 skill 時，重點不是做花俏視覺，而是避免單一功能頁模板化、缺少 app shell 決策、route hierarchy 不清、page template 無法複用，以及 RWD collapse 只靠口頭描述。
 
-核心目標：先讀懂使用者想要什麼，再決定 layout、視覺語氣與 motion。不要套用固定模板，不要產出看起來像 AI 預設的紫色漸層、置中 hero、三張等寬卡片、Inter + slate、到處 glassmorphism 的頁面。
+核心目標：先讀懂使用者想要什麼，再決定 layout、視覺語氣與 motion。不要把紫色漸層、置中 hero、三張等寬卡片、Inter + slate、glassmorphism、dashboard、health check 或 greenfield test page 當預設起點；若產品證據支持其中某種 pattern，必須把它轉化成符合 PRD 的產品專屬 composition。
 
 ## 0. Brief 判讀
 
@@ -89,13 +89,17 @@ VISUAL_DENSITY: 1-10    # 1 = art gallery 留白，10 = cockpit 資訊密集
 - page template coverage
 - grid / density / action placement policy
 
-常用 layout 選項：
+Composition exploration pool。以下不是固定模板清單，而是可被 PRD evidence 支持或轉化的 composition models：
 
-1. 沉浸式銷售導向：hero 強、CTA 明顯、社會證明與產品亮點有節奏地出現。適合 landing / e-commerce / conversion。
-2. 任務流程導向：以步驟、表單、進度、狀態回饋為主。適合 checkout、booking、onboarding、申請流程。
-3. 資料瀏覽導向：列表、篩選、詳情切換、比較與快速掃描。適合 catalog、dashboard、management。
-4. Editorial / brand story：強 typography、敘事分段、圖片與 quote 做節奏。適合品牌、portfolio、agency。
-5. Asymmetric / showcase：非對稱 grid、重點作品/商品大圖、局部 overlap。適合 creative、premium、portfolio。
+1. Hero-like focal area：當 PRD 需要先建立品牌論點、產品承諾、conversion 或 onboarding context。
+2. Task flow / wizard：當主要任務是 checkout、booking、申請、設定、上傳、審核或 onboarding。
+3. Dashboard / overview：當 PRD 需要監控、營運、分析、健康狀態、風險總覽或快速 triage；必須產品專屬，不可退化成 KPI cards + table。
+4. Inspector workspace：當使用者需要列表/物件與細節同步判斷，例如審核、客服、訂單、內容管理。
+5. Timeline / activity stream：當時間、進度、歷史、追蹤、版本或事件是主要心智模型。
+6. Board / canvas：當使用者需要拖曳、組織、規劃、視覺化關係或空間工作區。
+7. Document workspace：當核心物件是文件、規格、合約、報告、審查意見或長內容。
+8. Catalog / gallery：當探索、比較、篩選與視覺選擇是核心任務。
+9. Editorial / brand story：當敘事、信任、品牌、案例或長頁閱讀是主要價值。
 
 行動版也要問或明確決定：
 
@@ -126,9 +130,9 @@ VISUAL_DENSITY: 1-10    # 1 = art gallery 留白，10 = cockpit 資訊密集
 
 若只是 aesthetic，不要假裝有官方 package。Glassmorphism、bento、brutalism、editorial、dark tech、mesh gradient、kinetic typography 都是設計方向，不是完整 design system。
 
-## 4. 版面反模板規則
+## 4. Template Reflex 檢查
 
-避免以下 AI 常見模板：
+以下是常見 AI template reflex，不是永遠禁止的 pattern。看到它們時先問：PRD 是否支持？這個 pattern 是否被產品化轉換？如果答案是否定，才重寫。
 
 - 置中 hero + 深色 mesh + 紫色 CTA。
 - 三張等寬 feature card。
@@ -140,10 +144,12 @@ VISUAL_DENSITY: 1-10    # 1 = art gallery 留白，10 = cockpit 資訊密集
 - CTA 文案在 desktop 斷行。
 - 多個 CTA label 表達同一意圖，例如 `Get in touch`、`Contact us`、`Let's talk` 同時出現。
 
-硬規則：
+Pattern evidence 規則：
 
-- Hero 必須在初始 viewport 內成立，CTA 不可需要往下捲才看到。
-- Hero headline desktop 最多 2 行；subtext 盡量 20 字以內。
+- 若使用 Hero，它必須是產品論點、互動 demo、主要物件 preview 或 onboarding context，不是大標 + 副標 + 雙 CTA 的 filler。
+- 若使用 Dashboard，它必須支援 PRD 的監控、triage、決策或狀態模型，不可只是 KPI cards、filter bar 與 table 的預設組合。
+- 若使用 Health Check，它必須對應真實健康/風險/品質模型，不可只是 greenfield app 或工程 smoke test 頁。
+- 若使用 Greenfield App shell，它必須是產品 shell 的第一版，不可出現 scaffold evidence、status check、sample cards 或 fake engineering dashboard。
 - section layout family 同頁最多使用一次，除非有明確理由。
 - 9 個 section 至少要有 4 種不同 layout family。
 - 每個 multi-column layout 必須寫清楚 `<768px` collapse 行為。
@@ -206,7 +212,7 @@ VISUAL_DENSITY: 1-10    # 1 = art gallery 留白，10 = cockpit 資訊密集
 
 - 設計判讀（Design Read）與產物一致。
 - 三個旋鈕有被實際反映。
-- layout 不是預設置中 hero + 三卡片。
+- layout pattern 有 PRD evidence，且不是未轉化的預設置中 hero / 三卡片 / KPI dashboard / health check scaffold。
 - desktop nav 不換行，hero 不溢出 viewport。
 - mobile collapse 逐 section 明確。
 - typography、color、radius、shadow 有一致規則。

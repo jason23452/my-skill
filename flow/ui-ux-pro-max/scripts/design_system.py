@@ -63,70 +63,66 @@ DIAL_TIERS = {
 }
 
 
-PALETTE_ALTERNATIVE_SLOTS = [
+PALETTE_STRATEGY_CANDIDATES = [
     {
         "id": "option-a",
-        "label": "Cool technical clarity",
-        "colorTemperature": "cool",
-        "palettePosture": "cool technical / register clarity",
-        "dominantHueFamily": "slate + blue/cyan",
-        "backgroundTemperature": "cool neutral",
-        "accentHueFamily": "cyan/blue",
-        "warmHueUsage": "none except semantic warning",
-        "primary": "#1E40AF",
-        "secondary": "#0E7490",
-        "accent": "#06B6D4",
-        "background": "#F8FAFC",
-        "foreground": "#0F172A",
-        "notes": "Use for operational clarity, status registers, audit trails, and technical trust without warm SaaS cues."
+        "label": "Operational clarity",
+        "colorStrategy": "operational clarity",
+        "evidenceRequired": "PRD emphasizes monitoring, triage, audit trails, register clarity, high-frequency operations, or role-based decisions.",
+        "suggestedHueFamilies": "cool neutrals, blue/cyan, graphite, restrained semantic status colors",
+        "contrastModel": "clear register contrast with limited accent roles",
+        "templateReflexToAvoid": "generic SaaS blue dashboard or teal + amber status board",
+        "notes": "Derive final hex from the product's information hierarchy; do not copy this as a fixed palette slot."
     },
     {
         "id": "option-b",
-        "label": "Neutral monochrome + signal accent",
-        "colorTemperature": "neutral",
-        "palettePosture": "monochrome + single signal accent",
-        "dominantHueFamily": "white/gray/charcoal",
-        "backgroundTemperature": "pure neutral",
-        "accentHueFamily": "cobalt/cyan signal",
-        "warmHueUsage": "none except semantic warning",
-        "primary": "#111827",
-        "secondary": "#374151",
-        "accent": "#2563EB",
-        "background": "#FFFFFF",
-        "foreground": "#030712",
-        "notes": "Use when information hierarchy and trust should come from typography, spacing, and one precise action color."
+        "label": "Editorial trust",
+        "colorStrategy": "editorial trust",
+        "evidenceRequired": "PRD emphasizes reading, review, policy, documentation, compliance, judgment, or high-trust content.",
+        "suggestedHueFamilies": "neutral ink/paper, restrained blue/green/violet/brown only when supported, strong type contrast",
+        "contrastModel": "typographic hierarchy first, color as annotation",
+        "templateReflexToAvoid": "newspaper cosplay, warm paper default, or serif luxury without product evidence",
+        "notes": "Use for document/workspace or review surfaces when the product must feel considered rather than decorative."
     },
     {
         "id": "option-c",
-        "label": "High-contrast operational editorial",
-        "colorTemperature": "high-contrast",
-        "palettePosture": "high-contrast operational/editorial",
-        "dominantHueFamily": "black/white + electric blue",
-        "backgroundTemperature": "pure white or near-black",
-        "accentHueFamily": "electric blue",
-        "warmHueUsage": "none except semantic warning",
-        "primary": "#020617",
-        "secondary": "#334155",
-        "accent": "#3B82F6",
-        "background": "#FFFFFF",
-        "foreground": "#020617",
-        "notes": "Use when the interface needs strong reading order, audit seriousness, and a non-dashboard editorial hierarchy."
+        "label": "Brand-forward identity",
+        "colorStrategy": "brand-forward",
+        "evidenceRequired": "PRD or brand context emphasizes identity, campaign, consumer trust, differentiation, or memorable product personality.",
+        "suggestedHueFamilies": "one distinctive brand hue plus disciplined neutrals; temperature follows brand evidence",
+        "contrastModel": "brand hue carries recognition; surfaces stay disciplined",
+        "templateReflexToAvoid": "generic purple/blue gradient, luxury warm formula, or random expressive accent",
+        "notes": "Valid for hero-like or marketing surfaces only when the PRD needs a strong first impression."
     },
     {
         "id": "option-d",
-        "label": "Domain-semantic restrained",
-        "colorTemperature": "restrained",
-        "palettePosture": "domain-semantic restrained",
-        "dominantHueFamily": "industrial slate + semantic green",
-        "backgroundTemperature": "neutral cool",
-        "accentHueFamily": "green semantic",
-        "warmHueUsage": "warning/error semantics only",
-        "primary": "#334155",
-        "secondary": "#475569",
-        "accent": "#059669",
-        "background": "#F8FAFC",
-        "foreground": "#0F172A",
-        "notes": "Use when status, permission, completion, and inventory-like state semantics should guide color rather than brand warmth."
+        "label": "Domain-semantic system",
+        "colorStrategy": "domain-semantic",
+        "evidenceRequired": "PRD contains meaningful domain states such as risk, permission, health, inventory, compliance, payment, shipment, urgency, or quality.",
+        "suggestedHueFamilies": "semantic families chosen from domain meaning; brand accent stays separate from status colors",
+        "contrastModel": "state meaning drives color roles, not decoration",
+        "templateReflexToAvoid": "using warning/error/status colors as brand palette swatches",
+        "notes": "Health-check or dashboard colors are valid only when the PRD has a real state model."
+    },
+    {
+        "id": "option-e",
+        "label": "Material / metaphor-driven",
+        "colorStrategy": "material/metaphor-driven",
+        "evidenceRequired": "PRD has concrete product-world materials, places, artifacts, workflows, tools, documents, maps, media, or physical metaphors.",
+        "suggestedHueFamilies": "derived from the product world rather than UI category stereotypes",
+        "contrastModel": "material cue plus accessibility-grade foreground/background",
+        "templateReflexToAvoid": "literal mood-board mimicry or decorative texture without interaction purpose",
+        "notes": "Use when the interface should feel grounded in a real domain world, not an abstract SaaS shell."
+    },
+    {
+        "id": "option-f",
+        "label": "Expressive product personality",
+        "colorStrategy": "expressive product personality",
+        "evidenceRequired": "PRD targets playful, creative, consumer, education, community, portfolio, or emotionally differentiated experiences.",
+        "suggestedHueFamilies": "higher-chroma or unusual relationships when brand/task supports them",
+        "contrastModel": "one expressive move with disciplined supporting surfaces",
+        "templateReflexToAvoid": "random maximalism, novelty gradients, or motion/color that steals from the primary task",
+        "notes": "Use when memorability is product value, not just decoration."
     },
 ]
 
@@ -146,8 +142,8 @@ def _extract_color_evidence(color_results: list) -> list:
 
 def _build_palette_alternatives(color_results: list) -> list:
     alternatives = []
-    for slot in PALETTE_ALTERNATIVE_SLOTS:
-        alternatives.append({**slot, "source": "palette posture slot"})
+    for slot in PALETTE_STRATEGY_CANDIDATES:
+        alternatives.append({**slot, "source": "palette strategy candidate"})
 
     warm_evidence = None
     for row in color_results:
@@ -161,19 +157,13 @@ def _build_palette_alternatives(color_results: list) -> list:
     if warm_evidence:
         row, product_type, accent = warm_evidence
         alternatives.append({
-            "id": "option-e",
-            "label": "Warm human, evidence required",
-            "colorTemperature": "warm",
-            "palettePosture": "warm human / heritage only when justified",
-            "dominantHueFamily": "warm evidence from color search",
-            "backgroundTemperature": "pure neutral unless brand requires environmental warmth",
-            "accentHueFamily": "warm accent from evidence",
-            "warmHueUsage": "allowed only if PRD, brand, or user explicitly supports it",
-            "primary": row.get("Primary", ""),
-            "secondary": row.get("Secondary", ""),
-            "accent": accent,
-            "background": row.get("Background", ""),
-            "foreground": row.get("Foreground", ""),
+            "id": "warm-evidence",
+            "label": "Warm evidence candidate",
+            "colorStrategy": "warm evidence / heritage / human only when justified",
+            "evidenceRequired": "Use only when PRD, brand, user preference, or domain evidence explicitly supports warmth.",
+            "suggestedHueFamilies": f"candidate from color search: primary {row.get('Primary', '')}, accent {accent}, background {row.get('Background', '')}",
+            "contrastModel": "warm hue should carry brand/domain meaning; avoid tinting every surface by default",
+            "templateReflexToAvoid": "automatic cream / amber / brown warm SaaS formula",
             "notes": f"Optional only. Evidence source: {product_type} — {row.get('Notes', '')}",
             "source": "warm evidence, not default"
         })
@@ -418,7 +408,7 @@ class DesignSystemGenerator:
                 "ring": best_color.get("Ring", ""),
                 "notes": best_color.get("Notes", ""),
                 "evidence_only": True,
-                "selection_rule": "Top color search result is domain evidence, not the final palette. Pick from Palette Alternatives or derive a new palette posture with comparable hue-family diversity.",
+                "selection_rule": "Top color search result is domain evidence, not the final palette. Pick multiple Palette Strategy Candidates, then derive final hue families from PRD evidence instead of fixed slots.",
                 # Keep legacy keys for backward compat in MASTER.md
                 "cta": best_color.get("Accent", "#F97316"),
                 "text": best_color.get("Foreground", "#1E293B"),
@@ -595,12 +585,12 @@ def format_ascii_box(design_system: dict) -> str:
             lines.append(line.ljust(BOX_WIDTH) + "│")
 
     if palette_alternatives:
-        lines.append(section_header("PALETTE ALTERNATIVES", BOX_WIDTH + 1))
+        lines.append(section_header("PALETTE STRATEGY CANDIDATES", BOX_WIDTH + 1))
         for alt in palette_alternatives:
-            summary = f"{alt.get('id', '')}: {alt.get('label', '')} — {alt.get('colorTemperature', '')}; {alt.get('dominantHueFamily', '')}; accent {alt.get('accent', '')}"
+            summary = f"{alt.get('id', '')}: {alt.get('label', '')} — {alt.get('colorStrategy', '')}; hues: {alt.get('suggestedHueFamilies', '')}; evidence: {alt.get('evidenceRequired', '')}"
             for line in wrap_text(summary, "│     ", BOX_WIDTH):
                 lines.append(line.ljust(BOX_WIDTH) + "│")
-        for line in wrap_text("Use these as comparable direction slots. The top Colors palette is evidence only; do not rename it into multiple visual options.", "│     ", BOX_WIDTH):
+        for line in wrap_text("Use these as strategy candidates. The top Colors palette is evidence only; do not rename it into multiple visual options or force fixed cool/neutral/high-contrast/domain slots.", "│     ", BOX_WIDTH):
             lines.append(line.ljust(BOX_WIDTH) + "│")
 
     # Typography section
@@ -741,13 +731,13 @@ def format_markdown(design_system: dict) -> str:
     lines.append("")
 
     if palette_alternatives:
-        lines.append("### Palette Alternatives")
-        lines.append("These are comparable direction slots. The top Colors palette is domain evidence only; do not rename it into multiple visual options.")
+        lines.append("### Palette Strategy Candidates")
+        lines.append("These are strategy candidates. The top Colors palette is domain evidence only; derive final hue families from PRD evidence instead of renaming one palette into multiple options.")
         lines.append("")
-        lines.append("| Option | Temperature | Posture | Dominant Hue | Accent | Warm Usage |")
-        lines.append("|--------|-------------|---------|--------------|--------|------------|")
+        lines.append("| Option | Strategy | Evidence Required | Suggested Hue Families | Contrast Model | Template Reflex To Avoid |")
+        lines.append("|--------|----------|-------------------|------------------------|----------------|--------------------------|")
         for alt in palette_alternatives:
-            lines.append(f"| {alt.get('id', '')} | {alt.get('colorTemperature', '')} | {alt.get('palettePosture', '')} | {alt.get('dominantHueFamily', '')} | `{alt.get('accent', '')}` | {alt.get('warmHueUsage', '')} |")
+            lines.append(f"| {alt.get('id', '')} | {alt.get('colorStrategy', '')} | {alt.get('evidenceRequired', '')} | {alt.get('suggestedHueFamilies', '')} | {alt.get('contrastModel', '')} | {alt.get('templateReflexToAvoid', '')} |")
         lines.append("")
 
     # Typography section
@@ -974,14 +964,14 @@ def format_master_md(design_system: dict) -> str:
         lines.append("")
 
     if palette_alternatives:
-        lines.append("### Palette Alternatives")
+        lines.append("### Palette Strategy Candidates")
         lines.append("")
-        lines.append("Use these as comparable direction slots. The `Color Palette` above is domain evidence for backward compatibility, not a final multi-option visual direction.")
+        lines.append("Use these as strategy candidates. The `Color Palette` above is domain evidence for backward compatibility, not a final multi-option visual direction.")
         lines.append("")
-        lines.append("| Option | Temperature | Posture | Dominant Hue | Accent | Warm Usage |")
-        lines.append("|--------|-------------|---------|--------------|--------|------------|")
+        lines.append("| Option | Strategy | Evidence Required | Suggested Hue Families | Contrast Model | Template Reflex To Avoid |")
+        lines.append("|--------|----------|-------------------|------------------------|----------------|--------------------------|")
         for alt in palette_alternatives:
-            lines.append(f"| {alt.get('id', '')} | {alt.get('colorTemperature', '')} | {alt.get('palettePosture', '')} | {alt.get('dominantHueFamily', '')} | `{alt.get('accent', '')}` | {alt.get('warmHueUsage', '')} |")
+            lines.append(f"| {alt.get('id', '')} | {alt.get('colorStrategy', '')} | {alt.get('evidenceRequired', '')} | {alt.get('suggestedHueFamilies', '')} | {alt.get('contrastModel', '')} | {alt.get('templateReflexToAvoid', '')} |")
         lines.append("")
 
     # Typography

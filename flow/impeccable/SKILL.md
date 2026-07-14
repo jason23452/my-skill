@@ -133,9 +133,9 @@ node .claude/skills/impeccable/scripts/palette.mjs --avoid-warm
 - hover-only behavior 不可承載關鍵操作；觸控裝置也要可用。
 - 錯誤、loading、empty、disabled、success 狀態都要有明確回饋。
 
-## 絕對避免
+## Template Reflexes To Challenge
 
-看到以下傾向時，必須重寫設計而不是微調：
+以下傾向通常是 AI 預設 reflex。它們不是永遠禁止的 pattern；只有當 PRD、產品型態、內容結構或使用者任務沒有支持時，才必須重寫設計而不是微調。若 pattern 有產品證據，必須說明它如何被轉化成產品專屬 composition。
 
 - 彩色 `border-left` / `border-right` 當 card、list item、callout 的裝飾條。
 - gradient text 作為裝飾性強調。
@@ -145,6 +145,13 @@ node .claude/skills/impeccable/scripts/palette.mjs --avoid-warm
 - 每個 section 都有 tiny uppercase tracked eyebrow。
 - 每個 section 都用 `01 / 02 / 03` 編號，但內容不是有序流程。
 - heading 在 tablet/mobile overflow。
+
+Pattern evidence rules：
+
+- Hero 可以使用，但必須是產品論點、互動 demo、主要物件 preview 或 onboarding context，不是 generic marketing filler。
+- Dashboard 可以使用，但必須支援監控、triage、決策、營運或狀態模型，不是 KPI cards + table scaffold。
+- Health check 可以使用，但必須對應真實健康、風險、品質或 readiness model，不是 greenfield app 工程測試頁。
+- Greenfield app shell 可以使用，但必須呈現真正產品 surface，不可把 smoke test、sample status 或 placeholder metrics 當 UI。
 
 ## AI Slop 測試
 

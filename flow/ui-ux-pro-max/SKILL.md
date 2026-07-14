@@ -75,7 +75,7 @@ python <skill-path>/scripts/search.py "<query>" --design-system --persist -p "<P
 
 完成條件：實作前已有明確的 palette、type scale、spacing、radius、shadow/elevation、motion、component state、responsive 規則。
 
-`--design-system` 的 color search result 只能當 domain evidence，不可直接當 final palette。尤其 `colors.csv` 的產品類型 palette 是參考資料，不是多方向 visual direction generator。當需要 4-6 套風格方向或使用者指出「太暖 / 都是暖色系」時，必須使用輸出中的 `Palette Alternatives`，並至少比較 cool technical、neutral monochrome、high-contrast operational/editorial、domain-semantic restrained 等不同 `palettePosture`；不得只把 top color result 改名成多個 option。
+`--design-system` 的 color search result 只能當 domain evidence，不可直接當 final palette。尤其 `colors.csv` 的產品類型 palette 是參考資料，不是多方向 visual direction generator。當需要 4-6 套風格方向或使用者指出「太暖 / 都是暖色系」時，必須使用輸出中的 `Palette Strategy Candidates`：先從 PRD/brand/user context 萃取產品證據，再選出多個不同 `colorStrategy`，例如 domain-semantic、operational clarity、editorial trust、brand-forward、expressive product personality、material/metaphor-driven、restrained utility、high-contrast accessibility。不得只把 top color result 改名成多個 option，也不得硬套固定 cool / neutral / high-contrast / domain-semantic 配額。
 
 ### 3. 用資料庫補足細節
 
@@ -160,6 +160,8 @@ python <skill-path>/scripts/search.py "<keyword>" --stack <stack>
 - `Panel / Drawer / Modal Rules`：何時使用 panel、drawer、modal、inline expansion 或 full page。
 - `Responsive Layout Rules`：shell collapse、content stacking、touch target、sticky action、table/list/detail 改寫。
 - `Representative Screens`：用少量代表畫面驗證 contract，但不可讓單一 feature 取代整份 layout policy。
+- `PRD Evidence Trace`：每個主要 layout 或 pattern decision 都要對應產品型態、主要使用者任務、資訊物件、互動 surface 或信任/密度需求。
+- `Composition Rationale`：Hero、dashboard、health check、wizard、inspector、timeline、canvas、document workspace 等 pattern 都可使用，但必須說明為何符合 PRD，以及它如何被產品化轉換而不是 scaffold default。
 
 完成條件：feature-specific component、state、form、microcopy 只能放在後段 notes；若它們變成文件主體，必須重寫。
 

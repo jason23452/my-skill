@@ -31,6 +31,7 @@ Create distinctive interfaces that avoid generic "AI slop" aesthetics, have clea
 
 Before coding, commit to an aesthetic direction:
 - **Purpose**: What problem does this solve? Who uses it?
+- **PRD Evidence Fit**: Which product archetype, user decision, information object, interaction surface, or trust/density requirement makes this direction appropriate?
 - **Tone**: minimal, maximalist, retro-futuristic, organic, luxury, playful, editorial, brutalist, art deco, soft/pastel, industrial, etc.
 - **Constraints**: Framework, performance, accessibility requirements.
 - **Differentiation**: What makes this distinctive and context-appropriate?
@@ -43,7 +44,7 @@ Before coding, commit to an aesthetic direction:
 - **Spatial Composition**: Asymmetry, overlap, diagonal flow, grid-breaking elements, generous negative space OR controlled density.
 - **Backgrounds**: Gradient meshes, noise textures, geometric patterns, layered transparencies, dramatic shadows, grain overlays.
 
-**AVOID**: Overused fonts, cliched color schemes, predictable layouts, cookie-cutter design without context-specific character.
+**AVOID**: Overused fonts, cliched color schemes, predictable layouts, cookie-cutter design without context-specific character. Do not reject hero, dashboard, health-check, wizard, timeline, inspector, or canvas patterns by name; reject them only when they appear without product evidence or without transformation into a product-specific composition.
 
 Match implementation complexity to vision. Maximalist = elaborate code. Minimalist = restraint and precision.
 
@@ -74,10 +75,11 @@ Match implementation complexity to vision. Maximalist = elaborate code. Minimali
 1. Identify user task
 2. Check design system for matching patterns
 3. Evaluate aesthetic direction
-4. Identify scope (component, feature, or flow)
-5. Evaluate each pillar
-6. Score and prioritize issues (blocking/major/minor)
-7. Provide recommendations with design system examples
+4. Check PRD evidence fit: palette, layout pattern, density, and interaction model should trace back to the product task rather than a default scaffold.
+5. Identify scope (component, feature, or flow)
+6. Evaluate each pillar
+7. Score and prioritize issues (blocking/major/minor)
+8. Provide recommendations with design system examples
 
 ### Core Principles
 

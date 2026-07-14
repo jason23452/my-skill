@@ -125,7 +125,13 @@ Web 設計中的 hero 應該直接提出頁面的核心觀點。可以是：
 
 完成條件：每個選擇都能連回題材或任務，不是通用模板。
 
-若需要提供多個視覺方向，必須先定義每個方向的 `colorTemperature`、`dominantHueFamily` 與 `palettePosture`。多個方向不可共用同一組主色家族或只是 warm / cream / amber / terracotta 的變體；除非 brief 明確指定，至少要包含 cool / neutral / high-contrast / domain-semantic 這類真正不同的 palette posture。
+若需要提供多個視覺方向，必須先定義每個方向的 `colorStrategy`、`compositionModel`、`productEvidence` 與 `templateReflexTransformed`。多個方向不可只是同一套主色或同一種 layout family 換名稱；多樣性必須來自產品型態、使用者任務、資訊物件與互動 surface，而不是固定套用 cool / neutral / high-contrast / domain-semantic 配額。
+
+可用的開放式 `colorStrategy` 包含但不限於：domain-semantic、operational clarity、editorial trust、brand-forward、expressive product personality、material/metaphor-driven、restrained utility、high-contrast accessibility。warm / cool / neutral 都可以使用，但必須說明 PRD、brand 或使用者情境證據。
+
+可用的 `compositionModel` 包含但不限於：hero-like focal area、command center、inspector workspace、timeline、flow / wizard、board / canvas、document workspace、dashboard / overview、catalog / gallery、map / spatial view、conversation workspace。Hero、dashboard 或 health-check pattern 不是禁忌；只有在沒有產品證據時當成預設 scaffold 才是不合格。
+
+每個方向至少回答：`why this composition fits the PRD`、`what default template was avoided or transformed`、`what makes this product-specific`。
 
 ### 3. 自我反模板檢查
 

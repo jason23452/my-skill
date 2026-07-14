@@ -15,8 +15,8 @@ Design dials (1-10, only with --design-system):
   --motion     MOTION_INTENSITY: 1=subtle, 10=complex; attaches a GSAP snippet from motion.csv
   --density    VISUAL_DENSITY: 1=spacious, 10=dense/dashboard; overrides the spacing scale
 
---design-system output includes Palette Alternatives. Treat the top Colors
-result as domain evidence only, not as the final visual direction palette.
+--design-system output includes Palette Strategy Candidates. Treat the top
+Colors result as domain evidence only, not as the final visual direction palette.
 
 Persistence (Master + Overrides pattern):
   --persist    Save design system to design-system/MASTER.md
