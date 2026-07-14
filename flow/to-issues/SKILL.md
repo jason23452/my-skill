@@ -1,101 +1,103 @@
 ---
 name: to-issues
-description: 將 plan、spec、PRD 或目前對話拆成可獨立領取的 tracer-bullet issues。適用於把規劃文件轉成 vertical-slice tasks、issue tracker work items 或 ADO Task。
+description: Break a plan, spec, PRD, or conversation into independently-grabbable tracer-bullet issues. Use this skill when turning planning artifacts into vertical-slice tasks or issue tracker work items.
 disable-model-invocation: true
 source: https://github.com/mattpocock/skills/tree/main/skills/engineering/to-tickets
 ---
 
-# 拆分 Issues
+# To Issues
 
-將 plan、spec、PRD 或對話拆成 **issues**：每個 issue 都是可驗收的 tracer-bullet vertical slice，並明確宣告它被哪些 issue 阻擋。
+Break a plan, spec, PRD, or conversation into **issues**: tracer-bullet vertical slices, each declaring the issues that **block** it.
 
-此本地 skill 保留 `to-issues` 名稱以符合目前 workflow。上游 Matt Pocock skill 目前名為 `to-tickets`；此版本已調整為 PRD-to-ADO Task planning。
+This local skill preserves the `to-issues` name used by this workflow. The upstream Matt Pocock skill is currently named `to-tickets`; this copy is adapted for PRD-to-ADO Task planning.
 
-## 流程
+For this SDD workflow, generated issue/task content must be written in Traditional Chinese. Keep fixed IDs, file paths, commands, API paths, code symbols, JSON keys, package names, and technology terms in English when appropriate.
 
-### 1. 收集 Context
+## Process
 
-從使用者提供或 workflow 產出的規劃文件工作。本 SDD flow 預期來源包含：
+### 1. Gather Context
+
+Work from the provided planning artifacts. For this SDD flow, the expected sources are:
 
 - `prd.md`
 - `spec.md`
 - `project-context.md`
 - `bootstrap-result.json`
-- `design.md`
+- `ui-layout.md`
 - `plan.md`
-- frontend `design/system_design.md`，如果存在
+- frontend `design/ui_style_guide.md`, when available
 
-不要發明來源文件以外的需求。
+Do not invent requirements outside those sources.
 
-### 2. 必要時探索 Codebase
+### 2. Explore The Codebase When Needed
 
-如果 task title、dependencies、repo scope 或 verification steps 需要 repo vocabulary，只讀相關 README、AGENTS、package scripts、API route 位置、test folders、design/system docs。
+If task titles, dependencies, repo scope, or verification steps require repo vocabulary, inspect only the relevant README, AGENTS, package scripts, API route locations, test folders, and design/system docs.
 
-避免使用過期實作猜測。能使用實際 project terms 就不要用泛稱。
+Avoid stale implementation guesses. Use actual project terms where available.
 
-### 3. 草擬 Vertical Slices
+### 3. Draft Vertical Slices
 
-把工作拆成 tracer-bullet issues。
+Break the work into tracer-bullet issues.
 
 <vertical-slice-rules>
 
-- 每個 slice 都要切過必要層級中的一條窄路徑，例如 schema、API、UI、tests 或 integration evidence。
-- 完成後必須能獨立 demo 或驗證。
-- 每個 slice 要能在一個 fresh context window 或一個 OpenCode task session 中完成。
-- prefactoring 應該先做，且只阻擋真正需要它的 slices。
-- 優先產生 AFK-ready issues：清楚 objective、scope boundary、acceptance criteria、verification、expected evidence。
+- Each slice cuts a narrow but complete path through the required layers: schema, API, UI, tests, or integration evidence.
+- A completed slice is demoable or verifiable on its own.
+- Each slice fits in a single fresh context window or one OpenCode task session.
+- Any prefactoring should be done first and should be explicitly blocked by only the slices that truly need it.
+- Prefer AFK-ready issues: clear objective, scope boundary, acceptance criteria, verification, and expected evidence.
 
 </vertical-slice-rules>
 
-每個 issue 都要標出 blocking edges：哪些 issue 必須先完成。沒有 blockers 的 issue 可以立即開始。
+Give each issue its blocking edges: the other issues that must complete before it can start. An issue with no blockers can start immediately.
 
-### 4. 檢查 Granularity
+### 4. Check Granularity
 
-對每個 issue 內部檢查：
+For each issue, ask internally:
 
-- title 是否描述一個 outcome，而不是一包無關工作。
-- 一個 agent 是否能在單一 session 完成，不需要整個 feature context。
-- 除 final verification issue 外，是否最多涵蓋三條 acceptance criteria。
-- blockers 是否是真正 contract dependency，而不是同 repo 或同 layer 的假排序。
-- 再拆分是否能提高平行度，且不產生無意義碎片。
+- Does the title describe one outcome, not a bundle of unrelated work?
+- Can one agent complete it without needing the rest of the feature in the same session?
+- Does it cover no more than three acceptance criteria, unless it is a final verification issue?
+- Are the blockers genuine contracts, not just same-repo or same-layer ordering?
+- Would splitting it unlock more parallelism without creating meaningless fragments?
 
-如果 issue 太粗，發布前先拆小。
+If the answer exposes a coarse issue, split it before publishing tasks.
 
-### 5. 發布到此 Workflow
+### 5. Publish To This Workflow
 
-在本 SDD workflow 中，publish 指產出：
+In this SDD workflow, "publish" means producing:
 
 - root `task.md`
-- 每個 issue 一份 `tasks/<taskId>/task.md`
-- 每個 issue 一個 ADO Task child work item
-- 每個 issue 一個 session-only OpenCode session
-- 每個 issue 一份 `/previews/task-session/<sessionId>/task.md`
+- one `tasks/<taskId>/task.md` per issue
+- one ADO Task child work item per issue
+- one session-only OpenCode session per issue
+- one `/previews/task-session/<sessionId>/task.md` per issue
 
-本 skill 不修改 parent PRD 或 User Story work items。ADO Task 建立與 session dispatch 由 Work Coordinator tools 處理。
+Do not modify parent PRD/User Story work items from this skill. The Work Coordinator's tools handle ADO Task creation and session dispatch.
 
 <issue-template>
 
-## Parent 父層來源
+## Parent
 
-引用 parent PRD Work Item 與 source PRD run。
+參照父層 PRD Work Item 與來源 PRD run。
 
-## 要建什麼
+## 要建置什麼
 
-描述此 issue 要讓哪個 end-to-end behavior 或 engineering gate 成立。從使用者或 operator 角度描述，避免 layer-by-layer filler。
+從使用者或操作者角度描述此 issue 要完成的端到端行為或工程 gate。避免只列技術層填充內容。
 
 ## 驗收條件
 
-- Criterion 1
-- Criterion 2
+- 條件 1
+- 條件 2
 
-## 被哪些任務阻擋
+## 被哪些任務阻塞
 
-- 列出每個 blocking task，或寫 `None - can start immediately`。
+- 列出每個阻塞任務，或寫「無 - 可立即開始」。
 
-## 驗證方式
+## 驗證
 
-- 需要用來證明完成的 command、test、smoke check、screenshot、log 或 manual evidence。
+- 證明完成所需的指令、測試、smoke check、截圖、log 或人工驗證證據。
 
 </issue-template>
 
-按 frontier 工作：任何 blockers 都已完成的 issue，都可以獨立實作。
+Work the frontier one issue at a time. Any issue whose blockers are all done can be implemented independently.

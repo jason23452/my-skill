@@ -1,13 +1,13 @@
 ---
 name: prd-context-to-spec
-description: 將已定稿 prd.md 與已凍結 project-context.md 轉成 repo-aware spec.md。當流程位於 Bootstrap Result Gate、Project Context Freeze 之後，需要產生、審查或修補 spec.md、功能規格、驗收條件映射、PRD-to-spec、project-context-to-spec 時必須使用本 skill。
+description: 將已定稿 prd.md 與已凍結 project-context.md 轉成 repo-aware spec.md。當流程位於 Bootstrap Result Gate、Project Context Freeze 之後，需要產生、審查或修補 spec.md、Feature Spec、Acceptance Criteria Mapping、PRD-to-spec、project-context-to-spec 時必須使用本 skill。
 ---
 
 # PRD Context To Spec
 
 本 skill 用於 post-bootstrap SDD 流程，將已定稿的產品需求與目前 baseline project 狀態轉成可設計、可開發、可驗收的 `spec.md`。
 
-此 skill 參考 `anthropics/knowledge-work-plugins@feature-spec` 的產品規格寫法，但已針對本專案流程改成固定輸入與固定輸出：
+固定資料流：
 
 ```md
 prd.md
@@ -16,31 +16,24 @@ prd.md
 -> spec.md
 ```
 
-## 使用時機
-
-在以下情境使用本 skill：
-
-- Bootstrap Result Gate 已通過，且需要產生 `spec.md`。
-- `project-context.md` 已完成 Project Context Freeze。
-- 需要把 PRD acceptance criteria 轉成可追溯的 spec requirements。
-- 需要檢查或修補 `spec.md` 是否符合 `prd.md` 與 `project-context.md`。
-- 後續 agent 要以 `spec.md` 作為 `design.md`、`plan.md`、`task.md` 的共同 contract。
-
 ## 必要輸入
-
-產生 `spec.md` 前先讀取：
 
 - `prd.md`
 - `project-context.md`
 - `bootstrap-result.json` 或等價的 Bootstrap Result Gate summary
 
-必要時再讀取 `project-context.md` 明確引用的 repo evidence，例如：
+必要時再讀取 `project-context.md` 明確引用的 repo evidence，例如 README、AGENTS、scripts、API docs、schema docs、migration docs。
 
-- `README.md` / `readme.md`
-- `AGENTS.md`
-- `package.json`、`pyproject.toml`、`requirements.txt`
-- API docs、schema docs、migration docs
-- 測試、啟動與 verification scripts
+## 輸出位置
+
+`spec.md` 必須寫在 `prd.md` 同一個 PRD run artifact 目錄。
+
+不可寫到：
+
+- repo root
+- `targetProjectRoot`
+- `targetCodeProjectRoot`
+- 其他 planning folder
 
 ## 阻擋條件
 
@@ -76,11 +69,10 @@ blocked output 使用：
 - 不憑常識發明 API、DB table、route、env var、script 或 deployment rule。
 - 若 PRD 與 project context 衝突，寫入 `Open Questions` 或標記 `decision_required`，不要自行默默選邊。
 - 非阻塞但需要暫定的理解寫入 `Assumptions`。
-- 每條 PRD acceptance criterion 都必須出現在 `驗收條件映射`。
+- 每條 PRD acceptance criterion 都必須出現在 `Acceptance Criteria Mapping`。
+- `spec.md` 必須使用繁體中文撰寫。固定 ID（例如 FR-01、AC-01）、表格欄位代號、API method/path、JSON key、檔案路徑、指令與專有技術名稱可保留英文。
 
-## spec.md 輸出格式
-
-使用以下固定章節：
+## spec.md 固定章節
 
 ```md
 # 功能規格
@@ -89,7 +81,7 @@ blocked output 使用：
 
 ## 範圍內
 
-## 不在範圍內
+## 範圍外
 
 ## 使用者故事
 
@@ -103,7 +95,7 @@ blocked output 使用：
 
 ## API / 整合期望
 
-## 狀態與邊界情境
+## 狀態與邊界案例
 
 ## 錯誤處理
 
@@ -111,167 +103,29 @@ blocked output 使用：
 
 ## 假設
 
-## 待釐清問題
+## 待確認問題
 ```
 
-## 章節撰寫規則
-
-### 目標
-
-用 2 到 4 句說明此 feature 的目標。
-
-包含：
-
-- PRD 中的使用者問題或機會。
-- 預期使用者可觀察結果。
-- PRD 已確認的 business 或 delivery intent。
-- 若 baseline project 對目標有限制，簡短指出限制。
-
-避免寫入未確認的工程解法。
-
-### 範圍內
-
-列出本 spec 必須交付的能力。
-
-每個項目要能被 design、engineering、QA 理解與追溯。
-
-### 不在範圍內
-
-列出排除事項、非目標、延後項目與明確不做的內容。
-
-來源包含：
-
-- PRD non-goals。
-- PRD scope boundary。
-- `project-context.md` constraints。
-- Bootstrap 階段明確留下的限制。
-
-### 使用者故事
-
-將 PRD actors 與 scenarios 轉成簡潔 user story：
-
-```md
-- As a [actor], I want [capability], so that [outcome].
-```
-
-此章只放使用者或 stakeholder 行為。系統規則放到 `業務規則`。
-
-### 功能需求
+## 功能需求格式
 
 使用穩定 ID：
 
 ```md
-### FR-01: [Capability Name]
+### FR-01：[能力名稱]
 
-- Source: PRD section 或 AC reference
-- Actor:
-- Trigger:
-- Preconditions:
-- Behavior:
-- Success Result:
-- Failure / Boundary:
-- AC Mapping:
+- 來源：PRD section 或 AC reference
+- 角色：
+- 觸發：
+- 前置條件：
+- 行為：
+- 成功結果：
+- 失敗 / 邊界：
+- AC 映射：
 ```
 
-撰寫規則：
+每個 FR 只描述一個可獨立驗收的能力或行為。Behavior 與 Success Result 必須可觀察、可測試。
 
-- 每個 FR 描述一個可獨立驗收的能力或行為。
-- 不相關的行為要拆成不同 FR。
-- 成功、失敗、權限、管理後台等不同關注點不要混成一條模糊 requirement。
-- Behavior 與 Success Result 要可觀察、可測試。
-- `AC Mapping` 必須連到 PRD 的 `AC-xx`。
-
-### 非功能需求
-
-只寫 PRD 或 project context 已支持的要求。
-
-可涵蓋：
-
-- Performance
-- Accessibility
-- Security
-- Privacy
-- Reliability
-- Observability
-- Compatibility
-- Maintainability
-- Localization / content constraints
-
-若沒有已確認要求，寫 `No confirmed requirement`，不要補常識。
-
-### 業務規則
-
-整理跨 UI、API、資料與測試都必須一致的產品規則。
-
-可使用：
-
-```md
-- BR-01: ...
-```
-
-常見內容：
-
-- eligibility rules
-- limits
-- validation rules
-- state transitions
-- pricing、inventory、ownership、permission、workflow rules
-- content display rules
-
-### 資料需求
-
-描述資料需求、欄位概念、保存需求、讀寫行為與生命週期。
-
-注意：
-
-- 不發明 table name，除非 project context 已確認。
-- 若 PRD 需要資料但 baseline project 尚未確認 persistence layer，寫出資料需求，並把實作形狀放入 `Open Questions` 或 `Assumptions`。
-- 分清楚 confirmed data requirements 與 assumptions。
-
-### API / 整合期望
-
-描述功能層級的 API 或 integration expectation。
-
-包含：
-
-- project context 中已存在的 API 或 integration。
-- PRD 隱含的新 contract 需求。
-- frontend/backend contract。
-- request / response 的功能語意。
-- auth 或 permission expectation。
-
-除非已確認，不要指定 endpoint path、payload schema、framework implementation。
-
-### 狀態與邊界情境
-
-列出使用者可觀察狀態與邊界情境。
-
-至少考慮：
-
-- Empty state
-- Loading state
-- Success state
-- Error state
-- Permission denied state
-- Invalid input
-- Duplicate action
-- Partial failure
-- Network / backend failure
-- PRD AC 中的 boundary values
-
-### 錯誤處理
-
-定義 failure 如何被呈現或處理。
-
-包含：
-
-- user-visible feedback
-- retry behavior
-- blocking vs non-blocking failure
-- validation messages
-- logging / operational expectation，如果 project context 已支持
-
-### 驗收條件映射
+## Acceptance Criteria Mapping
 
 每條 PRD `AC-xx` 都必須映射。
 
@@ -290,49 +144,26 @@ blocked output 使用：
 - 若一條 AC 對應多個 FR / BR，全部列出。
 - Verification Notes 要說明 QA 或 test 如何證明行為成立。
 
-### 假設
+## Assumptions 與 Open Questions
 
-放入非阻塞、可日後修正的暫定理解。
-
-每個 assumption 要：
-
-- 明確。
-- 可追溯到 PRD 或 project context。
-- 不把未確認技術方案偽裝成既定事實。
-
-### 待釐清問題
-
-放入阻塞問題、矛盾或需要使用者決策的事項。
-
-需要決策時使用：
-
-```md
-- decision_required: ...
-```
-
-問題要具體到主 agent 能一次轉成 `question` tool call。
+- `Assumptions` 放入非阻塞、可日後修正的暫定理解。
+- `Open Questions` 可放非阻塞但需要追蹤的未知事項。
+- `project-context.md` 若指出 baseline repo 未找到既有 endpoint、route、DB table、permission code 或 response shape evidence，且 PRD 是新增或擴充功能，這不是 blocking。必須在 `spec.md` 產生 proposed/new contract，並標註「新增契約」或「proposed」，不可寫成既有事實。
+- 只有 PRD 明確要求沿用既有 API/data/permission contract、外部整合 contract、或 project context 顯示既有 repo reality 互相衝突時，才把缺口升級為 blocking `decision_required:`。
+- 新功能的 proposed API、資料欄位、狀態值、permission code 與 verification notes 應該由 spec 定義到足以開發與驗收；不要把這類設計責任退回 Project Context Freeze。
+- 只有會影響 scope、business rule、data/API contract、error handling、states、AC mapping、implementation 或 verification 的問題才視為 blocking。
+- blocking 問題必須使用 `decision_required:`，讓 `spec-review-gate` 轉成使用者 question。
+- 非阻塞 Open Questions 不需要詢問使用者，可留待後續追蹤。
 
 ## 產出前檢查清單
 
-在完成 `spec.md` 前檢查：
-
 - 沒有重新開啟 Brownfield / Greenfield 分支。
 - 沒有改寫或重新定稿 PRD 意圖。
-- 每條 PRD AC 都在 `驗收條件映射` 中。
+- `spec.md` 寫在 `prd.md` 同一個 artifact 目錄。
+- 每條 PRD AC 都在 `Acceptance Criteria Mapping` 中。
 - 每條 FR 都可測、可驗收。
 - `project-context.md` 的技術棧、scripts、repo constraints 已反映。
 - 未確認技術細節沒有被寫成事實。
 - 阻塞不確定性在 `Open Questions`。
+- blocking Open Questions 都標記 `decision_required:`。
 - 非阻塞不確定性在 `Assumptions`。
-- `spec.md` 可以作為後續 `design.md`、`plan.md`、`task.md` 的共同 contract。
-
-## 建議 Spec Review Gate
-
-產生 `spec.md` 後，後續 review agent 應檢查：
-
-- AC 覆蓋率是否 100%。
-- FR 是否可驗收。
-- 是否存在 PRD / project context 矛盾。
-- 是否有未標記的 blocking open question。
-- 是否發明未確認 API、資料表、技術棧或 scripts。
-- 是否足以交給 UIUX、engineering planning 與 work coordination。

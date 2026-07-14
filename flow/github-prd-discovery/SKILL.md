@@ -7,16 +7,9 @@ license: MIT
 
 # GitHub PRD Discovery
 
-本 skill 由 `github/awesome-copilot@prd` 安裝後整合進本 SDD flow。因本地已存在 `prd` skill，這裡以 `github-prd-discovery` 命名，專門負責 PRD discovery 問題模型與品質標準。
+本 skill 是 PRD discovery 問題模型的權威。它不取代本地中文 writer，但 PRD 的問題設計、scope 判斷、成功指標、AC 與風險補洞必須依它執行；不可 fallback 到舊內建 PRD 提問模板。
 
-## When To Use
-
-- 從 User Story 轉成 PRD。
-- 使用者只有模糊想法，需要轉成可執行產品需求。
-- PRD 缺少問題陳述、成功指標、scope、non-goals、user stories、acceptance criteria 或 risk analysis。
-- PRD validator 需要產生更好的 `questionPlan`。
-
-## Operational Workflow
+## Discovery Workflow
 
 ### Phase 1: Discovery Interview
 
@@ -38,40 +31,9 @@ license: MIT
 - 找出相依系統、資料、權限、營運、測試與 rollout 風險。
 - 對未確認事項標記為 blocking issue、assumption 或 non-blocking open question。
 
-### Phase 3: PRD Drafting Support
+## PRD Discovery Question Model
 
-本 skill 不直接取代本地 writer。它提供 PRD 草稿品質標準，writer 仍應依本地 `prd` 與 `breakdown-feature-prd` 輸出繁體中文 Markdown。
-
-## PRD Quality Standards
-
-### Requirements Quality
-
-避免「快速」、「好用」、「完整」、「正確」、「直覺」等不可驗收詞。
-
-```diff
-# 模糊，不可接受
-- 搜尋要很快並回傳相關結果。
-- UI 要現代且容易使用。
-
-# 具體，可驗收
-+ 10k 筆資料集下，搜尋結果需在 200ms 內回傳。
-+ 搜尋結果在 benchmark evals 中需達到 >= 85% Precision@10。
-+ UI 需符合既有 design system，且 Lighthouse Accessibility score 達 100%。
-```
-
-### Strict PRD Schema Inputs
-
-PRD 至少需要下列資訊可追溯：
-
-- **Executive Summary**: problem statement、proposed solution、success criteria。
-- **User Experience & Functionality**: personas、user stories、acceptance criteria、non-goals。
-- **AI System Requirements**: 如適用，tools、evaluation strategy、failure handling。
-- **Technical Specifications**: 高階 constraints、integration points、security/privacy，不發明實作細節。
-- **Risks & Roadmap**: phased rollout、technical risks、product risks。
-
-## Discovery Question Model
-
-產生 PRD question 時，依序檢查：
+產生 PRD question 時，必須依序檢查：
 
 1. **Problem Before Solution**: 使用者要解決的痛點是什麼？誰受影響？目前怎麼 workaround？
 2. **Outcome Before Output**: 成功後使用者行為、業務指標或交付狀態如何改變？
@@ -80,13 +42,13 @@ PRD 至少需要下列資訊可追溯：
 5. **Acceptance Before Finalize**: 每個 FR / user story 是否能映射到可測 AC？
 6. **Risk Before Handoff**: 權限、隱私、資料、內容、營運、rollout、stakeholder alignment 風險是否已標記？
 
-## SDD QuestionPlan Rules
+## PRD Quality Standards
 
+- 避免「快速」、「好用」、「完整」、「正確」、「直覺」等不可驗收詞。
 - 來源 User Story 已確認的內容不要重問。
 - 只問會影響 PRD 定稿、FR/AC 可驗收性、scope 或風險的缺口。
 - Owner、stakeholders、priority、release target、analytics 若未提供，通常是非阻塞，不應阻擋 PRD 定稿，除非會影響 scope 或驗收。
 - 每個問題都要指出會補哪個 PRD 欄位，例如 `FR-01.Entry Point`、`AC-02.Test Data`、`Non-Goals`、`Risks`。
-- 若沒有足夠資訊寫完整 PRD，至少問 2 個高影響 clarifying questions；不要直接產定稿。
 
 ## Completion Criteria
 
