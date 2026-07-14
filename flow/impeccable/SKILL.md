@@ -71,6 +71,14 @@ reference/<command>.md
 node .claude/skills/impeccable/scripts/palette.mjs
 ```
 
+若使用者已指出設計太暖、只給暖色系、或 brief 不支持 warm / amber / terracotta / olive 類品牌語氣，改用：
+
+```bash
+node .claude/skills/impeccable/scripts/palette.mjs --avoid-warm
+```
+
+需要明確色溫時可使用 `--temperature cool|neutral|warm|mixed`。`warm` 只有在 brand、PRD 或使用者明確支持時才使用。
+
 如果已找到既有品牌色，優先保留既有 identity，不要重置。
 
 ## 設計品質要求

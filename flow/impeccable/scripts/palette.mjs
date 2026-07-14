@@ -20,6 +20,8 @@
  *   node scripts/palette.mjs                  # pick at random
  *   node scripts/palette.mjs --id seed-021    # pick a specific seed
  *   node scripts/palette.mjs --from <key>     # hash <key> to a seed (deterministic)
+ *   node scripts/palette.mjs --avoid-warm     # exclude warm/amber/olive seed families
+ *   node scripts/palette.mjs --temperature cool|neutral|warm|mixed
  *
  * Env vars:
  *   IMPECCABLE_PALETTE_SEED — same as --from; useful for the eval harness
@@ -423,13 +425,47 @@ const SEEDS = [
 ];
 
 function parseArgs(argv) {
-  const args = { id: null, from: null };
+  const args = { id: null, from: null, avoidWarm: false, temperature: null };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === '--id' && argv[i + 1]) { args.id = argv[++i]; }
     else if (a === '--from' && argv[i + 1]) { args.from = argv[++i]; }
+    else if (a === '--avoid-warm') { args.avoidWarm = true; }
+    else if (a === '--temperature' && argv[i + 1]) { args.temperature = argv[++i]; }
   }
   return args;
+}
+
+function normHue(H) {
+  return ((H % 360) + 360) % 360;
+}
+
+function isWarmSeed(seed) {
+  const H = normHue(seed.oklch[2]);
+  return H >= 345 || H < 140;
+}
+
+function seedMatchesTemperature(seed, temperature) {
+  if (!temperature) return true;
+  const H = normHue(seed.oklch[2]);
+  const C = seed.oklch[1];
+  if (temperature === 'warm') return isWarmSeed(seed);
+  if (temperature === 'cool') return H >= 180 && H < 280;
+  if (temperature === 'neutral') return C <= 0.11 || (H >= 200 && H < 260);
+  if (temperature === 'mixed') return true;
+  console.error(`unknown temperature "${temperature}"; use cool, neutral, warm, or mixed`);
+  process.exit(2);
+}
+
+function filterSeeds(seeds, args) {
+  let out = seeds;
+  if (args.avoidWarm) out = out.filter(s => !isWarmSeed(s));
+  if (args.temperature) out = out.filter(s => seedMatchesTemperature(s, args.temperature));
+  if (!out.length) {
+    console.error('no palette seeds remain after filters; relax --avoid-warm or --temperature');
+    process.exit(2);
+  }
+  return out;
 }
 
 // Hash a key into a stable float in [0, 1) for deterministic weighted picks.
@@ -463,16 +499,18 @@ function weightedPick(seeds, unit) {
   return seeds[seeds.length - 1];
 }
 
-function pickSeed(seeds, { id, from }) {
+function pickSeed(seeds, args) {
+  const { id, from } = args;
   if (id) {
     const found = seeds.find(s => s.id === id);
     if (!found) { console.error(`no seed with id "${id}"`); process.exit(2); }
     return found;
   }
+  const candidates = filterSeeds(seeds, args);
   const envFrom = process.env.IMPECCABLE_PALETTE_SEED;
   const key = from || envFrom;
   const unit = key ? hashUnit(key) : Math.random();
-  return weightedPick(seeds, unit);
+  return weightedPick(candidates, unit);
 }
 
 function fmtOklch([L, C, H]) {
@@ -495,6 +533,14 @@ function hueWord(H) {
   return 'deep pink / rose';
 }
 
+function hasWarmLanguage(text) {
+  return /\b(warm|amber|brass|copper|gold|ochre|terracotta|umber|brown|espresso|honey|sienna|clay|rust|orange|bronze)\b/i.test(text || '');
+}
+
+function shouldSuppressWarmHints(args) {
+  return args.avoidWarm || args.temperature === 'cool' || args.temperature === 'neutral';
+}
+
 // ---------------------------------------------------------------
 
 const args = parseArgs(process.argv.slice(2));
@@ -504,8 +550,24 @@ const [L, C, H] = seed.oklch;
 // The mood + strategy on each seed were derived by the model that
 // originally judged it. We surface them as *hints*, not commands —
 // the brief should still drive what the seed becomes.
-const moodHint = seed.mood ? ` (one read: "${seed.mood}")` : '';
-const strategyHint = seed.strategy ? `\n  - one example strategy: ${seed.strategy}` : '';
+const suppressWarmHints = shouldSuppressWarmHints(args);
+const omittedWarmHints = suppressWarmHints && (hasWarmLanguage(seed.mood) || hasWarmLanguage(seed.strategy));
+const moodHint = seed.mood && !(suppressWarmHints && hasWarmLanguage(seed.mood)) ? ` (one read: "${seed.mood}")` : '';
+const strategyHint = seed.strategy && !(suppressWarmHints && hasWarmLanguage(seed.strategy)) ? `\n  - one example strategy: ${seed.strategy}` : '';
+const constraintParts = [];
+if (args.avoidWarm) constraintParts.push('--avoid-warm excluded red/orange/amber/olive seed families');
+if (args.temperature) constraintParts.push(`--temperature ${args.temperature}`);
+const constraintNote = constraintParts.length ? `\nSelection constraints: ${constraintParts.join('; ')}.\n` : '';
+const omittedHintNote = omittedWarmHints ? `Warm-language mood/strategy hints on the selected seed were omitted because this run requested non-warm palette direction. Do not add brass, copper, amber, ochre, terracotta, brown, or cream as brand/surface colors unless the brief explicitly re-allows them.\n` : '';
+const moodExamples = suppressWarmHints
+  ? `Good: "instrument-grade status console — cold light, exact borders", "Scandinavian winter morning — quiet light through frost", "black-box operations terminal — crisp signals on neutral surfaces". Bad:`
+  : `Good: "1970s travel poster — sun-baked warmth, considered", "midnight jazz club — smoky brass, saxophone light", "Scandinavian winter morning — quiet light through frost". Bad:`;
+const surfaceExamples = suppressWarmHints
+  ? `Linear is cool — its blue does that, bg is pure. Vercel is dark — its black does that, surface chroma is zero. Apple is neutral — its restraint does that, bg is pure white.`
+  : `Stripe is warm — its purple does that, bg is pure white. Linear is cool — its blue does that, bg is pure. Notion is warm — its accents do that, bg is near-pure-white.`;
+const fillExamples = suppressWarmHints
+  ? `Vercel's filled badges, Linear's status pills, Apple system-blue buttons, GitHub dark labels — all use high-contrast text on saturated or dark fills.`
+  : `Stripe orange CTAs, McDonald's red, every fintech orange button, Vercel's filled badges, Linear's status pills — all use white text on saturated bg fills.`;
 
 // ---------------------------------------------------------------
 // Fat tool-exit response — what the model sees on stdout.
@@ -515,6 +577,8 @@ process.stdout.write(`BRAND SEED · ${seed.id}
 
 Seed color (anchor for your primary brand color):
   ${fmtOklch(seed.oklch)} — ${hueWord(H)}${moodHint}
+${constraintNote}
+${omittedHintNote}
 
 This is the brand's anchor — a single beautiful color. Compose the rest of
 the palette around it using YOUR judgment, the brief (PRODUCT.md /
@@ -524,9 +588,7 @@ SKILL.md.
 How to use:
 
 1. Read the brief. Write one specific phrase describing the mood this
-   product calls for. Be granular. Good: "1970s travel poster — sun-baked
-   warmth, considered", "midnight jazz club — smoky brass, saxophone
-   light", "Scandinavian winter morning — quiet light through frost". Bad:
+   product calls for. Be granular. ${moodExamples}
    "modern and clean", "warm and inviting". The first lets you compose; the
    second is generic and will produce generic palettes.
 
@@ -539,10 +601,8 @@ How to use:
      • bg       — the most important architectural choice.
                   CORE PRINCIPLE: the mood lives in the BRAND COLORS
                   (primary + accent) and typography, NOT in the surface.
-                  Stripe is warm — its purple does that, bg is pure
-                  white. Linear is cool — its blue does that, bg is
-                  pure. Notion is warm — its accents do that, bg is
-                  near-pure-white. Putting warmth in BOTH primary AND
+                  ${surfaceExamples}
+                  Putting warmth in BOTH primary AND
                   bg is the AI cliché.
 
                   DEFAULT A — PURE white: exactly oklch(1.000 0.000 0).
@@ -621,9 +681,7 @@ if WCAG says dark technically passes. The Helmholtz-Kohlrausch effect
 makes saturated colors appear brighter than their luminance suggests,
 and dark text on a warm-or-cool-saturated fill reads as muddy.
 
-Convention: Stripe orange CTAs, McDonald's red, every fintech orange
-button, Vercel's filled badges, Linear's status pills — all use white
-text on saturated bg fills.
+Convention: ${fillExamples}
 
 Dark text is correct only on PALE fills (L > 0.85) or PURE-NEUTRAL fills
 (chroma near 0). Everything else: white text.

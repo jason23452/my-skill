@@ -162,7 +162,8 @@ VISUAL_DENSITY: 1-10    # 1 = art gallery 留白，10 = cockpit 資訊密集
 
 - 最多一個主要 accent color。
 - 避免 AI purple / blue glow 作為預設。
-- premium consumer 不要每次都 warm beige + brass + espresso。輪替 cold luxury、forest、black/tan、cobalt/cream、olive/brick、monochrome + saturated pop 等方向。
+- premium / editorial / calm / trustworthy 不可自動套用 warm-neutral surface + metallic accent + dark coffee ink 的 luxury formula。先定義 `colorTemperature`、`dominantHueFamily`、`palettePosture` 與產品證據，再選色。
+- 多方向設計時，每個 option 必須有明顯不同的 hue family 或 contrast model；不要用同一套 warm surface / green-blue ink / amber accent 反覆換名稱。
 - 一頁只能有一個 theme family。不要 light page 中間突然插一段無理由 dark section。
 - shadow 要帶背景 hue，不要所有陰影都黑色低透明。
 - 卡片只在 elevation 真有層級意義時使用；否則用 spacing、divider、background tint。

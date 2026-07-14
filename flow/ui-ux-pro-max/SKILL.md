@@ -75,6 +75,8 @@ python <skill-path>/scripts/search.py "<query>" --design-system --persist -p "<P
 
 完成條件：實作前已有明確的 palette、type scale、spacing、radius、shadow/elevation、motion、component state、responsive 規則。
 
+`--design-system` 的 color search result 只能當 domain evidence，不可直接當 final palette。尤其 `colors.csv` 的產品類型 palette 是參考資料，不是多方向 visual direction generator。當需要 4-6 套風格方向或使用者指出「太暖 / 都是暖色系」時，必須使用輸出中的 `Palette Alternatives`，並至少比較 cool technical、neutral monochrome、high-contrast operational/editorial、domain-semantic restrained 等不同 `palettePosture`；不得只把 top color result 改名成多個 option。
+
 ### 3. 用資料庫補足細節
 
 針對不確定的設計面向查詢 domain：

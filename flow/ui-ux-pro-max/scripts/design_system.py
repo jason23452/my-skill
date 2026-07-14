@@ -35,7 +35,7 @@ REASONING_FILE = "ui-reasoning.csv"
 SEARCH_CONFIG = {
     "product": {"max_results": 1},
     "style": {"max_results": 3},
-    "color": {"max_results": 2},
+    "color": {"max_results": 8},
     "landing": {"max_results": 2},
     "typography": {"max_results": 2}
 }
@@ -61,6 +61,124 @@ DIAL_TIERS = {
         (8, 10, {"label": "Dense / Dashboard", "spacing": {"xs": "2px", "sm": "4px", "md": "8px", "lg": "12px", "xl": "16px", "2xl": "24px", "3xl": "32px"}}),
     ],
 }
+
+
+PALETTE_ALTERNATIVE_SLOTS = [
+    {
+        "id": "option-a",
+        "label": "Cool technical clarity",
+        "colorTemperature": "cool",
+        "palettePosture": "cool technical / register clarity",
+        "dominantHueFamily": "slate + blue/cyan",
+        "backgroundTemperature": "cool neutral",
+        "accentHueFamily": "cyan/blue",
+        "warmHueUsage": "none except semantic warning",
+        "primary": "#1E40AF",
+        "secondary": "#0E7490",
+        "accent": "#06B6D4",
+        "background": "#F8FAFC",
+        "foreground": "#0F172A",
+        "notes": "Use for operational clarity, status registers, audit trails, and technical trust without warm SaaS cues."
+    },
+    {
+        "id": "option-b",
+        "label": "Neutral monochrome + signal accent",
+        "colorTemperature": "neutral",
+        "palettePosture": "monochrome + single signal accent",
+        "dominantHueFamily": "white/gray/charcoal",
+        "backgroundTemperature": "pure neutral",
+        "accentHueFamily": "cobalt/cyan signal",
+        "warmHueUsage": "none except semantic warning",
+        "primary": "#111827",
+        "secondary": "#374151",
+        "accent": "#2563EB",
+        "background": "#FFFFFF",
+        "foreground": "#030712",
+        "notes": "Use when information hierarchy and trust should come from typography, spacing, and one precise action color."
+    },
+    {
+        "id": "option-c",
+        "label": "High-contrast operational editorial",
+        "colorTemperature": "high-contrast",
+        "palettePosture": "high-contrast operational/editorial",
+        "dominantHueFamily": "black/white + electric blue",
+        "backgroundTemperature": "pure white or near-black",
+        "accentHueFamily": "electric blue",
+        "warmHueUsage": "none except semantic warning",
+        "primary": "#020617",
+        "secondary": "#334155",
+        "accent": "#3B82F6",
+        "background": "#FFFFFF",
+        "foreground": "#020617",
+        "notes": "Use when the interface needs strong reading order, audit seriousness, and a non-dashboard editorial hierarchy."
+    },
+    {
+        "id": "option-d",
+        "label": "Domain-semantic restrained",
+        "colorTemperature": "restrained",
+        "palettePosture": "domain-semantic restrained",
+        "dominantHueFamily": "industrial slate + semantic green",
+        "backgroundTemperature": "neutral cool",
+        "accentHueFamily": "green semantic",
+        "warmHueUsage": "warning/error semantics only",
+        "primary": "#334155",
+        "secondary": "#475569",
+        "accent": "#059669",
+        "background": "#F8FAFC",
+        "foreground": "#0F172A",
+        "notes": "Use when status, permission, completion, and inventory-like state semantics should guide color rather than brand warmth."
+    },
+]
+
+
+def _extract_color_evidence(color_results: list) -> list:
+    evidence = []
+    for row in color_results[:5]:
+        evidence.append({
+            "product_type": row.get("Product Type", ""),
+            "primary": row.get("Primary", ""),
+            "accent": row.get("Accent", ""),
+            "background": row.get("Background", ""),
+            "notes": row.get("Notes", "")
+        })
+    return evidence
+
+
+def _build_palette_alternatives(color_results: list) -> list:
+    alternatives = []
+    for slot in PALETTE_ALTERNATIVE_SLOTS:
+        alternatives.append({**slot, "source": "palette posture slot"})
+
+    warm_evidence = None
+    for row in color_results:
+        notes = row.get("Notes", "").lower()
+        accent = row.get("Accent", "")
+        product_type = row.get("Product Type", "")
+        if any(term in notes for term in ("warm", "amber", "gold", "orange", "brown", "terracotta")):
+            warm_evidence = (row, product_type, accent)
+            break
+
+    if warm_evidence:
+        row, product_type, accent = warm_evidence
+        alternatives.append({
+            "id": "option-e",
+            "label": "Warm human, evidence required",
+            "colorTemperature": "warm",
+            "palettePosture": "warm human / heritage only when justified",
+            "dominantHueFamily": "warm evidence from color search",
+            "backgroundTemperature": "pure neutral unless brand requires environmental warmth",
+            "accentHueFamily": "warm accent from evidence",
+            "warmHueUsage": "allowed only if PRD, brand, or user explicitly supports it",
+            "primary": row.get("Primary", ""),
+            "secondary": row.get("Secondary", ""),
+            "accent": accent,
+            "background": row.get("Background", ""),
+            "foreground": row.get("Foreground", ""),
+            "notes": f"Optional only. Evidence source: {product_type} — {row.get('Notes', '')}",
+            "source": "warm evidence, not default"
+        })
+
+    return alternatives
 
 
 def _resolve_dial(dial_name: str, value) -> dict:
@@ -244,6 +362,8 @@ class DesignSystemGenerator:
         best_color = color_results[0] if color_results else {}
         best_typography = typography_results[0] if typography_results else {}
         best_landing = landing_results[0] if landing_results else {}
+        palette_alternatives = _build_palette_alternatives(color_results)
+        color_evidence = _extract_color_evidence(color_results)
 
         # MOTION_INTENSITY dial: pull a matching GSAP skeleton from motion.csv
         # (domain key is "gsap", not "motion" - PR #296 already owns the "motion"
@@ -297,10 +417,14 @@ class DesignSystemGenerator:
                 "destructive": best_color.get("Destructive", ""),
                 "ring": best_color.get("Ring", ""),
                 "notes": best_color.get("Notes", ""),
+                "evidence_only": True,
+                "selection_rule": "Top color search result is domain evidence, not the final palette. Pick from Palette Alternatives or derive a new palette posture with comparable hue-family diversity.",
                 # Keep legacy keys for backward compat in MASTER.md
                 "cta": best_color.get("Accent", "#F97316"),
                 "text": best_color.get("Foreground", "#1E293B"),
             },
+            "palette_alternatives": palette_alternatives,
+            "color_evidence": color_evidence,
             "typography": {
                 "heading": best_typography.get("Heading Font", "Inter"),
                 "body": best_typography.get("Body Font", "Inter"),
@@ -365,6 +489,7 @@ def format_ascii_box(design_system: dict) -> str:
     pattern = design_system.get("pattern", {})
     style = design_system.get("style", {})
     colors = design_system.get("colors", {})
+    palette_alternatives = design_system.get("palette_alternatives", [])
     typography = design_system.get("typography", {})
     effects = design_system.get("key_effects", "")
     anti_patterns = design_system.get("anti_patterns", "")
@@ -465,6 +590,18 @@ def format_ascii_box(design_system: dict) -> str:
     if colors.get("notes"):
         for line in wrap_text(f"Notes: {colors.get('notes', '')}", "│     ", BOX_WIDTH):
             lines.append(line.ljust(BOX_WIDTH) + "│")
+    if colors.get("selection_rule"):
+        for line in wrap_text(f"Rule: {colors.get('selection_rule', '')}", "│     ", BOX_WIDTH):
+            lines.append(line.ljust(BOX_WIDTH) + "│")
+
+    if palette_alternatives:
+        lines.append(section_header("PALETTE ALTERNATIVES", BOX_WIDTH + 1))
+        for alt in palette_alternatives:
+            summary = f"{alt.get('id', '')}: {alt.get('label', '')} — {alt.get('colorTemperature', '')}; {alt.get('dominantHueFamily', '')}; accent {alt.get('accent', '')}"
+            for line in wrap_text(summary, "│     ", BOX_WIDTH):
+                lines.append(line.ljust(BOX_WIDTH) + "│")
+        for line in wrap_text("Use these as comparable direction slots. The top Colors palette is evidence only; do not rename it into multiple visual options.", "│     ", BOX_WIDTH):
+            lines.append(line.ljust(BOX_WIDTH) + "│")
 
     # Typography section
     lines.append(section_header("TYPOGRAPHY", BOX_WIDTH + 1))
@@ -528,6 +665,7 @@ def format_markdown(design_system: dict) -> str:
     pattern = design_system.get("pattern", {})
     style = design_system.get("style", {})
     colors = design_system.get("colors", {})
+    palette_alternatives = design_system.get("palette_alternatives", [])
     typography = design_system.get("typography", {})
     effects = design_system.get("key_effects", "")
     anti_patterns = design_system.get("anti_patterns", "")
@@ -598,7 +736,19 @@ def format_markdown(design_system: dict) -> str:
             lines.append(f"| {label} | `{hex_val}` | `{css_var}` |")
     if colors.get("notes"):
         lines.append(f"\n*Notes: {colors.get('notes', '')}*")
+    if colors.get("selection_rule"):
+        lines.append(f"\n*Rule: {colors.get('selection_rule', '')}*")
     lines.append("")
+
+    if palette_alternatives:
+        lines.append("### Palette Alternatives")
+        lines.append("These are comparable direction slots. The top Colors palette is domain evidence only; do not rename it into multiple visual options.")
+        lines.append("")
+        lines.append("| Option | Temperature | Posture | Dominant Hue | Accent | Warm Usage |")
+        lines.append("|--------|-------------|---------|--------------|--------|------------|")
+        for alt in palette_alternatives:
+            lines.append(f"| {alt.get('id', '')} | {alt.get('colorTemperature', '')} | {alt.get('palettePosture', '')} | {alt.get('dominantHueFamily', '')} | `{alt.get('accent', '')}` | {alt.get('warmHueUsage', '')} |")
+        lines.append("")
 
     # Typography section
     lines.append("### Typography")
@@ -753,6 +903,7 @@ def format_master_md(design_system: dict) -> str:
     pattern = design_system.get("pattern", {})
     style = design_system.get("style", {})
     colors = design_system.get("colors", {})
+    palette_alternatives = design_system.get("palette_alternatives", [])
     typography = design_system.get("typography", {})
     effects = design_system.get("key_effects", "")
     anti_patterns = design_system.get("anti_patterns", "")
@@ -818,7 +969,21 @@ def format_master_md(design_system: dict) -> str:
     if colors.get("notes"):
         lines.append(f"**Color Notes:** {colors.get('notes', '')}")
         lines.append("")
-    
+    if colors.get("selection_rule"):
+        lines.append(f"**Color Selection Rule:** {colors.get('selection_rule', '')}")
+        lines.append("")
+
+    if palette_alternatives:
+        lines.append("### Palette Alternatives")
+        lines.append("")
+        lines.append("Use these as comparable direction slots. The `Color Palette` above is domain evidence for backward compatibility, not a final multi-option visual direction.")
+        lines.append("")
+        lines.append("| Option | Temperature | Posture | Dominant Hue | Accent | Warm Usage |")
+        lines.append("|--------|-------------|---------|--------------|--------|------------|")
+        for alt in palette_alternatives:
+            lines.append(f"| {alt.get('id', '')} | {alt.get('colorTemperature', '')} | {alt.get('palettePosture', '')} | {alt.get('dominantHueFamily', '')} | `{alt.get('accent', '')}` | {alt.get('warmHueUsage', '')} |")
+        lines.append("")
+
     # Typography
     lines.append("### Typography")
     lines.append("")

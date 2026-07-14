@@ -125,6 +125,8 @@ Web 設計中的 hero 應該直接提出頁面的核心觀點。可以是：
 
 完成條件：每個選擇都能連回題材或任務，不是通用模板。
 
+若需要提供多個視覺方向，必須先定義每個方向的 `colorTemperature`、`dominantHueFamily` 與 `palettePosture`。多個方向不可共用同一組主色家族或只是 warm / cream / amber / terracotta 的變體；除非 brief 明確指定，至少要包含 cool / neutral / high-contrast / domain-semantic 這類真正不同的 palette posture。
+
 ### 3. 自我反模板檢查
 
 實作前檢查是否落入常見 AI 預設：
@@ -136,7 +138,7 @@ Web 設計中的 hero 應該直接提出頁面的核心觀點。可以是：
 - Bento grid 無內容理由。
 - 每張卡片都有相同 hover lift 和 blur。
 
-這些不是禁止，而是不能無理由使用。如果 brief 明確需要，照 brief；如果只是習慣，換掉。
+這些是 failure signatures，不是候選方向或可複製素材。不要因為它們出現在清單中就把 warm beige、terracotta、acid green、broadsheet 或 gradient glow 拿去當設計提案。只有 brief 明確要求且你能寫出產品證據時才可使用；如果只是習慣，換掉。
 
 完成條件：至少有一個設計決策明顯是為此題材量身打造。
 
