@@ -181,3 +181,24 @@ When used inside `userstory-discovery-intake`, produce inputs for `discoveryPack
 - Do not accept vague requirements as complete.
 - Do not let scope creep go unacknowledged.
 - Do not block on external user research when the current task is drafting a local requirement report; instead mark missing evidence as an assumption or non-blocking evidence gap unless it affects testability.
+
+## SDD Three-Entry Requirements Flow
+
+When used by `Requirements Agent`, produce a requirements brief only. Do not generate User Stories, do not open PRD sessions, and do not sync ADO Work Items.
+
+Support two intake modes:
+
+- Multi-question analysis: ask the minimum set of targeted RA0-RA5 questions needed to make the requirement testable.
+- Complete document analysis: extract the problem statement, users, scope, constraints, assumptions, risks, and validated requirement seeds from the provided document.
+
+The final `requirements.md` should include:
+
+- Product/problem summary.
+- Target users and current workaround.
+- Scope boundary: in scope, out of scope, deferred.
+- Validated requirement seeds grouped by product capability.
+- Acceptance seeds in Given/When/Then form where enough detail exists.
+- Assumptions and open questions, clearly marked.
+- Suggested User Story backlog candidates, but only as candidates for the separate User Story Agent.
+
+Stop after the requirements preview. The next entry is the User Story Agent, which reads the requirements file and creates the batch User Story draft.

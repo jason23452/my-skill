@@ -136,3 +136,17 @@ Then [可觀察結果]
 - out of scope 是否足以防止 scope creep。
 - 未確認事項是否沒有被寫成已確認事實。
 - 每個待確認問題是否能追溯到具體 User Story / PRD 欄位。
+
+## SDD Batch PRD Mode
+
+When used by `PRD Agent`, do not start from free-form feature ideas by default. First list current ADO User Story Work Items and let the user select multiple items.
+
+Rules:
+
+- One selected ADO User Story produces one PRD by default.
+- Each PRD must preserve traceability to the source ADO User Story id, URL, title, state, and acceptance criteria.
+- Expand the User Story into PRD-level detail: goals, personas, scope, non-goals, functional requirements, acceptance criteria, risks, dependencies, and rollout notes.
+- Do not invent implementation facts. If the User Story lacks API, data, permission, or UI details, write proposed product-level requirements or open questions.
+- Return data that can be passed to `write-prd-batch-draft` as `prdsJson`.
+- Stop at consolidated PRD preview until the user explicitly approves; ADO sync belongs to `finalize-prd-batch-run`.
+- After PRD sync, do not enter `project-flow`; the user must manually select synced PRDs first.

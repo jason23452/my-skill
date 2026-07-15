@@ -162,3 +162,16 @@ PRD 功能需求可使用 EARS 語法，詳見 `references/ears-syntax.md`。
 - 哪些問題是阻塞、重要或非阻塞。
 - 哪些 `questionPlan` 對應哪些 User Story / PRD 欄位。
 - 為什麼產出物是 `ready-to-write`、`needs-questions` 或 `blocked`。
+
+## SDD Batch User Story Mode
+
+When used by `User Story Agent` with a requirements document, treat the requirements file as the source of truth and produce multiple User Story drafts in one batch.
+
+Rules:
+
+- Generate one User Story per coherent product slice, not one story per field or UI element.
+- Preserve related capabilities together when actor, entry point, trigger, and product outcome are the same.
+- Each User Story must include source requirement reference, title, statement, scope, non-goals, assumptions, open questions, and Given/When/Then acceptance criteria.
+- Keep unconfirmed implementation details out of the story; record them as assumptions or open questions.
+- Return data that can be passed to `write-userstory-batch-draft` as `userstoriesJson`.
+- Stop at preview until the user explicitly approves; ADO sync belongs to `finalize-userstory-batch-run`.
