@@ -32,10 +32,11 @@ Produce repo-aware product design artifacts from an approved `design-context.md`
    - `ux-spec.md` defines user task, entry, first-look judgement, information priority, content/data contract, states, non-goal controls, and accessibility/trust requirements.
 
 5. Write Wireframe Spec.
-   - `wireframe-spec.md` defines screen inventory, page shell, desktop/tablet/mobile regions, reading order, region priority, component slots, state layouts, and RWD collapse rules.
+   - `wireframe-spec.md` defines screen inventory, task/content/action/state invariants, reading priority, responsive task requirements, and a Composition Freedom Boundary. It must not lock every option to one shell, region placement, split ratio, card/table family, or responsive composition.
 
 6. Write Visual Design Spec.
-   - `visual-design-spec.md` defines visual thesis, color roles, typography roles, spacing/density, surfaces, component visual roles, state treatment, interaction tone, accessibility, and the HTML preview style contract.
+   - Before the final spec, the Product Design Director creates three composition + visual directions that share product invariants but differ materially in shell, grouping, master-detail, progressive disclosure, density, responsive recomposition, and visual language.
+   - After selection, `visual-design-spec.md` defines selected composition anchors, visual thesis, color roles, typography roles, spacing/density, surfaces, domain component roles, state treatment, interaction tone, accessibility, and the HTML preview style contract.
 
 7. Write System DESIGN And Layout Contracts.
    - `DESIGN.md` defines product-wide visual semantics, domain components, state language, tokens, responsive behavior, accessibility, and PRD application traceability.
@@ -45,9 +46,13 @@ Produce repo-aware product design artifacts from an approved `design-context.md`
 
 8. Generate HTML preview.
    - `screen-preview.html` must be a self-contained, high-fidelity product UI mockup grounded in the three design specs.
-   - It must show realistic desktop and mobile composition, with core states and scope-safe copy.
+   - It must open on one focused scene, expose other required screens/states through product navigation, and show realistic desktop/mobile composition with scope-safe copy. Internal IDs and design evidence are metadata, never visible product UI.
 
-9. Enforce static UI first.
+9. Run independent QA and critique.
+   - Rendered Design QA checks Chromium, scenes, overflow, focus, console, reduced motion, and layout stability.
+   - Visual Quality Critic reads actual desktop/tablet/mobile screenshots. It passes only at >= 88/100, with hierarchy/composition/task focus/mobile each >= 8/10, every other dimension >= 7/10, and no hard blocker.
+
+10. Enforce static UI first.
    - Frontend planning must create a static high-fidelity UI task before API integration, CRUD, server state, or form submission work.
 
 ## Required Final Files
@@ -64,16 +69,17 @@ frontend-design/visual-design-spec.md
 frontend-design/screen-preview.html
 frontend-design/implementation-design-brief.md
 frontend-design/rendered-design-qa.md
+frontend-design/visual-quality-review.md
 ```
 
-After the rendered browser QA and product design review gate pass and the user explicitly approves the preview, sync the markdown files to ADO Wiki under `/design/<repo>/*.md` with `sync-design-wiki-pages`. ADO Wiki is the shared maintained copy. Keep `screen-preview.html` and screenshots as session preview artifacts unless a separate Wiki attachment policy publishes them.
+After rendered browser QA, Visual Quality Critic, and final contract review pass and the user explicitly approves the preview, sync the markdown files to ADO Wiki under `/design/<repo>/*.md` with `sync-design-wiki-pages`. ADO Wiki is the shared maintained copy. Keep `screen-preview.html` and screenshots as session preview artifacts unless a separate Wiki attachment policy publishes them.
 
 ## Contract Authority
 
 Load `skill(prd-to-product-design)` and use its `references/contracts.md` as the structure authority for `design-context.md`, `DESIGN.md`, and `layout.md`. Do not replace those product-wide contracts with a generic one-page UX, dashboard, token, or wireframe template.
 
 - `ux-spec.md` must cover every capability/AC through roles, journeys, IA, screen families, cross-screen navigation, content priority, domain states, responsive task priority, accessibility, and evidence-linked `UX-*` rules.
-- `wireframe-spec.md` must preserve the confirmed screen inventory and define `SCR-*`/`REG-*` contracts, screen relationships, representative PRD screens, desktop/tablet/mobile composition, action/state placement, reading/focus order, and traceability.
+- `wireframe-spec.md` must preserve the confirmed screen inventory and define `SCR-*`/`REG-*` contracts, screen relationships, representative PRD screens, task/content/action/state invariants, responsive task requirements, reading/focus priorities, traceability, and composition freedom.
 - `visual-design-spec.md` applies the selected product-wide `DESIGN.md` system to representative screens and states. It does not define a competing product model or page layout.
 - `implementation-design-brief.md` translates evidence, screen, AC, `DS-*`, and `LY-*` rules into implementation and visual acceptance without inventing missing behavior.
 
@@ -81,7 +87,7 @@ All session design documents must use generated product-specific titles and incl
 
 ## Option Uniqueness Gate
 
-This gate applies only to stages that explicitly generate options or visual/HTML previews. It does not apply to UX or wireframe agents whose contract requires a single canonical blueprint.
+This gate applies only to stages that explicitly generate options or visual/HTML previews. UX and screen-structure agents produce one invariant contract; the Product Design Director uses its composition freedom boundary for options.
 
 Block and regenerate if:
 
@@ -89,23 +95,28 @@ Block and regenerate if:
 - Previews use placeholder bars, lorem ipsum, generic boxes, generic dashboard/KPI shells, or fake app chrome not supported by repo evidence.
 - Previews do not show the actual user-facing screens/states required by PRD/spec.
 - HTML preview only changes colors or names from a generic template.
+- Options differ only by palette, font, radius, shadow, or motif instead of shell/grouping/progressive disclosure/density/responsive composition.
 - HTML preview uses unsupported sidebar/cards/table family without evidence.
 - HTML preview does not include RWD strategy.
 - HTML preview does not include component strategy.
 - Options ignore existing repo tokens, styling, components, or layout patterns.
 - Options claim a UI kit that repo evidence does not support.
+- Visible UI contains `SCR-*`, `REG-*`, PRD/AC/evidence IDs, traceability, QA status, artifact paths, JSON/YAML, or design-document prose.
+- Multiple screens/states are expanded at once as a report wall instead of using product navigation or focused scenes.
 
 ## High-Fidelity Preview Standard
 
 The HTML previews are design artifacts, not written explanations. They must:
 
 - Open directly on a believable product screen, with realistic navigation/header/content/state composition.
+- Show only one focused product scene at a time. Additional screens/states use real navigation or scene controls.
 - Include realistic sample data from the PRD/spec. If the feature is read-only product listing, show product names, status labels, empty state, forbidden state, loading/error treatment, and the home entry surface.
 - Demonstrate desktop and mobile layouts as visual frames, not just text descriptions.
 - Use colors, typography, spacing, radius, shadows, and component density consistent with repo evidence, existing tokens, and existing UI primitives.
 - Make differences between options visually obvious within 5 seconds.
 - Keep non-goal actions visibly absent. If PRD excludes create/edit/delete/search/filter/sort/export, those controls must not appear.
 - Include only a short design rationale section after the visual screen, never before it.
+- On mobile, keep product context, the primary task object/decision, and next action in the first viewport; filters and chrome cannot consume the entire first viewport.
 
 Reject outputs that mostly contain headings like "Design Strategy Contract", "Options Difference Matrix", or text-heavy comparison tables without full screen mockups.
 

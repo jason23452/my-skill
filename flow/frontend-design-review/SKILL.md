@@ -47,8 +47,15 @@ Before creating or approving UI, verify the first viewport looks like a real pro
 - Typography has a deliberate posture through scale, weight, case, letter spacing, tabular numbers, and label treatment.
 - Surface system has meaningful levels; cards do not all share the same radius, padding, border, and shadow.
 - Mobile is recomposed for the primary task, not a scaled desktop mockup.
+- Only one real product scene is visible at a time. Additional screens and states use product navigation or scene controls instead of a coverage wall.
+- Internal screen/evidence/PRD/AC IDs, traceability, QA status, artifact paths, JSON/YAML, and design-document prose are absent from visible product UI.
+- The mobile first viewport includes product context, the primary task object or decision, and its next action; filters and chrome do not consume the whole viewport.
 
 Block or regenerate if the UI is mostly generic KPI cards + filter + table, equal-card grids, purple/blue glow SaaS defaults, strategy-document sections, decorative bento, fake charts without product evidence, placeholder bars, lorem ipsum, or filler copy such as `Project Alpha`, `Metric 1`, and `Sample item`.
+
+### Screenshot Score Gate
+
+For final approval, inspect actual desktop, tablet, and mobile screenshots. Score 0-10 for visual hierarchy, composition craft, task focus, product specificity, typography/rhythm, surface/component craft, responsive recomposition, and polish/trust/accessibility. Use weights `15/15/15/10/10/10/15/10`. Pass only at 88/100 or higher, with hierarchy/composition/task focus/responsive each at least 8, every other dimension at least 7, and no hard blocker. Technical rendering success, long specifications, or complete token files do not raise this score.
 
 ### Aesthetics Guidelines
 

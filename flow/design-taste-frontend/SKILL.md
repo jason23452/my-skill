@@ -58,7 +58,7 @@ VISUAL_DENSITY: 1-10    # 1 = art gallery 留白，10 = cockpit 資訊密集
 
 若要產生或大幅重寫 `design/ui-layout.md`、`layout.md` 或其他 system layout spec，必須先形成 layout decision。若沒有足夠線索，回 `blocked` 或輸出 question plan，讓使用者選 layout 方向。
 
-若目前 subagent 或 artifact contract 明確要求單一 canonical blueprint/spec，或明確禁止 layout/page-detail options，必須直接依 PRD/UX/repo evidence 決定一套 layout policy 並記錄理由；不可產生 A/B/C layout options、comparison matrix、recommended option 或要求使用者選 layout。
+若目前 artifact contract 明確要求單一 final `layout.md`，最終文件不可保留 A/B/C；但 caller 若有獨立的 Design Direction phase，必須先探索可選 composition，再把 selected direction 收斂成單一 canonical `layout.md`。Screen semantics contract 固定任務、內容、actions、states 與 outcomes，不代表所有 options 必須保留相同 shell、region position 或 split ratio。
 
 `layout.md` 與 `design/ui-layout.md` 預設都是整體系統排版政策文件，不是單一 PRD 功能頁的欄位/狀態規格。除非使用者明確要求只規劃單頁，否則 layout decision 必須先回答整個 frontend system 如何排版，再把本輪 feature 放入代表性 surface。
 
@@ -92,6 +92,8 @@ VISUAL_DENSITY: 1-10    # 1 = art gallery 留白，10 = cockpit 資訊密集
 - app shell / navigation model
 - page template coverage
 - grid / density / action placement policy
+
+多方案探索時，共享的是產品 invariants：role、task、content semantics、actions、states、permissions、outcomes、IA relationships。Options 應在 shell presentation、region grouping、master-detail relationship、progressive disclosure、density、visual center、action anchoring 與 responsive recomposition 上有實質差異。若差異只剩 palette、font、radius、shadow 或 motif，必須重做。
 
 Composition exploration pool。以下不是固定模板清單，而是可被 PRD evidence 支持或轉化的 composition models：
 
@@ -206,14 +208,21 @@ Pattern evidence 規則：
 
 - 先回答：這個產品畫面的品牌指紋是什麼？使用者 5 秒後會記住什麼？答案不可只有 professional、modern、clean、trustworthy。
 - 第一屏必須是一個真實 product scene，不是文件、報告、比較表、策略說明頁或需求摘要。
-- 只能有一個主要視覺重心；其他狀態用 state rail、inspector、secondary panel、compact strip 或 mobile inset 呈現，不要把需求平均鋪成同權重卡片。
+- 一次只顯示一個真實 product scene；其他 screens/states 透過真實 navigation 或 scene controls 切換，不得在右欄或長頁同時展開作為 coverage report。
+- 只能有一個主要視覺重心；其他資訊用 progressive disclosure、inspector、secondary panel、compact strip、drawer 或 secondary route 呈現，不要把需求平均鋪成同權重卡片。
+- `SCR-*`、`REG-*`、PRD/AC/evidence IDs、traceability、coverage、QA status、file paths、JSON/YAML 與設計說明不得出現在 visible product UI。
 - 必須有產品專屬 visual motif，且 motif 要承載業務語意，例如 lifecycle、scope、status、receipt、ledger、approval、inventory、correction、handoff、sync、risk 或 permission。
 - 自包含 HTML 可用 inline SVG、CSS texture、grid/ledger lines、status rails、receipt strips、scope ribbons、mask、subtle noise、geometric separators；不可依賴外部圖片、外部字體或外部 icon font。
 - 至少要有 3 種有功能意義的 surface weight。不要讓所有 panel 使用同一 radius、border、shadow、padding。
 - 色彩必須有比例與職責，通常 dominant/support/accent/status 要分離。不可只把 button 改成主色。
 - Typography 即使使用 system stack，也要透過 size scale、weight、case、letter spacing、tabular numbers、label style 和 line-height 建立個性。
 - Mobile 不是 desktop 截圖縮小；要重新安排 reading order、sticky action、state compression 或 inspector collapse。
+- Mobile 第一視窗至少要看見產品 context、主要任務物件/決策，以及下一步操作；filters、header 與 navigation 不得把核心內容完全推到首屏之外。
 - 若出現 generic KPI cards + filter + table、三等分卡片牆、紫藍 glow SaaS、無產品語意 bento、fake chart、placeholder bars、lorem ipsum、`Project Alpha`、`Metric 1`、`Sample item`，必須重寫。
+
+### Screenshot Visual Quality Gate
+
+HTML source、DOM probe、overflow 與 accessibility checks 只能證明技術正確，不能代替視覺審查。最終 preview 必須由獨立 critic 讀取 desktop/tablet/mobile screenshots，依 hierarchy、composition、task focus、product specificity、typography/rhythm、surface craft、responsive recomposition、polish/accessibility 評分。通過條件是 weighted score >= 88/100，hierarchy/composition/task focus/mobile 各 >= 8/10，其餘各 >= 7/10，且沒有 internal metadata、report wall、generic template、mobile desktop縮小版等 hard blockers。
 
 ## 10. Redesign 工作流
 

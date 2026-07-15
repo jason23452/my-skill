@@ -32,7 +32,7 @@ Use generated product-specific title text and retain YAML front matter. The body
 
 1. Product Evidence And Experience Principles
 2. Selected Design Direction
-3. Visual Decision Axes
+3. Composition And Visual Decision Axes
 4. External Reference Translation
 5. Semantic Color System
 6. Typography Roles
@@ -55,20 +55,29 @@ Use generated product-specific title text. The body section order is:
 
 1. Product Layout Thesis
 2. Evidence Scope And Boundaries
-3. Global App Shell
-4. Navigation And Wayfinding
-5. Screen Inventory And Route Relationships
-6. Page Template System
-7. Region And Grid Contracts
-8. Content Density And Data Presentation
-9. Action Placement
-10. State, Feedback, And Recovery Placement
-11. Overlays, Inspectors, Drawers, And Modals
-12. Responsive Layout System
-13. Accessibility And Focus Flow
-14. Layout Tokens
-15. Representative PRD Screen Contracts
-16. Layout Rule Traceability
-17. Constraints And Anti-Patterns
+3. Selected Direction Composition Anchors
+4. Global App Shell
+5. Navigation And Wayfinding
+6. Screen Inventory And Route Relationships
+7. Page Template System
+8. Region And Grid Contracts
+9. Visual Center And Progressive Disclosure
+10. Content Density And Data Presentation
+11. Action Placement
+12. State, Feedback, And Recovery Placement
+13. Overlays, Inspectors, Drawers, And Modals
+14. Responsive Layout System
+15. Accessibility And Focus Flow
+16. Layout Tokens
+17. Representative PRD Screen Contracts
+18. Layout Rule Traceability
+19. Constraints And Anti-Patterns
 
 For each screen family include desktop, tablet, mobile, entry, exit, primary action, state placement, and evidence IDs. Do not add empty page-template categories merely to make the document look complete.
+
+## Preview Quality Contract
+
+- Product previews open directly on one real, high-fidelity product scene. Additional screens/states use real navigation or scene controls and remain hidden until selected.
+- Internal IDs, evidence, traceability, coverage, QA status, file paths, JSON/YAML, and design-document prose are never visible product UI.
+- Mobile first viewport contains product context, the primary task object/decision, and the next action; filters or secondary chrome may not consume the complete first viewport.
+- Technical rendering QA and visual quality review are separate. Visual approval requires a screenshot-based weighted score of at least 88/100, no hard blockers, hierarchy/composition/task focus/mobile each at least 8/10, and all other dimensions at least 7/10.

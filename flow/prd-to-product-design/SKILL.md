@@ -92,7 +92,7 @@ Dashboard/workspace patterns are allowed when the evidence requires monitoring, 
 - Separate system rules from representative PRD applications.
 - Keep external reference translation subordinate to product evidence.
 
-Visual options may differ in expression, but must share the same product model, IA, screen inventory, semantic states, content, and wireframe. Options cannot be different products or layouts.
+Visual options must share the same product model, IA relationships, screen inventory, task/content/action/state semantics, permissions, outcomes, and acceptance criteria. They may make materially different composition decisions about shell presentation, region grouping, master-detail relationships, progressive disclosure, density, action anchoring, and responsive recomposition when those decisions remain inside the documented `Composition Freedom Boundary`. Options cannot become different products or workflows, but they must be more than palette/font/radius skins.
 
 ## layout.md Contract
 
@@ -132,7 +132,11 @@ Block or rewrite when:
 - `layout.md` is mainly one screen, a generic dashboard recipe, or a token catalog.
 - Mobile is only desktop stacked or scaled down.
 - Loading, empty, error, permission, destructive, selected, or recovery states required by evidence are absent.
-- Visual direction changes the wireframe, content priority, or product workflow.
+- Visual direction changes task semantics, content priority, actions, states, permissions, outcomes, or product workflow. Reorganizing regions inside the documented composition freedom boundary is allowed and expected.
+- Design options differ only by palette, typography, radius, shadow, or motif instead of composition strategy.
+- A visible preview leaks screen/evidence/PRD/AC IDs, coverage, QA status, artifact paths, JSON/YAML, or design-document prose into product UI.
+- A preview presents all screens/states at once as a report wall instead of one focused product scene with real navigation.
+- Screenshot-based visual quality is below 88/100, hierarchy/composition/task focus/mobile is below 8/10, or any hard visual blocker remains.
 - Documents default to MVP language without source evidence.
 
 Pass only when an engineer can implement the documented scope, a reviewer can trace decisions to PRD evidence, and future agents can distinguish system rules from feature examples.
