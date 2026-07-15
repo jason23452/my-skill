@@ -1,100 +1,477 @@
-# 響應式設計細節
+# responsive-design — detailed patterns and worked examples
 
-本文件提供 `responsive-design` 的實作細節。保留 CSS 屬性、API 與 code 名稱英文，其餘說明使用繁體中文。
+## Core Capabilities
 
-## 核心能力
+### 1. Container Queries
 
-### 1. 容器查詢
+- Component-level responsiveness independent of viewport
+- Container query units (cqi, cqw, cqh)
+- Style queries for conditional styling
+- Fallbacks for browser support
 
-使用 container queries 讓元件依照自身容器尺寸改變，而不是只看 viewport。適合 card、widget、sidebar 內元件、modal 內容與可重用 component。
+### 2. Fluid Typography & Spacing
 
-完成標準：同一元件放在窄欄與寬欄時都能自動調整，不需要知道所在頁面的整體寬度。
+- CSS clamp() for fluid scaling
+- Viewport-relative units (vw, vh, dvh)
+- Fluid type scales with min/max bounds
+- Responsive spacing systems
+
+### 3. Layout Patterns
+
+- CSS Grid for 2D layouts
+- Flexbox for 1D distribution
+- Intrinsic layouts (content-based sizing)
+- Subgrid for nested grid alignment
+
+### 4. Breakpoint Strategy
+
+- Mobile-first media queries
+- Content-based breakpoints
+- Design token integration
+- Feature queries (@supports)
+
+## Quick Reference
+
+### Modern Breakpoint Scale
 
 ```css
-.card-list {
-  container-type: inline-size;
+/* Mobile-first breakpoints */
+/* Base: Mobile (< 640px) */
+@media (min-width: 640px) {
+  /* sm: Landscape phones, small tablets */
+}
+@media (min-width: 768px) {
+  /* md: Tablets */
+}
+@media (min-width: 1024px) {
+  /* lg: Laptops, small desktops */
+}
+@media (min-width: 1280px) {
+  /* xl: Desktops */
+}
+@media (min-width: 1536px) {
+  /* 2xl: Large desktops */
 }
 
-@container (min-width: 36rem) {
+/* Tailwind CSS equivalent */
+/* sm:  @media (min-width: 640px) */
+/* md:  @media (min-width: 768px) */
+/* lg:  @media (min-width: 1024px) */
+/* xl:  @media (min-width: 1280px) */
+/* 2xl: @media (min-width: 1536px) */
+```
+
+## Key Patterns
+
+### Pattern 1: Container Queries
+
+```css
+/* Define a containment context */
+.card-container {
+  container-type: inline-size;
+  container-name: card;
+}
+
+/* Query the container, not the viewport */
+@container card (min-width: 400px) {
   .card {
     display: grid;
-    grid-template-columns: 12rem 1fr;
+    grid-template-columns: 200px 1fr;
+    gap: 1rem;
+  }
+
+  .card-image {
+    aspect-ratio: 1;
   }
 }
+
+@container card (min-width: 600px) {
+  .card {
+    grid-template-columns: 250px 1fr;
+  }
+
+  .card-title {
+    font-size: 1.5rem;
+  }
+}
+
+/* Container query units */
+.card-title {
+  /* 5% of container width, clamped between 1rem and 2rem */
+  font-size: clamp(1rem, 5cqi, 2rem);
+}
 ```
 
-### 2. 流動式字級與間距
+```tsx
+// React component with container queries
+function ResponsiveCard({ title, image, description }) {
+  return (
+    <div className="@container">
+      <article className="flex flex-col @md:flex-row @md:gap-4">
+        <img
+          src={image}
+          alt=""
+          className="w-full @md:w-48 @lg:w-64 aspect-video @md:aspect-square object-cover"
+        />
+        <div className="p-4 @md:p-0">
+          <h2 className="text-lg @md:text-xl @lg:text-2xl font-semibold">
+            {title}
+          </h2>
+          <p className="mt-2 text-muted-foreground @md:line-clamp-3">
+            {description}
+          </p>
+        </div>
+      </article>
+    </div>
+  );
+}
+```
 
-使用 `clamp()` 讓字級與間距在最小值與最大值之間平滑縮放，減少硬切 breakpoint。
+### Pattern 2: Fluid Typography
 
 ```css
+/* Fluid type scale using clamp() */
 :root {
-  --step-0: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
-  --step-3: clamp(2rem, 1.4rem + 3vw, 4rem);
-  --space-l: clamp(1.5rem, 1rem + 2vw, 3rem);
+  /* Min size, preferred (fluid), max size */
+  --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+  --text-sm: clamp(0.875rem, 0.8rem + 0.375vw, 1rem);
+  --text-base: clamp(1rem, 0.9rem + 0.5vw, 1.125rem);
+  --text-lg: clamp(1.125rem, 1rem + 0.625vw, 1.25rem);
+  --text-xl: clamp(1.25rem, 1rem + 1.25vw, 1.5rem);
+  --text-2xl: clamp(1.5rem, 1.25rem + 1.25vw, 2rem);
+  --text-3xl: clamp(1.875rem, 1.5rem + 1.875vw, 2.5rem);
+  --text-4xl: clamp(2.25rem, 1.75rem + 2.5vw, 3.5rem);
+}
+
+/* Usage */
+h1 {
+  font-size: var(--text-4xl);
+}
+h2 {
+  font-size: var(--text-3xl);
+}
+h3 {
+  font-size: var(--text-2xl);
+}
+p {
+  font-size: var(--text-base);
+}
+
+/* Fluid spacing scale */
+:root {
+  --space-xs: clamp(0.25rem, 0.2rem + 0.25vw, 0.5rem);
+  --space-sm: clamp(0.5rem, 0.4rem + 0.5vw, 0.75rem);
+  --space-md: clamp(1rem, 0.8rem + 1vw, 1.5rem);
+  --space-lg: clamp(1.5rem, 1.2rem + 1.5vw, 2.5rem);
+  --space-xl: clamp(2rem, 1.5rem + 2.5vw, 4rem);
 }
 ```
 
-完成標準：手機不太小、桌機不過大，標題不 overflow。
+```tsx
+// Utility function for fluid values
+function fluidValue(
+  minSize: number,
+  maxSize: number,
+  minWidth = 320,
+  maxWidth = 1280,
+) {
+  const slope = (maxSize - minSize) / (maxWidth - minWidth);
+  const yAxisIntersection = -minWidth * slope + minSize;
 
-### 3. 版面 Patterns
+  return `clamp(${minSize}rem, ${yAxisIntersection.toFixed(4)}rem + ${(slope * 100).toFixed(4)}vw, ${maxSize}rem)`;
+}
 
-- 一維排列用 Flexbox。
-- 二維版面用 CSS Grid。
-- 卡片列表優先用 `repeat(auto-fit, minmax(min(18rem, 100%), 1fr))`。
-- 需要欄位對齊時用 Grid；只需要換行時用 Flexbox。
+// Generate fluid type scale
+const fluidTypeScale = {
+  sm: fluidValue(0.875, 1),
+  base: fluidValue(1, 1.125),
+  lg: fluidValue(1.25, 1.5),
+  xl: fluidValue(1.5, 2),
+  "2xl": fluidValue(2, 3),
+};
+```
+
+### Pattern 3: CSS Grid Responsive Layout
 
 ```css
-.cards {
+/* Auto-fit grid - items wrap automatically */
+.grid-auto {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(18rem, 100%), 1fr));
-  gap: clamp(1rem, 2vw, 2rem);
+  grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+  gap: 1.5rem;
+}
+
+/* Auto-fill grid - maintains empty columns */
+.grid-auto-fill {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+/* Responsive grid with named areas */
+.page-layout {
+  display: grid;
+  grid-template-areas:
+    "header"
+    "main"
+    "sidebar"
+    "footer";
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .page-layout {
+    grid-template-columns: 1fr 300px;
+    grid-template-areas:
+      "header header"
+      "main sidebar"
+      "footer footer";
+  }
+}
+
+@media (min-width: 1024px) {
+  .page-layout {
+    grid-template-columns: 250px 1fr 300px;
+    grid-template-areas:
+      "header header header"
+      "nav main sidebar"
+      "footer footer footer";
+  }
+}
+
+.header {
+  grid-area: header;
+}
+.main {
+  grid-area: main;
+}
+.sidebar {
+  grid-area: sidebar;
+}
+.footer {
+  grid-area: footer;
 }
 ```
 
-### 4. 斷點策略
+```tsx
+// Responsive grid component
+function ResponsiveGrid({ children, minItemWidth = "250px", gap = "1.5rem" }) {
+  return (
+    <div
+      className="grid"
+      style={{
+        gridTemplateColumns: `repeat(auto-fit, minmax(min(${minItemWidth}, 100%), 1fr))`,
+        gap,
+      }}
+    >
+      {children}
+    </div>
+  );
+}
 
-不要先背裝置尺寸。先從窄版開始，逐步拉寬，當內容開始壞掉時才加 breakpoint。
-
-常見斷點可作起點，但不是規則：
-
-```css
-/* base: mobile */
-@media (min-width: 40rem) { /* small tablet */ }
-@media (min-width: 48rem) { /* tablet */ }
-@media (min-width: 64rem) { /* desktop */ }
-@media (min-width: 80rem) { /* wide */ }
+// Usage with Tailwind
+function ProductGrid({ products }) {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+      {products.map((product) => (
+        <ProductCard key={product.id} product={product} />
+      ))}
+    </div>
+  );
+}
 ```
 
-## 常見元件策略
+### Pattern 4: Responsive Navigation
 
-### Navigation
+```tsx
+function ResponsiveNav({ items }) {
+  const [isOpen, setIsOpen] = useState(false);
 
-- 手機：drawer、bottom nav 或 compact menu。
-- 平板：compact horizontal nav 或 collapsible sidebar。
-- 桌機：完整 sidebar / top nav，label 可完整顯示。
-- 不要讓關鍵操作只存在 hover menu。
+  return (
+    <nav className="relative">
+      {/* Mobile menu button */}
+      <button
+        className="lg:hidden p-2"
+        onClick={() => setIsOpen(!isOpen)}
+        aria-expanded={isOpen}
+        aria-controls="nav-menu"
+      >
+        <span className="sr-only">Toggle navigation</span>
+        {isOpen ? <X /> : <Menu />}
+      </button>
 
-### Tables
+      {/* Navigation links */}
+      <ul
+        id="nav-menu"
+        className={cn(
+          // Base: hidden on mobile
+          "absolute top-full left-0 right-0 bg-background border-b",
+          "flex flex-col",
+          // Mobile: slide down
+          isOpen ? "flex" : "hidden",
+          // Desktop: always visible, horizontal
+          "lg:static lg:flex lg:flex-row lg:border-0 lg:bg-transparent",
+        )}
+      >
+        {items.map((item) => (
+          <li key={item.href}>
+            <a
+              href={item.href}
+              className={cn(
+                "block px-4 py-3",
+                "lg:px-3 lg:py-2",
+                "hover:bg-muted lg:hover:bg-transparent lg:hover:text-primary",
+              )}
+            >
+              {item.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  );
+}
+```
 
-- 資料少：手機改成 cards。
-- 欄位多：允許水平捲動，但要 sticky first column 或清楚 affordance。
-- 欄位有優先級：手機只顯示主欄位，次要欄位折疊到 details。
+### Pattern 5: Responsive Images
 
-### Forms
+```tsx
+// Responsive image with art direction
+function ResponsiveHero() {
+  return (
+    <picture>
+      {/* Art direction: different crops for different screens */}
+      <source
+        media="(min-width: 1024px)"
+        srcSet="/hero-wide.webp"
+        type="image/webp"
+      />
+      <source
+        media="(min-width: 768px)"
+        srcSet="/hero-medium.webp"
+        type="image/webp"
+      />
+      <source srcSet="/hero-mobile.webp" type="image/webp" />
 
-- 手機單欄。
-- 桌機可雙欄，但相關欄位要保持 proximity。
-- error message 放在欄位附近，不只放頁頂。
-- submit button 在手機上要容易觸及且不被鍵盤遮住。
+      {/* Fallback */}
+      <img
+        src="/hero-mobile.jpg"
+        alt="Hero image description"
+        className="w-full h-auto"
+        loading="eager"
+        fetchpriority="high"
+      />
+    </picture>
+  );
+}
 
-## 驗證清單
+// Responsive image with srcset for resolution switching
+function ProductImage({ product }) {
+  return (
+    <img
+      src={product.image}
+      srcSet={`
+        ${product.image}?w=400 400w,
+        ${product.image}?w=800 800w,
+        ${product.image}?w=1200 1200w
+      `}
+      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+      alt={product.name}
+      className="w-full h-auto object-cover"
+      loading="lazy"
+    />
+  );
+}
+```
 
-- 375px 沒有非預期水平捲動。
-- 768px 版面不尷尬，不只是放大的手機版。
-- 1024px 以上善用寬度，但行長不超過可讀範圍。
-- 主要 touch target 至少 44x44px。
-- 固定 header/footer 不遮住內容。
-- modal、popover、dropdown 在小螢幕不被裁切。
-- 圖片保持比例，重要內容不被錯誤裁切。
-- keyboard focus order 符合視覺順序。
+### Pattern 6: Responsive Tables
+
+```tsx
+// Responsive table with horizontal scroll
+function ResponsiveTable({ data, columns }) {
+  return (
+    <div className="w-full overflow-x-auto">
+      <table className="w-full min-w-[600px]">
+        <thead>
+          <tr>
+            {columns.map((col) => (
+              <th key={col.key} className="text-left p-3">
+                {col.label}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((row, i) => (
+            <tr key={i} className="border-t">
+              {columns.map((col) => (
+                <td key={col.key} className="p-3">
+                  {row[col.key]}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+// Card-based table for mobile
+function ResponsiveDataTable({ data, columns }) {
+  return (
+    <>
+      {/* Desktop table */}
+      <table className="hidden md:table w-full">
+        {/* ... standard table */}
+      </table>
+
+      {/* Mobile cards */}
+      <div className="md:hidden space-y-4">
+        {data.map((row, i) => (
+          <div key={i} className="border rounded-lg p-4 space-y-2">
+            {columns.map((col) => (
+              <div key={col.key} className="flex justify-between">
+                <span className="font-medium text-muted-foreground">
+                  {col.label}
+                </span>
+                <span>{row[col.key]}</span>
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+    </>
+  );
+}
+```
+
+## Viewport Units
+
+```css
+/* Standard viewport units */
+.full-height {
+  height: 100vh; /* May cause issues on mobile */
+}
+
+/* Dynamic viewport units (recommended for mobile) */
+.full-height-dynamic {
+  height: 100dvh; /* Accounts for mobile browser UI */
+}
+
+/* Small viewport (minimum) */
+.min-full-height {
+  min-height: 100svh;
+}
+
+/* Large viewport (maximum) */
+.max-full-height {
+  max-height: 100lvh;
+}
+
+/* Viewport-relative font sizing */
+.hero-title {
+  /* 5vw with min/max bounds */
+  font-size: clamp(2rem, 5vw, 4rem);
+}
+```

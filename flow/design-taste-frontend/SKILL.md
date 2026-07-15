@@ -58,6 +58,8 @@ VISUAL_DENSITY: 1-10    # 1 = art gallery 留白，10 = cockpit 資訊密集
 
 若要產生或大幅重寫 `design/ui-layout.md`，必須先形成 layout decision。若沒有足夠線索，回 `blocked` 或輸出 question plan，讓使用者選 layout 方向。
 
+若目前 subagent 或 artifact contract 明確要求單一 canonical blueprint/spec，或明確禁止 layout/page-detail options，必須直接依 PRD/UX/repo evidence 決定一套 layout policy 並記錄理由；不可產生 A/B/C layout options、comparison matrix、recommended option 或要求使用者選 layout。
+
 `design/ui-layout.md` 預設是整體系統排版政策文件，不是單一 PRD 功能頁的欄位/狀態規格。除非使用者明確要求只規劃單頁，否則 layout decision 必須先回答整個 frontend system 如何排版，再把本輪 feature 放入代表性 surface。
 
 完成條件：輸出中必須能分辨「System Layout Contract」與「Feature-specific Layout Notes」。前者是主體，後者只能補充本輪功能的 placement。
@@ -77,7 +79,7 @@ VISUAL_DENSITY: 1-10    # 1 = art gallery 留白，10 = cockpit 資訊密集
 
 若產物主要篇幅是畫面清單、欄位清單、表單驗證、狀態矩陣或 microcopy，而不是上述 contract，必須視為 layout planning 失敗並重寫。
 
-至少提供 2-3 個具體 layout 選項，每個選項必須是一套可套用到整個 frontend system 的 layout policy，而不是單頁 main content 排法。每個選項必須包含：
+只有在使用者或 caller 明確要求多方案探索、layout alternatives、design options 或可選 layout preview 時，才提供 2-3 個具體 layout 選項。每個選項必須是一套可套用到整個 frontend system 的 layout policy，而不是單頁 main content 排法。每個選項必須包含：
 
 - 適用原因
 - 資訊層級

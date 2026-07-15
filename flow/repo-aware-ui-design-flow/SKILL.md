@@ -25,7 +25,7 @@ Produce repo-aware UX, wireframe, visual design, and HTML preview artifacts for 
    - Classify status as `existing-kit`, `existing-styling`, `partial`, or `none`.
    - Do not require a UI kit. If none exists, say so and define project-local primitives.
    - Do not claim shadcn, coss, MUI, Radix, Tailwind, or custom components are present without repo evidence.
-   - If introducing a new kit is proposed, it must be one selectable design option with tradeoffs, not an assumption.
+   - If introducing a new kit is proposed, it must not be an assumption. If the caller allows options, present it as one selectable design option with tradeoffs. If the caller requires a single canonical artifact or forbids options, either reject the new kit as out-of-scope or return blocked for explicit user confirmation.
    - Completion: the design can explain what to reuse, extend, create, or optionally adopt.
 
 4. Write UX Spec.
@@ -142,6 +142,8 @@ Frontend repo `design/*.md` documents must not contain `## Source Artifacts`, `#
 ```
 
 ## Option Uniqueness Gate
+
+This gate applies only to stages that explicitly generate options or visual/HTML previews. It does not apply to UX or wireframe agents whose contract requires a single canonical blueprint.
 
 Block and regenerate if:
 
