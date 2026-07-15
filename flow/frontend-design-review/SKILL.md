@@ -36,9 +36,23 @@ Before coding, commit to an aesthetic direction:
 - **Constraints**: Framework, performance, accessibility requirements.
 - **Differentiation**: What makes this distinctive and context-appropriate?
 
+### High-Fidelity Product UI Gate
+
+Before creating or approving UI, verify the first viewport looks like a real product surface instead of a generated presentation page:
+
+- Brand fingerprint is visible and traceable to PRD/spec evidence.
+- One product-specific visual motif carries domain meaning, not decoration only.
+- Primary scene has a clear visual center; secondary states are compressed into rails, inspectors, panels, strips, or insets.
+- Color usage has dominant/support/accent/status roles; selected, active, focus, danger, success, warning, and error are not all the same accent.
+- Typography has a deliberate posture through scale, weight, case, letter spacing, tabular numbers, and label treatment.
+- Surface system has meaningful levels; cards do not all share the same radius, padding, border, and shadow.
+- Mobile is recomposed for the primary task, not a scaled desktop mockup.
+
+Block or regenerate if the UI is mostly generic KPI cards + filter + table, equal-card grids, purple/blue glow SaaS defaults, strategy-document sections, decorative bento, fake charts without product evidence, placeholder bars, lorem ipsum, or filler copy such as `Project Alpha`, `Metric 1`, and `Sample item`.
+
 ### Aesthetics Guidelines
 
-- **Typography**: Distinctive fonts that elevate aesthetics. Pair a display font with a refined body font. Avoid Inter, Roboto, Arial, Space Grotesk.
+- **Typography**: Distinctive type treatment that elevates aesthetics. Pair a display font with a refined body font when assets allow; when external fonts are unavailable, use system stacks with deliberate scale, weight, case, letter spacing, tabular numbers, and label treatment. Avoid default Inter/Roboto/Arial/Space Grotesk posture unless the product evidence supports neutral utility.
 - **Color & Theme**: Cohesive palette with CSS variables. Dominant colors + sharp accents > timid, evenly-distributed palettes.
 - **Motion**: CSS-only preferred. One well-orchestrated page load with staggered reveals > scattered micro-interactions.
 - **Spatial Composition**: Asymmetry, overlap, diagonal flow, grid-breaking elements, generous negative space OR controlled density.
@@ -105,7 +119,7 @@ Match implementation complexity to vision. Maximalist = elaborate code. Minimali
 - Aesthetic direction: distinctive typography, cohesive colors, intentional motion
 - Accessibility: Grade C minimum (WCAG 2.1 A), Grade B ideal (WCAG 2.1 AA)
 
-**Red flags:** Generic AI aesthetics, hardcoded values, implementation doesn't match Figma, broken reflow, missing focus indicators.
+**Red flags:** Generic AI aesthetics, missing brand fingerprint, decorative motif without product meaning, hardcoded values, implementation doesn't match Figma, broken reflow, missing focus indicators, palette only changes button color, uniform card radius/shadow/padding across every surface.
 
 ### 3. Trustworthy Building
 

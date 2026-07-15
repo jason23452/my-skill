@@ -198,7 +198,22 @@ Pattern evidence 規則：
 - 禁用 AI copy cliché：`Elevate`、`Seamless`、`Unleash`、`Next-Gen`、`Game-changer`、`Delve`、`Tapestry`、`In the world of...`。
 - fake precise number 要標註 sample/mock，否則不要編造。
 
-## 9. Redesign 工作流
+## 9. Automated HTML Preview Quality
+
+當 subagent 產生 `screen-preview.html`、靜態 high-fidelity preview 或自包含 HTML/CSS 時，必須把設計品味落成可見畫面，不可只輸出「乾淨現代」的規格頁。
+
+- 先回答：這個產品畫面的品牌指紋是什麼？使用者 5 秒後會記住什麼？答案不可只有 professional、modern、clean、trustworthy。
+- 第一屏必須是一個真實 product scene，不是文件、報告、比較表、策略說明頁或需求摘要。
+- 只能有一個主要視覺重心；其他狀態用 state rail、inspector、secondary panel、compact strip 或 mobile inset 呈現，不要把需求平均鋪成同權重卡片。
+- 必須有產品專屬 visual motif，且 motif 要承載業務語意，例如 lifecycle、scope、status、receipt、ledger、approval、inventory、correction、handoff、sync、risk 或 permission。
+- 自包含 HTML 可用 inline SVG、CSS texture、grid/ledger lines、status rails、receipt strips、scope ribbons、mask、subtle noise、geometric separators；不可依賴外部圖片、外部字體或外部 icon font。
+- 至少要有 3 種有功能意義的 surface weight。不要讓所有 panel 使用同一 radius、border、shadow、padding。
+- 色彩必須有比例與職責，通常 dominant/support/accent/status 要分離。不可只把 button 改成主色。
+- Typography 即使使用 system stack，也要透過 size scale、weight、case、letter spacing、tabular numbers、label style 和 line-height 建立個性。
+- Mobile 不是 desktop 截圖縮小；要重新安排 reading order、sticky action、state compression 或 inspector collapse。
+- 若出現 generic KPI cards + filter + table、三等分卡片牆、紫藍 glow SaaS、無產品語意 bento、fake chart、placeholder bars、lorem ipsum、`Project Alpha`、`Metric 1`、`Sample item`，必須重寫。
+
+## 10. Redesign 工作流
 
 既有專案不要重寫一切。流程：
 
@@ -208,7 +223,7 @@ Pattern evidence 規則：
 4. 修補：在現有 stack 裡做最小高影響改動。
 5. Review：用 layout、typography、color、motion、accessibility、content 自檢。
 
-## 10. 交付前檢查
+## 11. 交付前檢查
 
 完成前必須檢查：
 
