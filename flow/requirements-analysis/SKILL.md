@@ -213,6 +213,7 @@ Generate the question plan from the extracted prompt signals:
 This skill is the local requirements hub. When other SDD requirement skills are available, route work this way:
 
 - Always pair with `ask-questions-if-underspecified` before drafting when the objective, actor, scope, constraints, success criteria, acceptance seeds, or source identity is ambiguous.
+- Always pair with `requirements-clarity` to assess PC0-PC5 production completeness. RA5 validates requirement intent; it does not replace production-readiness coverage.
 - Use `problem-framing-canvas` for RA0 or RA1 inputs: solution-first ideas, copied competitor features, vague stakeholder demands, unclear target user, or unclear problem statement.
 - Use `discovery-process` when the input is a full document, research note, customer evidence, stakeholder context, or any case where evidence and assumptions must be separated.
 - Use `information-architecture` when the requirement is for a site, app, admin, dashboard, portal, management system, or any product where navigation, page/view structure, content hierarchy, naming, or user flow clarity affects the requirement.
@@ -236,20 +237,26 @@ When used by `Requirements Agent`, produce a requirements brief only. Do not gen
 
 Support two intake modes:
 
-- Multi-question analysis: ask the minimum set of targeted RA0-RA5 questions needed to make the requirement testable.
-- Complete document analysis: extract the problem statement, users, scope, constraints, assumptions, risks, and validated requirement seeds from the provided document.
+- Multi-question analysis: use adaptive intent, domain, production, and validation rounds. Ask two to five related questions per round and skip dimensions already answered or explicitly not applicable with reason.
+- Complete document analysis: extract the problem statement, users, scope, constraints, assumptions, risks, and validated requirement seeds, then audit missing production dimensions before writing.
+
+Default to a complete, directly operable product. Never convert a broad request into an MVP, prototype, or happy-path release unless the user explicitly requests that posture. Even then, preserve excluded production capabilities, consequences, and a reconsideration trigger.
 
 The final `requirements.md` should include:
 
 - `## 1. 需求摘要`: goal, problem statement, target users, observable success result.
 - `## 2. 背景與現況`: source, current workaround, pain points, why now, evidence, impact/urgency.
 - `## 3. 使用者與場景`: table of role, scenario, goal, frequency/importance, plus Job Story-style situations when useful.
+- Under section 3, include role ownership, permission boundaries, administrators/approvers, and denied behavior where applicable.
 - `## 4. 範圍邊界`: required scope, out-of-scope, extension candidates.
 - `## 5. 核心物件與名詞定義`: domain terms, definitions, rules, examples, and product information architecture when relevant.
+- Under section 5, include source of truth, identity, relationships, validation, history, retention/deletion, and import/export applicability.
 - `## 6. 核心流程`: trigger, main steps, completion result, failure/exception cases.
 - `## 7. 規則、狀態與例外`: table of rules/states, description, exception, impact.
+- Under section 7, include lifecycle transitions, duplicate/concurrency handling, failure/retry/recovery, manual intervention, integrations, notifications, audit behavior, and dependency outages where relevant.
 - `## 8. 驗收條件`: verifiable acceptance criteria or acceptance seeds.
 - `## 9. 風險、假設與待確認問題`: assumptions, risks, validation gaps, open questions.
+- Under section 9, record the delivery posture plus quality attributes, security/privacy/compliance, monitoring/support/reconciliation, migration, rollout, rollback, and each production dimension's confirmed/not-applicable/assumed/blocking status.
 - `## 10. 後續需求切片參考`: optional handoff reference for User Story Agent; not final User Story content.
 
 Do not put JSON in `requirements.md`. Keep structured data in sidecar files such as `requirements-data.json` and `userstory-backlog.json`. Do not use the heading `## User Story Backlog Candidates`; if a downstream split reference is included, use `## 後續需求切片參考`.
@@ -261,4 +268,4 @@ Session/Wiki maintenance rules:
 - ADO Wiki page id plus Wiki path is the durable shared identity used by the User Story Agent when multiple requirements documents exist.
 - Do not treat the Wiki title as the only identity; title is for human selection labels.
 
-Stop after the requirements preview and optional approved Wiki sync. The next entry is the User Story Agent, which reads the session requirements file or asks the user to select an ADO Wiki requirements page by `#<wikiPageId> | <title>`, then creates the batch User Story draft.
+Stop after the requirements preview and optional approved Wiki sync. The next entry is the User Story Agent, which reads the session requirements file or asks the user to select an ADO Wiki requirements page by `#<wikiPageId-or-wikiPath> | <title>`, then creates the batch User Story draft. Use numeric `wikiPageId` when ADO provides one; otherwise use `wikiPath` as the loader input.

@@ -149,8 +149,11 @@ Rules:
 - Do not invent implementation facts. If the User Story lacks API, data, permission, or UI details, write proposed product-level requirements or open questions.
 - Return data that can be passed to `write-prd-batch-draft` as `prdsJson`.
 - Stop at consolidated PRD preview until the user explicitly approves; ADO sync belongs to `finalize-prd-batch-run`.
-- After PRD sync, do not enter `project-flow`; the user must manually select synced PRDs first.
+- After approval, `finalize-prd-batch-run` must sync every PRD as a separate ADO PRD Work Item and create one session-only OpenCode session per PRD. It must not send a prompt to those sessions.
+- Each PRD session must prioritize only `/previews/prd/<prdRunId>/prd.md`; it must not inherit the consolidated batch preview, another PRD, a source User Story preview, or downstream design/planning artifacts.
+- After PRD sync and session creation, stop. Do not enter `project-flow` and do not select PRDs from inside PRD Agent.
+- The user later starts the separate `Project Flow` primary agent. That agent lists current ADO PRD Work Items, uses `question` with `multiple:true`, records the selected PRDs, and owns all Brownfield/Greenfield and downstream work.
 
 ## SDD Wiki Design Maintenance
 
-When selected PRDs later enter `project-flow`, design markdown may be maintained in the PRD session and frontend repo `design/` directory as working copies for preview and planning. After HTML preview approval, the maintained shared copies must be synced to ADO Wiki under `/design/<repo>/*.md`; do not treat repo `design/*.md` as the canonical long-term source.
+When selected PRDs later enter the separate `Project Flow` primary agent, design markdown may be maintained in the PRD session and frontend repo `design/` directory as working copies for preview and planning. After HTML preview approval, the maintained shared copies must be synced to ADO Wiki under `/design/<repo>/*.md`; do not treat repo `design/*.md` as the canonical long-term source.

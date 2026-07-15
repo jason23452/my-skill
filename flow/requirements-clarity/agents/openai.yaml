@@ -1,0 +1,4 @@
+interface:
+  display_name: "Production Requirements Clarity"
+  short_description: "Validate production-ready requirement completeness"
+  default_prompt: "Assess this product requirement for production-ready completeness and identify only the decisions needed before downstream User Story or PRD drafting."

@@ -171,11 +171,64 @@ When used by `User Story Agent` with a requirements document, treat the requirem
 Rules:
 
 - Requirements may come from a session-maintained `requirements.md` or an ADO Wiki page under `/<requirement>/*.md`.
-- If the User Story Agent must choose from Wiki, list options as `#<wikiPageId> | <title>` and include Wiki path and URL in each option description.
+- If the User Story Agent must choose from Wiki, list options as `#<wikiPageId-or-wikiPath> | <title>` and include Wiki path and URL in each option description. Use `wikiPageId` only when it is numeric; otherwise call the loader with `wikiPath`.
 - Preserve `wikiPageId`, `wikiPath`, `wikiUrl`, and `wikiTitle` in the batch manifest when the source came from Wiki. When calling `write-userstory-batch-draft`, pass these as `requirementsWikiPageId`, `requirementsWikiPath`, `requirementsWikiUrl`, and `requirementsWikiTitle`. Use `wikiPageId + wikiPath` as the durable source identity; do not rely on title alone.
 - Generate one User Story per coherent product slice, not one story per field or UI element.
 - Preserve related capabilities together when actor, entry point, trigger, and product outcome are the same.
 - Each User Story must include source requirement reference, title, statement, scope, non-goals, assumptions, open questions, and Given/When/Then acceptance criteria.
+- Each User Story must include a concrete boundaries/edge-cases section covering at least one validation, permission, empty, error, conflict, or boundary path.
+- Each User Story must include at least two Given/When/Then acceptance scenarios: AC-01 happy path and AC-02 boundary/exception path.
+- Story titles must be generated product/domain slice titles. Do not use `User Story 1`, `US-01`, `requirements`, or sequence-only titles.
 - Keep unconfirmed implementation details out of the story; record them as assumptions or open questions.
 - Return data that can be passed to `write-userstory-batch-draft` as `userstoriesJson`.
-- Stop at preview until the user explicitly approves; ADO sync belongs to `finalize-userstory-batch-run`.
+- Stop at preview until the user explicitly approves; ADO sync belongs to `finalize-userstory-batch-run`. Batch finalize must create/sync every User Story as its own ADO User Story Work Item and open one session-only OpenCode session per User Story. Each session must bind to exactly one story run and prioritize its own User Story Markdown preview, never the consolidated batch preview.
+
+Required per-story Markdown for batch mode:
+
+```markdown
+# <domain-specific title>
+
+## Source Requirement Summary
+- Source: <requirements run/wiki id + path/title>
+- Requirement slice: <specific workflow/capability from the requirements document>
+- Business outcome: <observable value>
+
+## User Story
+As a <actor>, I want to <action>, so that <outcome>.
+
+## Scope
+### In Scope
+- <included behavior>
+
+### Non-Goals
+- <explicitly excluded or deferred behavior, or "None identified from the source requirements.">
+
+## Conversation Notes
+- Actor / entry point: <where this starts>
+- Trigger: <event or user intent>
+- Data involved: <managed objects or important fields, only if source supports them>
+
+## Acceptance Criteria
+### AC-01: <happy path>
+Given <context>
+When <action>
+Then <observable result>
+
+### AC-02: <validation, permission, empty, error, conflict, or boundary path>
+Given <context>
+When <action>
+Then <observable result>
+
+## Boundaries and Edge Cases
+- <at least one concrete boundary, validation, permission, empty, error, or conflict case>
+
+## Assumptions
+- <assumption, or "None.">
+
+## Open Questions
+- <question, or "None.">
+
+## Traceability
+- Source requirements: <run id/path or wiki page id/path/url>
+- Requirement section: <heading or slice name>
+```
