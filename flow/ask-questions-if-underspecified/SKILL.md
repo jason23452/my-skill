@@ -30,11 +30,24 @@ Ask clarifying questions when any of these are unclear:
 
 For SDD agents, produce a `questionPlan` compatible with the host agent:
 
-- 1 to 5 questions maximum in one gate.
+- Ask 1 to 5 questions in a normal clarification gate.
+- For broad product requests, ask 4 to 7 questions in one gate when fewer questions would force risky assumptions.
 - Use `multiple:true` only when options can coexist.
 - Put the safest or recommended option first and suffix `(Recommended)`.
 - Every option description must be a complete requirement sentence that can be copied into requirements.md, User Story, or PRD.
 - Include a free-text fallback only when the decision space cannot be enumerated.
+
+## Prompt-Derived Questions
+
+Build questions from the user's words instead of from a fixed domain template:
+
+- Turn nouns into candidate managed objects, records, roles, content, assets, or transactions.
+- Turn verbs into candidate workflows and user actions.
+- Turn product shape words into scope questions, such as whether the surface is an admin view, customer view, one-page flow, portal, dashboard, or internal tool.
+- Turn status or timing hints into lifecycle and exception questions.
+- Turn quality adjectives into measurable success criteria.
+
+When the prompt only says "build/implement/create [product/system/tool/site/app]" and does not provide enough detail, ask before drafting. The question set should clarify outcome, actors, managed objects, workflows, lifecycle/states, non-goals, and success criteria.
 
 ## Do Not Ask
 

@@ -174,6 +174,36 @@ When used inside `userstory-discovery-intake`, produce inputs for `discoveryPack
 - Do not force a large related feature into the smallest possible slice; preserve scope when capabilities share the same product goal and can be made testable.
 - Do not ask about API, database schema, framework, deployment, UI kit, colors, typography, or implementation unless the user already stated them as constraints.
 
+## Prompt-Derived Inquiry Expansion
+
+Do not use fixed domain checklists. Derive clarification questions from the user's actual prompt.
+
+Before asking or writing, extract prompt signals:
+
+- Product shape: words that indicate surface or form, such as site, app, admin, dashboard, one-page, portal, tool, workflow, report, or management system.
+- Domain nouns: the business objects, resources, records, people, content, transactions, assets, or documents named or implied by the prompt.
+- Verbs: the work users need to do, such as create, review, approve, publish, track, manage, reconcile, assign, configure, search, export, or resolve.
+- Actors: explicit or implied users, operators, approvers, customers, managers, admins, external parties, or system roles.
+- Lifecycle hints: statuses, stages, queues, exceptions, due dates, approvals, failures, handoffs, or completion conditions.
+- Quality words: adjectives such as fast, simple, modern, safe, automated, accurate, or scalable that must become measurable outcomes.
+
+If the prompt is a broad product request and lacks concrete decisions, do not write `requirements.md` yet. Treat broad product requests as RA0/RA2 until clarified. A prompt is broad when it asks to build or implement a product/system/tool/site/app/platform/dashboard/admin experience but does not clearly answer most of these:
+
+- Who uses it and who is affected.
+- What domain objects it manages.
+- Which workflows are V1 core.
+- What states, edge cases, or lifecycle transitions matter.
+- What is explicitly out of scope.
+- What observable result proves success.
+
+Generate the question plan from the extracted prompt signals:
+
+- Ask 4 to 7 focused questions for a broad product request, not a single generic question.
+- At least one question must cover each missing category: outcome/problem, actors, domain objects, workflows, lifecycle/states, scope boundary, and success/acceptance.
+- Option labels should reuse the user's terms when possible. If adding likely domain concepts, mark them as candidates to confirm, not facts.
+- Do not invent domain requirements as final truth. Put unconfirmed inferred items in options, assumptions, or open questions.
+- Do not ask implementation questions unless the prompt itself makes implementation a constraint.
+
 ## SDD External Requirement Skills Router
 
 This skill is the local requirements hub. When other SDD requirement skills are available, route work this way:
