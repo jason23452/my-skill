@@ -116,7 +116,7 @@ Symptoms:
 
 - Requirements expand faster than they are clarified.
 - Cannot distinguish core from nice-to-have.
-- No clear V1 or release boundary.
+- No clear complete scope boundary.
 - Every feature feels equally important.
 
 Key questions:
@@ -161,7 +161,7 @@ When used inside `userstory-discovery-intake`, produce inputs for `discoveryPack
 - `problemStatementBrief`: who has what problem, why now, current workaround.
 - `needHierarchy`: core need, supporting needs, optional needs.
 - `constraintInventory`: facts, assumptions, dependencies, risks.
-- `scopeBoundary`: in scope, out of scope, deferred, reconsideration triggers.
+- `scopeBoundary`: in scope, out of scope, extension candidates, reconsideration triggers.
 - `validatedRequirementSeeds`: testable requirement statements and Given/When/Then seeds.
 - `openQuestions`: only questions that block requirement clarity or testability.
 
@@ -191,7 +191,7 @@ If the prompt is a broad product request and lacks concrete decisions, do not wr
 
 - Who uses it and who is affected.
 - What domain objects it manages.
-- Which workflows are V1 core.
+- Which workflows are required to satisfy the complete product goal.
 - What states, edge cases, or lifecycle transitions matter.
 - What is explicitly out of scope.
 - What observable result proves success.
@@ -203,6 +203,7 @@ Generate the question plan from the extracted prompt signals:
 - Option labels should reuse the user's terms when possible. If adding likely domain concepts, mark them as candidates to confirm, not facts.
 - Do not invent domain requirements as final truth. Put unconfirmed inferred items in options, assumptions, or open questions.
 - Do not ask implementation questions unless the prompt itself makes implementation a constraint.
+- Do not turn requirements analysis into phased delivery planning. Analyze the complete requirement and express boundaries as in scope, out of scope, extension candidates, open questions, and acceptance criteria.
 
 ## SDD External Requirement Skills Router
 
@@ -239,7 +240,7 @@ The final `requirements.md` should include:
 
 - Product/problem summary.
 - Target users and current workaround.
-- Scope boundary: in scope, out of scope, deferred.
+- Scope boundary: in scope, out of scope, extension candidates.
 - Validated requirement seeds grouped by product capability.
 - Acceptance seeds in Given/When/Then form where enough detail exists.
 - Assumptions and open questions, clearly marked.

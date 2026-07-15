@@ -56,7 +56,7 @@ license: MIT
 整理使用者輸入並找出隱性複雜度。
 
 - 描述主要 user flow。
-- 分離 MVP、v1.1、v2.0 或後續版本。
+- 分離必要範圍、延伸範圍候選與明確排除事項。
 - 定義 non-goals，防止 scope creep。
 - 找出相依系統、資料、權限、營運、測試與 rollout 風險。
 - 對未確認事項標記 `TBD` 或列入 open questions。
@@ -121,7 +121,7 @@ license: MIT
 
 ### 5. 風險與 Roadmap
 
-- **分階段推出**: MVP -> v1.1 -> v2.0 或等價分期。
+- **範圍取捨**: 必要範圍、延伸範圍候選與明確排除事項。
 - **技術風險**: latency、cost、dependency、data quality、migration、security。
 - **產品風險**: adoption、confusing UX、metric ambiguity、stakeholder alignment。
 

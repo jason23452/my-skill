@@ -1,8 +1,9 @@
 ---
 name: github-prd-discovery
 description: 使用 GitHub awesome-copilot PRD discovery workflow 強化 PRD 提問、問題陳述、成功指標、scope、user stories、acceptance criteria 與 risk analysis。當 User Story 要轉 PRD、PRD 草稿缺 discovery 問題、或 PRD questionPlan 品質不足時使用。
-source: github/awesome-copilot@prd
 license: MIT
+metadata:
+  source: github/awesome-copilot@prd
 ---
 
 # GitHub PRD Discovery
@@ -20,13 +21,13 @@ license: MIT
 - **Core Problem**: 為什麼現在要做？不做的成本是什麼？
 - **Target Users**: 誰遇到這個問題？頻率、場景、現有替代方案是什麼？
 - **Success Metrics**: 如何知道功能有效？有哪些可量化 KPI 或可驗收結果？
-- **Scope**: MVP 必做、延後、不做、相依系統與限制是什麼？
+- **Scope**: 必要範圍、延伸範圍候選、不做、相依系統與限制是什麼？
 - **Acceptance**: 哪些使用者可見狀態、測試資料、metric、log、demo 能證明完成？
 
 ### Phase 2: Analysis And Scoping
 
 - 描述主要 user flow。
-- 定義 MVP、v1.1、v2 或後續版本。
+- 定義必要範圍、延伸範圍候選與明確排除事項。
 - 定義 non-goals，防止 scope creep。
 - 找出相依系統、資料、權限、營運、測試與 rollout 風險。
 - 對未確認事項標記為 blocking issue、assumption 或 non-blocking open question。

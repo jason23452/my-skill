@@ -1,8 +1,9 @@
 ---
 name: feature-forge
-description: 進行結構化需求工作坊，用於 User Story / PRD discovery、questionPlan 產生、EARS 功能需求、Given/When/Then 驗收條件、邊界情境與定稿驗證。當需求模糊、User Story 顆粒太粗、驗收條件不可測、scope 不清，或 User Story -> PRD 流程需要更深入提問時使用。
-source: jeffallan/claude-skills@feature-forge
+description: 進行結構化需求工作坊，用於 User Story / PRD discovery、questionPlan 產生、EARS 功能需求、Given/When/Then 驗收條件、邊界情境與定稿驗證。當需求模糊、User Story 顆粒太粗、驗收條件不可測、scope 不清，或 User Story 轉 PRD 流程需要更深入提問時使用。
 license: MIT
+metadata:
+  source: jeffallan/claude-skills@feature-forge
 ---
 
 # Feature Forge
@@ -44,7 +45,7 @@ license: MIT
 - `entryPoint`：使用者從哪裡或何時開始流程。
 - `trigger`：具體使用者動作或系統事件。
 - `desiredOutcome`：成功後可見的結果、狀態、回饋、資料變化或下一步。
-- `scope`：本次包含、不包含、MVP 與後續版本。
+- `scope`：完整需求包含、不包含、必要範圍與延伸範圍候選。
 - `acceptance`：Given / When / Then 是否具備客觀 pass/fail 判準。
 - `edgeCases`：失敗、空狀態、權限、驗證、邊界或復原行為。
 
@@ -52,7 +53,7 @@ license: MIT
 
 - `problemAndGoal`：先清楚問題與目標，再進入解法細節。
 - `personasAndScenarios`：persona、使用頻率、使用者旅程與情境可追溯。
-- `scopeAndNonGoals`：範圍內、範圍外、MVP / 後續版本、相依性與限制明確。
+- `scopeAndNonGoals`：範圍內、範圍外、必要範圍、延伸範圍候選、相依性與限制明確。
 - `frCards`：每個 FR 是單一能力，包含角色、入口、觸發、輸入 / 狀態、行為、成功結果、失敗 / 邊界、權限、非目標、驗收條件。
 - `acScenarios`：每個 AC 都有對應需求、Given、When、Then、測試資料。
 - `nonFunctional`：必要時涵蓋效能、安全、隱私、無障礙、可靠性、本地化、可觀測性。
