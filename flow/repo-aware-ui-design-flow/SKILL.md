@@ -34,13 +34,15 @@ Produce repo-aware product design artifacts from an approved `design-context.md`
 5. Write Wireframe Spec.
    - `wireframe-spec.md` defines screen inventory, task/content/action/state invariants, reading priority, responsive task requirements, and a Composition Freedom Boundary. It must not lock every option to one shell, region placement, split ratio, card/table family, or responsive composition.
 
-6. Write Visual Design Spec.
-   - Before the final spec, the Product Design Director creates three composition + visual directions that share product invariants but differ materially in shell, grouping, master-detail, progressive disclosure, density, responsive recomposition, and visual language.
-   - After selection, `visual-design-spec.md` defines selected composition anchors, visual thesis, color roles, typography roles, spacing/density, surfaces, domain component roles, state treatment, interaction tone, accessibility, and the HTML preview style contract.
+6. Select And Write The Visual System.
+   - The Product Visual System Director creates three visual directions on one identical neutral evaluation DOM, region order, geometry, responsive frame, task, content, actions, and states.
+   - Visual options differ through typography, semantic color, spacing rhythm, density variants, surfaces, shape grammar, domain component/state appearance, icons/media/motif, motion, and accessibility. They cannot decide shell, navigation, columns, grouping, master-detail, disclosure, scroll/sticky, or responsive region composition.
+   - After selection, `DESIGN.md` and `visual-design-spec.md` define only the selected visual/component system and explicitly defer layout decisions.
 
-7. Write System DESIGN And Layout Contracts.
-   - `DESIGN.md` defines product-wide visual semantics, domain components, state language, tokens, responsive behavior, accessibility, and PRD application traceability.
-   - `layout.md` defines the whole product system layout contract: app shell, navigation model, route/page template taxonomy, grid/container policy, action placement, state placement, responsive policy, and component layout policy.
+7. Select And Write The Layout System.
+   - The Layout Architect creates three layout directions that lock final `DESIGN.md` and product invariants while differing in shell/navigation, scene composition, grouping, master-detail, progressive disclosure, density/action anchoring, scroll ownership, and responsive recomposition.
+   - Review real desktop/mobile previews, select one direction, then write final `layout.md` with exact canonical geometry, first-viewport budgets, scroll/sticky ownership, responsive composition, ASCII spatial frames, and executable acceptance tests.
+   - `layout.md` defines the whole product system layout contract: app shell, navigation model, route/page template taxonomy, grid/container policy, action/state placement, responsive policy, and component layout policy.
    - Current PRD, UX spec, and wireframe spec are representative evidence surfaces used to validate the product-wide layout system, not the boundary of the layout system.
    - Completion: the layout contract can explain how the current feature fits the product-wide templates without becoming a single-feature screen spec.
 
@@ -87,15 +89,16 @@ All session design documents must use generated product-specific titles and incl
 
 ## Option Uniqueness Gate
 
-This gate applies only to stages that explicitly generate options or visual/HTML previews. UX and screen-structure agents produce one invariant contract; the Product Design Director uses its composition freedom boundary for options.
+This gate applies to visual options, layout options, and final HTML previews. UX and screen-structure agents produce one invariant contract.
 
 Block and regenerate if:
 
 - Previews look like documentation pages, comparison reports, wireframes, placeholder skeletons, or strategy cards instead of actual product UI.
 - Previews use placeholder bars, lorem ipsum, generic boxes, generic dashboard/KPI shells, or fake app chrome not supported by repo evidence.
 - Previews do not show the actual user-facing screens/states required by PRD/spec.
-- HTML preview only changes colors or names from a generic template.
-- Options differ only by palette, font, radius, shadow, or motif instead of shell/grouping/progressive disclosure/density/responsive composition.
+- Visual options change layout topology instead of using the shared neutral evaluation frame.
+- Visual options differ only by palette or font instead of a complete visual/component/state system.
+- Layout options change the selected visual system or differ only by palette, font, radius, shadow, or motif instead of shell/grouping/progressive disclosure/density/scroll/responsive composition.
 - HTML preview uses unsupported sidebar/cards/table family without evidence.
 - HTML preview does not include RWD strategy.
 - HTML preview does not include component strategy.

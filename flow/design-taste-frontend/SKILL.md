@@ -58,7 +58,7 @@ VISUAL_DENSITY: 1-10    # 1 = art gallery 留白，10 = cockpit 資訊密集
 
 若要產生或大幅重寫 `design/ui-layout.md`、`layout.md` 或其他 system layout spec，必須先形成 layout decision。若沒有足夠線索，回 `blocked` 或輸出 question plan，讓使用者選 layout 方向。
 
-若目前 artifact contract 明確要求單一 final `layout.md`，最終文件不可保留 A/B/C；但 caller 若有獨立的 Design Direction phase，必須先探索可選 composition，再把 selected direction 收斂成單一 canonical `layout.md`。Screen semantics contract 固定任務、內容、actions、states 與 outcomes，不代表所有 options 必須保留相同 shell、region position 或 split ratio。
+若目前 artifact contract 明確要求單一 final `layout.md`，最終文件不可保留 A/B/C；但 caller 若有獨立的 Layout Direction phase，必須先探索可選 composition，再把 selected layout direction 收斂成單一 canonical `layout.md`。Visual Design Direction phase 只能選視覺/元件系統，不可代替 Layout Direction。Screen semantics contract 固定任務、內容、actions、states 與 outcomes，不代表所有 layout options 必須保留相同 shell、region position 或 split ratio。
 
 `layout.md` 與 `design/ui-layout.md` 預設都是整體系統排版政策文件，不是單一 PRD 功能頁的欄位/狀態規格。除非使用者明確要求只規劃單頁，否則 layout decision 必須先回答整個 frontend system 如何排版，再把本輪 feature 放入代表性 surface。
 

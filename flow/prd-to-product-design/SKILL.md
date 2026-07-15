@@ -92,7 +92,7 @@ Dashboard/workspace patterns are allowed when the evidence requires monitoring, 
 - Separate system rules from representative PRD applications.
 - Keep external reference translation subordinate to product evidence.
 
-Visual options must share the same product model, IA relationships, screen inventory, task/content/action/state semantics, permissions, outcomes, and acceptance criteria. They may make materially different composition decisions about shell presentation, region grouping, master-detail relationships, progressive disclosure, density, action anchoring, and responsive recomposition when those decisions remain inside the documented `Composition Freedom Boundary`. Options cannot become different products or workflows, but they must be more than palette/font/radius skins.
+Visual options must share one neutral evaluation DOM, region order, geometry, responsive frame, product model, task/content/action/state semantics, permissions, outcomes, and acceptance criteria. They may differ through typography, semantic color, spacing rhythm, density variants, surfaces, shape grammar, component/state appearance, icons/media/motif, motion, and accessibility treatment. They must not decide app shell, navigation, columns, region placement, master-detail, disclosure, scroll/sticky ownership, or responsive region topology.
 
 ## layout.md Contract
 
@@ -103,12 +103,16 @@ Visual options must share the same product model, IA relationships, screen inven
 - Define navigation from confirmed screen relationships, not a generic sidebar reflex.
 - Define screen inventory, screen families, routes when known, and cross-screen transitions.
 - Define page-template contracts, region anatomy, content priority, actions, and state placement.
+- Define exact canonical viewport geometry, first-viewport budgets, visual-center placement, and scroll/sticky/overflow ownership.
 - Define desktop/tablet/mobile composition and reading order for every confirmed screen family.
 - Define dense-data overflow, inspector/drawer/modal, focus return, and destructive-action policy where applicable.
 - Include representative mappings for every selected PRD capability and acceptance criterion.
 - Map every major layout rule to evidence IDs.
+- Include screenshot-verifiable layout acceptance tests and desktop/mobile ASCII spatial frames for representative screens.
 
 Do not force a fixed external layout template when it obscures product structure. Prefer an explicit product contract that engineers can implement and reviewers can trace.
+
+Before final `layout.md`, generate three layout options that lock final `DESIGN.md` and all product invariants while differing materially in shell/navigation, grouping, master-detail, progressive disclosure, density/action anchoring, scroll ownership, and responsive recomposition. Review real desktop/mobile previews, then retain only the selected direction in final `layout.md`.
 
 ## Reference Policy
 
@@ -132,8 +136,9 @@ Block or rewrite when:
 - `layout.md` is mainly one screen, a generic dashboard recipe, or a token catalog.
 - Mobile is only desktop stacked or scaled down.
 - Loading, empty, error, permission, destructive, selected, or recovery states required by evidence are absent.
-- Visual direction changes task semantics, content priority, actions, states, permissions, outcomes, or product workflow. Reorganizing regions inside the documented composition freedom boundary is allowed and expected.
-- Design options differ only by palette, typography, radius, shadow, or motif instead of composition strategy.
+- A visual option changes layout topology, or a layout option changes the selected visual system, task semantics, content priority, actions, states, permissions, outcomes, or product workflow.
+- Visual options change shell/grouping/disclosure/responsive composition instead of using the shared evaluation frame.
+- Layout options differ only by palette, typography, radius, shadow, or motif instead of spatial strategy.
 - A visible preview leaks screen/evidence/PRD/AC IDs, coverage, QA status, artifact paths, JSON/YAML, or design-document prose into product UI.
 - A preview presents all screens/states at once as a report wall instead of one focused product scene with real navigation.
 - Screenshot-based visual quality is below 88/100, hierarchy/composition/task focus/mobile is below 8/10, or any hard visual blocker remains.

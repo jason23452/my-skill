@@ -7,10 +7,6 @@ description: >
   UI code review, component reviews, responsive design checks, theme testing, and creating memorable UI.
   DO NOT USE FOR: Backend API reviews, database schema reviews, infrastructure or DevOps work, pure business logic
   without UI, or non-frontend code.
-acknowledgments: |
-  Design review principles and quality pillar framework created by @Quirinevwm (https://github.com/Quirinevwm).
-  Creative frontend guidance inspired by Anthropic's frontend-design skill
-  (https://github.com/anthropics/skills/tree/main/skills/frontend-design). Licensed under respective terms.
 ---
 
 # Frontend Design Review
@@ -35,6 +31,12 @@ Before coding, commit to an aesthetic direction:
 - **Tone**: minimal, maximalist, retro-futuristic, organic, luxury, playful, editorial, brutalist, art deco, soft/pastel, industrial, etc.
 - **Constraints**: Framework, performance, accessibility requirements.
 - **Differentiation**: What makes this distinctive and context-appropriate?
+
+### DESIGN And Layout Ownership Gate
+
+- `DESIGN.md` owns typography, semantic color, spacing rhythm, density variants, surfaces, shape, component/state appearance, icons/media/motif, motion, and accessibility. Visual options must use one identical neutral evaluation layout.
+- `layout.md` owns shell, navigation, route/scene composition, region geometry, visual-center placement, master-detail, disclosure, scroll/sticky, first-viewport budgets, and responsive recomposition. Layout options must lock the selected DESIGN system.
+- Block visual options that differ through layout. Block layout options that differ through visual styling. Do not merge the two user selection gates.
 
 ### High-Fidelity Product UI Gate
 
