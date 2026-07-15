@@ -159,6 +159,9 @@ When used inside `userstory-discovery-intake`, produce inputs for `discoveryPack
 
 - `requirementsAnalysisState`: current RA state and evidence.
 - `problemStatementBrief`: who has what problem, why now, current workaround.
+- `discoveryEvidence`: confirmed facts, stakeholder evidence, impact/urgency, evidence gaps.
+- `jobStoryScenarios`: situation/trigger, motivation, desired outcome, and current workaround.
+- `informationArchitecture`: product areas, navigation/page map, content hierarchy, naming conventions, and key user flows.
 - `needHierarchy`: core need, supporting needs, optional needs.
 - `constraintInventory`: facts, assumptions, dependencies, risks.
 - `scopeBoundary`: in scope, out of scope, extension candidates, reconsideration triggers.
@@ -212,10 +215,10 @@ This skill is the local requirements hub. When other SDD requirement skills are 
 - Always pair with `ask-questions-if-underspecified` before drafting when the objective, actor, scope, constraints, success criteria, acceptance seeds, or source identity is ambiguous.
 - Use `problem-framing-canvas` for RA0 or RA1 inputs: solution-first ideas, copied competitor features, vague stakeholder demands, unclear target user, or unclear problem statement.
 - Use `discovery-process` when the input is a full document, research note, customer evidence, stakeholder context, or any case where evidence and assumptions must be separated.
-- Use `analyze-feature-requests` when the input is a backlog, spreadsheet, ADO item list, customer request list, or multiple mixed feature requests.
+- Use `information-architecture` when the requirement is for a site, app, admin, dashboard, portal, management system, or any product where navigation, page/view structure, content hierarchy, naming, or user flow clarity affects the requirement.
 - Use `job-stories` when the requirement depends on situation, trigger, current workaround, motivation, and desired outcome more than a role-based story statement.
-- Use `user-stories` only to shape candidate backlog slices in `requirements.md`; actual User Story drafting, preview, and ADO sync remain owned by User Story Agent.
-- Use `prd-development` only as downstream PRD context. Requirements Agent should not write PRDs, but it should capture the problem, outcome, scope, risks, metrics, and traceability inputs a later PRD needs.
+
+Do not route Requirements Agent work to backlog-analysis, User Story, feature-forge, PRD-development, breakdown-PRD, or GitHub-PRD skills. Those skills belong to downstream agents. Requirements Agent should capture enough complete product understanding for those agents, not draft their artifacts.
 
 Do not use `find-skills` for these skills. They are expected to be preloaded from `/my-skill/flow` during Docker build.
 
@@ -238,13 +241,18 @@ Support two intake modes:
 
 The final `requirements.md` should include:
 
-- Product/problem summary.
-- Target users and current workaround.
-- Scope boundary: in scope, out of scope, extension candidates.
-- Validated requirement seeds grouped by product capability.
-- Acceptance seeds in Given/When/Then form where enough detail exists.
-- Assumptions and open questions, clearly marked.
-- Suggested User Story backlog candidates, but only as candidates for the separate User Story Agent.
+- `## 1. 需求摘要`: goal, problem statement, target users, observable success result.
+- `## 2. 背景與現況`: source, current workaround, pain points, why now, evidence, impact/urgency.
+- `## 3. 使用者與場景`: table of role, scenario, goal, frequency/importance, plus Job Story-style situations when useful.
+- `## 4. 範圍邊界`: required scope, out-of-scope, extension candidates.
+- `## 5. 核心物件與名詞定義`: domain terms, definitions, rules, examples, and product information architecture when relevant.
+- `## 6. 核心流程`: trigger, main steps, completion result, failure/exception cases.
+- `## 7. 規則、狀態與例外`: table of rules/states, description, exception, impact.
+- `## 8. 驗收條件`: verifiable acceptance criteria or acceptance seeds.
+- `## 9. 風險、假設與待確認問題`: assumptions, risks, validation gaps, open questions.
+- `## 10. 後續需求切片參考`: optional handoff reference for User Story Agent; not final User Story content.
+
+Do not put JSON in `requirements.md`. Keep structured data in sidecar files such as `requirements-data.json` and `userstory-backlog.json`. Do not use the heading `## User Story Backlog Candidates`; if a downstream split reference is included, use `## 後續需求切片參考`.
 
 Session/Wiki maintenance rules:
 
