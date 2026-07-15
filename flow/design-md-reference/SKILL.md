@@ -1,11 +1,11 @@
 ---
 name: design-md-reference
-description: Integrate getdesign.md / Google DESIGN.md reference systems into automated UI design flows. Use when creating visual design specs, DESIGN.md files, HTML previews, design reviews, color/style selection, content-page layout craft, admin/dashboard/workspace UI, ecommerce UI, or when the user asks to use getdesign.md, DESIGN.md, design references, design system analysis, or improve AI-generated UI taste.
+description: Integrate getdesign.md / Google DESIGN.md reference systems into automated UI design flows. Use when creating DESIGN.md options, final DESIGN.md files, visual design specs, HTML previews, design reviews, content-page layout craft, admin/dashboard/workspace UI, ecommerce UI, or when the user asks to use getdesign.md, DESIGN.md, design references, design system analysis, or improve AI-generated UI taste.
 ---
 
 # DESIGN.md Reference Integration
 
-Use this skill to turn external design-system references into a project-specific visual language that coding agents can reuse. The goal is not to copy a famous brand. The goal is to extract reusable design principles, then translate them into a new `DESIGN.md` and screen-specific design contract that fits the PRD, UX, wireframe, repo reality, accessibility, and selected color style.
+Use this skill to turn external design-system references into project-specific DESIGN.md options and, after user selection, one final `DESIGN.md` that coding agents can reuse. The goal is not to copy a famous brand. The goal is to extract reusable design principles, then translate them into a selected design contract that fits the PRD, UX, wireframe, repo reality, and accessibility.
 
 ## Core Principle
 
@@ -28,7 +28,8 @@ Required workflow:
 4. Fetch 4-8 candidate pages from getdesign.md. Prefer pages that expose concrete DESIGN.md usage or reference descriptions.
 5. When a candidate slug is visible and belongs to the public awesome-design-md collection, try fetching the raw DESIGN.md from `https://raw.githubusercontent.com/VoltAgent/awesome-design-md/main/design-md/<slug>/DESIGN.md`. If raw fetch fails, use the getdesign.md page summary and record `referenceFetchStatus: summary_only`.
 6. Score candidates against the PRD/spec evidence. Choose 2-4 references with explicit reasons.
-7. Translate selected references into the project-specific `DESIGN.md`; do not copy the reference brand.
+7. Translate selected references into 3-5 project-specific `DESIGN.md Options`; do not copy the reference brand.
+8. After the user selects `selectedDesignMdOptionId`, collapse only that option into the final `DESIGN.md`.
 
 If websearch/webfetch is required by the caller and unavailable, return blocked with `GETDESIGN_REFERENCE_SEARCH_UNAVAILABLE`. Do not silently fall back to a hardcoded reference blend.
 
@@ -41,6 +42,22 @@ Choose references by product task, not by what looks trendy. The following mappi
 - Support/customer messaging: consider Intercom conversational clarity.
 - Developer/code-heavy tool: consider Linear + Vercel/Resend style precision.
 - Enterprise regulated workflow: consider IBM + Linear, with lower visual variance.
+
+## DESIGN.md Options Workflow
+
+When the caller has not provided `selectedDesignMdOptionId`, generate options, not a final `DESIGN.md`:
+
+- Create `design-md-options.md` with 3-5 complete DESIGN.md directions.
+- Create `design-md-options-preview.html` so users can compare the options visually before answering a question.
+- Each option must cover reference translation, brand fingerprint, visual motif, color system, typography posture, spacing/density, surface/elevation, component tone, state treatment, accessibility notes, and anti-slop constraints.
+- Do not write final `DESIGN.md` until the selected option is provided.
+
+When `selectedDesignMdOptionId` is provided, generate one final `DESIGN.md`:
+
+- Read the prior options and verify the selected id exists.
+- Copy only the selected option's design decisions into final `DESIGN.md`.
+- Do not keep unselected options, comparison tables, or alternate palettes in final `DESIGN.md`.
+- Record `Selected DESIGN.md Option: <id> - <name>` in the final design artifacts so downstream agents can enforce consistency.
 
 ## Reference Translation Rules
 
@@ -158,6 +175,6 @@ Before completing a visual spec, HTML preview, or design review, verify:
 - The reference blend was selected through live getdesign.md search/fetch when the caller required it.
 - A project-specific `DESIGN.md` exists or is generated when the flow requires it.
 - The generated screen visibly applies at least three reference-derived principles.
-- The reference usage does not override PRD, UX, wireframe, accessibility, or selected color style.
+- The reference usage does not override PRD, UX, wireframe, accessibility, or the selected DESIGN.md option.
 - Content pages have composed workspace structure, not generic dashboard scaffolding.
 - The design can be implemented in the target repo without external proprietary assets.

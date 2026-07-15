@@ -5,7 +5,7 @@ description: Create and review layout.md files using the layout.design 9-section
 
 # layout.md Reference Integration
 
-Use this skill to turn product documents, design docs, selected color style, repo reality, and external layout references into a canonical `layout.md` implementation contract for AI coding agents.
+Use this skill to turn product documents, final DESIGN.md docs, the selected DESIGN.md option, repo reality, and external layout references into a canonical `layout.md` implementation contract for AI coding agents.
 
 `layout.md` is not a layout-options document. It is a single source-of-truth implementation contract. It must not ask users to choose a layout, compare layout variants, or produce option previews.
 
@@ -65,7 +65,7 @@ Agents should use Tier 2 or Tier 3 tokens in generated UI code. Avoid raw hex va
 
 - `Quick Reference`: 50-75 lines maximum. Include design language, 8-12 core tokens, primary type groups, one complete component example, and critical NEVER rules.
 - `Design Direction & Philosophy`: product layout personality, density, what it rejects, product category, selected references and why they were translated.
-- `Colour System`: primitive, semantic, and component colour tokens derived from `DESIGN.md`, `visual-design-spec.md`, and selected color style.
+- `Colour System`: primitive, semantic, and component colour tokens derived from final `DESIGN.md`, `visual-design-spec.md`, and the selected DESIGN.md option.
 - `Typography System`: composite type tokens, pairing rules, dense data text rules, labels, IDs, numbers, and mono usage.
 - `Spacing & Layout`: base unit, scale, container widths, grids, gutters, breakpoints, flex vs grid usage, sticky regions, overflow rules.
 - `Page Structure & Layout Patterns`: app shell, navigation, screen families, overview/workspace/list/detail/form/settings patterns, RWD collapse, source layout references.
@@ -127,7 +127,7 @@ Before completing, verify:
 
 - The file uses the exact 9-section + 2-appendix order.
 - Quick Reference is short enough for agent prompts.
-- Colour tokens are tiered and selected-color consistent.
+- Colour tokens are tiered and consistent with the selected DESIGN.md option.
 - Typography tokens are composite groups.
 - Spacing values are on-scale.
 - Page layout rules are traceable to PRD/spec/UX/wireframe/DESIGN/visual/repo evidence.
