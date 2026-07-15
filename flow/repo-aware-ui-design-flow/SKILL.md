@@ -51,6 +51,8 @@ Produce repo-aware UX, wireframe, visual design, and HTML preview artifacts for 
 
 ## Required Final Files
 
+These files may be maintained in the PRD session artifact directory and, when useful for downstream planning, as frontend repo `design/` working copies. They are working copies, not the shared long-term maintenance source.
+
 ```text
 design/DESIGN.md
 design/layout.md
@@ -60,6 +62,8 @@ design/visual-design-spec.md
 design/screen-preview.html
 design/implementation-design-brief.md
 ```
+
+After the HTML preview review gate passes and the user explicitly approves the preview, sync the markdown files to ADO Wiki under `/design/<repo>/*.md` with `sync-design-wiki-pages`. ADO Wiki becomes the shared maintained copy. Keep `screen-preview.html` as a session/preview artifact unless a separate Wiki policy explicitly asks to publish HTML.
 
 ## UX Spec Required Structure
 

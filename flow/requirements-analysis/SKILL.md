@@ -174,6 +174,20 @@ When used inside `userstory-discovery-intake`, produce inputs for `discoveryPack
 - Do not force a large related feature into the smallest possible slice; preserve scope when capabilities share the same product goal and can be made testable.
 - Do not ask about API, database schema, framework, deployment, UI kit, colors, typography, or implementation unless the user already stated them as constraints.
 
+## SDD External Requirement Skills Router
+
+This skill is the local requirements hub. When other SDD requirement skills are available, route work this way:
+
+- Always pair with `ask-questions-if-underspecified` before drafting when the objective, actor, scope, constraints, success criteria, acceptance seeds, or source identity is ambiguous.
+- Use `problem-framing-canvas` for RA0 or RA1 inputs: solution-first ideas, copied competitor features, vague stakeholder demands, unclear target user, or unclear problem statement.
+- Use `discovery-process` when the input is a full document, research note, customer evidence, stakeholder context, or any case where evidence and assumptions must be separated.
+- Use `analyze-feature-requests` when the input is a backlog, spreadsheet, ADO item list, customer request list, or multiple mixed feature requests.
+- Use `job-stories` when the requirement depends on situation, trigger, current workaround, motivation, and desired outcome more than a role-based story statement.
+- Use `user-stories` only to shape candidate backlog slices in `requirements.md`; actual User Story drafting, preview, and ADO sync remain owned by User Story Agent.
+- Use `prd-development` only as downstream PRD context. Requirements Agent should not write PRDs, but it should capture the problem, outcome, scope, risks, metrics, and traceability inputs a later PRD needs.
+
+Do not use `find-skills` for these skills. They are expected to be preloaded from `/my-skill/flow` during Docker build.
+
 ## What You Do Not Do
 
 - Do not write code.
@@ -201,4 +215,11 @@ The final `requirements.md` should include:
 - Assumptions and open questions, clearly marked.
 - Suggested User Story backlog candidates, but only as candidates for the separate User Story Agent.
 
-Stop after the requirements preview. The next entry is the User Story Agent, which reads the requirements file and creates the batch User Story draft.
+Session/Wiki maintenance rules:
+
+- `requirements.md` may be maintained inside the active Requirements Agent session as the editable working copy.
+- After the requirements preview is explicitly approved, the Requirements Agent may sync that markdown to ADO Wiki under `/<requirement>/*.md`.
+- ADO Wiki page id plus Wiki path is the durable shared identity used by the User Story Agent when multiple requirements documents exist.
+- Do not treat the Wiki title as the only identity; title is for human selection labels.
+
+Stop after the requirements preview and optional approved Wiki sync. The next entry is the User Story Agent, which reads the session requirements file or asks the user to select an ADO Wiki requirements page by `#<wikiPageId> | <title>`, then creates the batch User Story draft.

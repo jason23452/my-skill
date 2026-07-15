@@ -169,6 +169,9 @@ When used by `User Story Agent` with a requirements document, treat the requirem
 
 Rules:
 
+- Requirements may come from a session-maintained `requirements.md` or an ADO Wiki page under `/<requirement>/*.md`.
+- If the User Story Agent must choose from Wiki, list options as `#<wikiPageId> | <title>` and include Wiki path and URL in each option description.
+- Preserve `wikiPageId`, `wikiPath`, `wikiUrl`, and `wikiTitle` in the batch manifest when the source came from Wiki. When calling `write-userstory-batch-draft`, pass these as `requirementsWikiPageId`, `requirementsWikiPath`, `requirementsWikiUrl`, and `requirementsWikiTitle`. Use `wikiPageId + wikiPath` as the durable source identity; do not rely on title alone.
 - Generate one User Story per coherent product slice, not one story per field or UI element.
 - Preserve related capabilities together when actor, entry point, trigger, and product outcome are the same.
 - Each User Story must include source requirement reference, title, statement, scope, non-goals, assumptions, open questions, and Given/When/Then acceptance criteria.
