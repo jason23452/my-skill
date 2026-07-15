@@ -37,17 +37,23 @@ Produce repo-aware UX, wireframe, visual design, and HTML preview artifacts for 
 6. Write Visual Design Spec.
    - `visual-design-spec.md` defines visual thesis, color roles, typography roles, spacing/density, surfaces, component visual roles, state treatment, interaction tone, accessibility, and the HTML preview style contract.
 
-7. Generate HTML preview.
+7. Write System Layout Contract.
+   - `layout.md` defines the whole product system layout contract: app shell, navigation model, route/page template taxonomy, grid/container policy, action placement, state placement, responsive policy, and component layout policy.
+   - Current PRD, UX spec, and wireframe spec are representative evidence surfaces used to validate the product-wide layout system, not the boundary of the layout system.
+   - Completion: the layout contract can explain how the current feature fits the product-wide templates without becoming a single-feature screen spec.
+
+8. Generate HTML preview.
    - `screen-preview.html` must be a self-contained, high-fidelity product UI mockup grounded in the three design specs.
    - It must show realistic desktop and mobile composition, with core states and scope-safe copy.
 
-8. Enforce static UI first.
+9. Enforce static UI first.
    - Frontend planning must create a static high-fidelity UI task before API integration, CRUD, server state, or form submission work.
 
 ## Required Final Files
 
 ```text
 design/DESIGN.md
+design/layout.md
 design/ux-spec.md
 design/wireframe-spec.md
 design/visual-design-spec.md

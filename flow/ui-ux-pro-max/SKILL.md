@@ -45,7 +45,7 @@ description: 當使用者要設計、建立、重構、審查、改善或修復 
 
 完成條件：能用 2 到 5 句說明「這個介面服務誰、要完成什麼、視覺應該支持什麼」。
 
-若任務是產生或審查 `design/ui-layout.md`、整體前端排版、app shell、dashboard/admin 系統、route hierarchy 或 page templates，完成條件還必須包含：能說明整個 frontend system 的 app shell、route hierarchy、page template taxonomy、grid/container policy、responsive policy 與 action placement policy。不可只描述單一頁面 main content。
+若任務是產生或審查 `layout.md`、`design/ui-layout.md`、整體前端排版、app shell、dashboard/admin 系統、route hierarchy 或 page templates，完成條件還必須包含：能說明整個 frontend system 的 app shell、route hierarchy、page template taxonomy、grid/container policy、responsive policy 與 action placement policy。不可只描述單一頁面 main content。
 
 ### 2. 產生或讀取設計系統
 
@@ -150,7 +150,7 @@ python <skill-path>/scripts/search.py "<keyword>" --stack <stack>
 
 ### 6. 系統排版輸出規則
 
-當輸出目標是 `design/ui-layout.md`、system layout spec、admin/dashboard layout、或 UIUX designer agent 的 layout planning 時，必須把文件主體寫成 `System Layout Contract`：
+當輸出目標是 `layout.md`、`design/ui-layout.md`、system layout spec、admin/dashboard layout、或 UIUX designer agent 的 layout planning 時，必須把文件主體寫成 `System Layout Contract`：
 
 - `System Shell Policy`：全域導覽與 app shell 選擇，包含不採用其他 shell 的理由。
 - `Route / Surface Hierarchy`：global nav、section nav、page tabs、detail、settings、modal、drawer、panel 的層級。
@@ -163,7 +163,9 @@ python <skill-path>/scripts/search.py "<keyword>" --stack <stack>
 - `PRD Evidence Trace`：每個主要 layout 或 pattern decision 都要對應產品型態、主要使用者任務、資訊物件、互動 surface 或信任/密度需求。
 - `Composition Rationale`：Hero、dashboard、health check、wizard、inspector、timeline、canvas、document workspace 等 pattern 都可使用，但必須說明為何符合 PRD，以及它如何被產品化轉換而不是 scaffold default。
 
-完成條件：feature-specific component、state、form、microcopy 只能放在後段 notes；若它們變成文件主體，必須重寫。
+對 `layout.md` 而言，本輪 PRD、UX spec 與 wireframe spec 是代表性 evidence surfaces，用來驗證整體產品排版系統，不是 `layout.md` 的範圍邊界。
+
+完成條件：feature-specific component、state、form、microcopy 或單一 screen placement 只能放在後段 notes；若它們變成文件主體，必須重寫。
 
 ## 優先級 Checklist
 

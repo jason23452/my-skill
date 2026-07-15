@@ -93,6 +93,8 @@ Select references with the highest evidence-weighted total, but avoid selecting 
 
 For content pages, admin overviews, management consoles, and operational workspaces, do not produce `header + equal cards + filter + table` as the default. Convert the page into a designed workspace.
 
+This rule rejects generic dashboard reflex, not dashboard layout itself. When PRD/spec/UX/wireframe/repo evidence shows the product is a dashboard, admin panel, operations console, management workspace, review queue, reporting console, or list-detail workspace, the selected `DESIGN.md` must support that system layout with appropriate tokens, surface hierarchy, component roles, state treatment, and density rules.
+
 For admin overview / operations pages, prefer this structure when wireframe allows:
 
 - Scope or identity stamp first: role, store, permission, mode, result boundary.
@@ -178,3 +180,4 @@ Before completing a visual spec, HTML preview, or design review, verify:
 - The reference usage does not override PRD, UX, wireframe, accessibility, or the selected DESIGN.md option.
 - Content pages have composed workspace structure, not generic dashboard scaffolding.
 - The design can be implemented in the target repo without external proprietary assets.
+- Dashboard/workspace patterns are rejected only when unsupported by product evidence or left untransformed as a generic scaffold.

@@ -23,6 +23,7 @@ Master accessibility implementation to create inclusive experiences that work fo
 - For `ux-spec.md`, define accessibility and trust requirements at the task/state level: labels, error recovery, privacy, disabled/loading semantics, and non-color state meaning.
 - For `wireframe-spec.md`, define structural accessibility: landmarks, reading order, keyboard path, focus movement, touch target requirements, and state announcements.
 - For `visual-design-spec.md`, define visual accessibility: contrast, focus appearance, reduced motion, text sizing, and color-independent status treatment.
+- For `layout.md`, define accessibility at the system layout level: template landmarks, skip/entry paths, navigation focus order, inspector/drawer/modal focus movement, keyboard path through list-detail/dashboard workspaces, state announcement placement, touch target policy, and non-color state cues.
 - For HTML preview review, flag accessibility blockers as findings. Do not require running external audit tools unless the caller explicitly enables them.
 - Do not introduce new UI controls only for accessibility. Adapt the controls already present in PRD/spec/UX/wireframe.
 

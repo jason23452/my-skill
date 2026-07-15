@@ -18,6 +18,13 @@ Master modern responsive design techniques to create interfaces that adapt seaml
 - Creating adaptive navigation patterns
 - Building responsive tables and data displays
 
+## Agent Integration Rules
+
+- For `layout.md`, define responsive behavior at the product system level: app shell collapse, navigation collapse, page template collapse, panel/drawer/inspector behavior, sticky action policy, overflow policy, and table/list/detail mobile rewrites.
+- Current PRD/wireframe screens are representative validation surfaces. Use them to prove the responsive policy works, but do not reduce `layout.md` to a single-screen responsive spec.
+- Dashboard/workspace mobile layouts must recompose the decision path. Do not shrink desktop tables; define mobile triage order, selected-detail collapse, filter placement, and touch-safe actions.
+- Prefer content breakpoints and container-level rules over device-name assumptions. Record the intended breakpoints and the content reason for each.
+
 ## Detailed patterns and worked examples
 
 Detailed pattern documentation lives in `references/details.md`. Read that file when the navigation tier above is insufficient.

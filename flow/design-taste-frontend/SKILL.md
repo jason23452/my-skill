@@ -56,17 +56,19 @@ VISUAL_DENSITY: 1-10    # 1 = art gallery 留白，10 = cockpit 資訊密集
 
 ## 2. UI Layout 決策 Gate
 
-若要產生或大幅重寫 `design/ui-layout.md`，必須先形成 layout decision。若沒有足夠線索，回 `blocked` 或輸出 question plan，讓使用者選 layout 方向。
+若要產生或大幅重寫 `design/ui-layout.md`、`layout.md` 或其他 system layout spec，必須先形成 layout decision。若沒有足夠線索，回 `blocked` 或輸出 question plan，讓使用者選 layout 方向。
 
 若目前 subagent 或 artifact contract 明確要求單一 canonical blueprint/spec，或明確禁止 layout/page-detail options，必須直接依 PRD/UX/repo evidence 決定一套 layout policy 並記錄理由；不可產生 A/B/C layout options、comparison matrix、recommended option 或要求使用者選 layout。
 
-`design/ui-layout.md` 預設是整體系統排版政策文件，不是單一 PRD 功能頁的欄位/狀態規格。除非使用者明確要求只規劃單頁，否則 layout decision 必須先回答整個 frontend system 如何排版，再把本輪 feature 放入代表性 surface。
+`layout.md` 與 `design/ui-layout.md` 預設都是整體系統排版政策文件，不是單一 PRD 功能頁的欄位/狀態規格。除非使用者明確要求只規劃單頁，否則 layout decision 必須先回答整個 frontend system 如何排版，再把本輪 feature 放入代表性 surface。
+
+對 `layout.md` 而言，本輪 PRD、UX spec 與 wireframe spec 是代表性 evidence surfaces，用來驗證整體產品排版系統，不是 `layout.md` 的範圍邊界。
 
 完成條件：輸出中必須能分辨「System Layout Contract」與「Feature-specific Layout Notes」。前者是主體，後者只能補充本輪功能的 placement。
 
 ### System Layout Contract
 
-產生 `design/ui-layout.md` 或 layout preview 時，必須先定義以下全域 contract：
+產生 `layout.md`、`design/ui-layout.md` 或 layout preview 時，必須先定義以下全域 contract：
 
 - App shell：left sidebar、navigation rail、top nav、drawer、tabs、no persistent shell 的選擇與不採用原因。
 - Route hierarchy：global nav、section nav、page tabs、detail route、settings、modal/drawer surface 的層級。
