@@ -1,6 +1,6 @@
 ---
 name: repo-aware-ui-design-flow
-description: PRD + existing frontend repo aware UI design flow. Use when generating ux-spec.md, wireframe-spec.md, visual-design-spec.md, screen-preview.html, or frontend implementation design brief from PRD/spec/project-context and repo evidence.
+description: Repository-aware product design flow for session-maintained design artifacts. Use after PRD-to-product-design establishes design-context.md, when UX, wireframes, system DESIGN.md, layout.md, previews, or implementation briefs must respect existing frontend routes, components, tokens, and implementation constraints without storing design Markdown in the product repository.
 ---
 
 # Repo-Aware UI Design Flow
@@ -9,13 +9,13 @@ This skill is the single required method for PRD-driven frontend design in this 
 
 ## Goal
 
-Produce repo-aware UX, wireframe, visual design, and HTML preview artifacts for the current PRD and actual frontend repo. Keep `spec.md` as the product/engineering contract; design artifacts are downstream and must not overwrite it.
+Produce repo-aware product design artifacts from an approved `design-context.md` and actual frontend repo evidence. Keep `spec.md` as the product/engineering contract. Repository code is implementation evidence, not the storage location for design documents.
 
 ## Core Sequence
 
-1. Read product intent.
-   - Inputs: `prd.md`, `spec.md`, `project-context.md`, `bootstrap-result.json`.
-   - Completion: the agent can state the user task, visible surfaces, success criteria, and UI-affecting constraints without inventing scope.
+1. Read the product design context.
+   - Inputs: `design-context.md`, primary/related PRDs, `spec.md`, `project-context.md`, `bootstrap-result.json`.
+   - Completion: every role, capability, screen, state, control, and design consequence has an evidence ID and AC coverage.
 
 2. Read frontend repo reality.
    - Inspect actual frontend repo files: `README*`, `AGENTS.md`, `package.json`, lockfile, routing/layout/page files, shared components, styles, tokens, theme, config, and existing `design/` docs.
@@ -28,7 +28,7 @@ Produce repo-aware UX, wireframe, visual design, and HTML preview artifacts for 
    - If introducing a new kit is proposed, it must not be an assumption. If the caller allows options, present it as one selectable design option with tradeoffs. If the caller requires a single canonical artifact or forbids options, either reject the new kit as out-of-scope or return blocked for explicit user confirmation.
    - Completion: the design can explain what to reuse, extend, create, or optionally adopt.
 
-4. Write UX Spec.
+4. Write Product UX Spec.
    - `ux-spec.md` defines user task, entry, first-look judgement, information priority, content/data contract, states, non-goal controls, and accessibility/trust requirements.
 
 5. Write Wireframe Spec.
@@ -37,7 +37,8 @@ Produce repo-aware UX, wireframe, visual design, and HTML preview artifacts for 
 6. Write Visual Design Spec.
    - `visual-design-spec.md` defines visual thesis, color roles, typography roles, spacing/density, surfaces, component visual roles, state treatment, interaction tone, accessibility, and the HTML preview style contract.
 
-7. Write System Layout Contract.
+7. Write System DESIGN And Layout Contracts.
+   - `DESIGN.md` defines product-wide visual semantics, domain components, state language, tokens, responsive behavior, accessibility, and PRD application traceability.
    - `layout.md` defines the whole product system layout contract: app shell, navigation model, route/page template taxonomy, grid/container policy, action placement, state placement, responsive policy, and component layout policy.
    - Current PRD, UX spec, and wireframe spec are representative evidence surfaces used to validate the product-wide layout system, not the boundary of the layout system.
    - Completion: the layout contract can explain how the current feature fits the product-wide templates without becoming a single-feature screen spec.
@@ -51,105 +52,32 @@ Produce repo-aware UX, wireframe, visual design, and HTML preview artifacts for 
 
 ## Required Final Files
 
-These files may be maintained in the PRD session artifact directory and, when useful for downstream planning, as frontend repo `design/` working copies. They are working copies, not the shared long-term maintenance source.
+Maintain these files only in the PRD session artifact directory. Do not create, update, commit, or publish frontend repo `design/` working copies.
 
 ```text
-design/DESIGN.md
-design/layout.md
-design/ux-spec.md
-design/wireframe-spec.md
-design/visual-design-spec.md
-design/screen-preview.html
-design/implementation-design-brief.md
+frontend-design/design-context.md
+frontend-design/DESIGN.md
+frontend-design/layout.md
+frontend-design/ux-spec.md
+frontend-design/wireframe-spec.md
+frontend-design/visual-design-spec.md
+frontend-design/screen-preview.html
+frontend-design/implementation-design-brief.md
+frontend-design/rendered-design-qa.md
 ```
 
-After the HTML preview review gate passes and the user explicitly approves the preview, sync the markdown files to ADO Wiki under `/design/<repo>/*.md` with `sync-design-wiki-pages`. ADO Wiki becomes the shared maintained copy. Keep `screen-preview.html` as a session/preview artifact unless a separate Wiki policy explicitly asks to publish HTML.
+After the rendered browser QA and product design review gate pass and the user explicitly approves the preview, sync the markdown files to ADO Wiki under `/design/<repo>/*.md` with `sync-design-wiki-pages`. ADO Wiki is the shared maintained copy. Keep `screen-preview.html` and screenshots as session preview artifacts unless a separate Wiki attachment policy publishes them.
 
-## UX Spec Required Structure
+## Contract Authority
 
-```md
-# UX Spec
+Load `skill(prd-to-product-design)` and use its `references/contracts.md` as the structure authority for `design-context.md`, `DESIGN.md`, and `layout.md`. Do not replace those product-wide contracts with a generic one-page UX, dashboard, token, or wireframe template.
 
-## UX Scope
+- `ux-spec.md` must cover every capability/AC through roles, journeys, IA, screen families, cross-screen navigation, content priority, domain states, responsive task priority, accessibility, and evidence-linked `UX-*` rules.
+- `wireframe-spec.md` must preserve the confirmed screen inventory and define `SCR-*`/`REG-*` contracts, screen relationships, representative PRD screens, desktop/tablet/mobile composition, action/state placement, reading/focus order, and traceability.
+- `visual-design-spec.md` applies the selected product-wide `DESIGN.md` system to representative screens and states. It does not define a competing product model or page layout.
+- `implementation-design-brief.md` translates evidence, screen, AC, `DS-*`, and `LY-*` rules into implementation and visual acceptance without inventing missing behavior.
 
-## Primary User Task
-
-## Entry And Navigation Context
-
-## First-Look Judgement
-
-## Information Priority
-
-## Content And Data Contract
-
-## States To Design
-
-## Non-Goal Controls And Copy
-
-## Accessibility And Trust Requirements
-
-## Repo UI Reality
-```
-
-Frontend repo `design/*.md` documents must not contain `## Source Artifacts`, `## Source Specs`, `## Source Design Specs`, `## Source UX Spec`, or any `## Source...` section. Keep source traceability in agent JSON summaries, warnings, or session artifacts only; canonical frontend design docs should start with the design decision content.
-
-## Wireframe Spec Required Structure
-
-```md
-# Wireframe Spec
-
-## Screen Inventory
-
-## Page Shell
-
-## Desktop Wireframe
-
-## Tablet Wireframe
-
-## Mobile Wireframe
-
-## Reading Order
-
-## Region Priority
-
-## Component Slots
-
-## State Layouts
-
-## Interaction Placement
-
-## RWD Collapse Rules
-```
-
-## Visual Design Spec Required Structure
-
-```md
-# Visual Design Spec
-
-## Visual Thesis
-
-## Color System
-
-## Typography System
-
-## Spacing And Density
-
-## Surface And Elevation
-
-## Component Visual Roles
-
-## State Treatment
-
-## Interaction Tone
-
-## Accessibility Requirements
-
-## RWD Rules
-
-## HTML Preview Style Contract
-
-## Do Not Weaken
-```
+All session design documents must use generated product-specific titles and include source traceability through evidence/rule IDs. They must not expose secrets, credentials, raw environment values, or unrelated repository internals.
 
 ## Option Uniqueness Gate
 

@@ -1,0 +1,4 @@
+interface:
+  display_name: "PRD to Product Design"
+  short_description: "Turn PRD evidence into product-wide design contracts"
+  default_prompt: "Use PRD, specification, and repository evidence to build a product design context before creating DESIGN.md or layout.md."
