@@ -1,0 +1,4 @@
+interface:
+  display_name: "Bounded Design Review"
+  short_description: "Run complete design reviews without repair loops"
+  default_prompt: "Use a persisted review cycle and one deterministic matrix per artifact revision, with at most one coordinated repair batch."

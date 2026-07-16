@@ -116,14 +116,15 @@ Before final `layout.md`, generate three layout options that lock final `DESIGN.
 
 ## Exhaustive Review And Batch Repair
 
-Direction review is a complete matrix audit, not an incremental issue-discovery loop.
+Direction review is a complete matrix audit, not an incremental issue-discovery loop. Load `bounded-design-review` for the authoritative state, matrix ownership, idempotency, resume, and repair-limit contract.
 
 - Inspect every visual/layout option at desktop and mobile before returning a verdict. Do not stop at the first blocker or cap the issue list.
 - For every matrix cell, record screenshot evidence, objective DOM measurements, task/visual checks, and issue IDs.
 - Persist a machine-readable review contract containing every blocking/major issue, affected cells, observed/expected behavior, root cause, repair requirements, acceptance checks, and regression cells.
-- A writer receiving a blocked report must repair all issue IDs in one coordinated batch, then rerun the complete matrix, including cells that previously passed.
-- Independent review runs once after that batch. If the full post-repair review still fails, stop with the complete unresolved matrix instead of starting another issue-by-issue cycle.
+- A writer receiving a blocked report must repair all issue IDs in one coordinated batch. The platform then creates one new complete matrix for the repaired artifact hash.
+- Independent review runs once after that batch. If the full post-repair review still fails, record terminal blocked and stop with the complete unresolved matrix.
 - Never route a partial report to a writer. `issueInventoryComplete:true` and complete matrix coverage are prerequisites for repair.
+- Writers and reviewers must consume the same deterministic matrix manifest; they may not create separate browser probes for the same artifact revision.
 
 ## Reference Policy
 
