@@ -6,12 +6,31 @@ description: "Use when the task requires automating a real browser from the term
 
 # Playwright CLI Skill
 
-Drive a real browser from the terminal using `playwright-cli`. Prefer the bundled wrapper script so the CLI works even when it is not globally installed.
+Drive a real browser from the terminal using `playwright-cli`. In Project Flow containers, prefer the image-provided global CLI; use the bundled wrapper only as a fallback in other environments.
 Treat this skill as CLI-first automation. Do not pivot to `@playwright/test` unless the user explicitly asks for test files.
+
+## Project Flow runtime boundary
+
+Playwright is platform infrastructure in Project Flow. It is not a dependency that every dynamically selected target project must carry.
+
+- Check CLI availability with `command -v playwright-cli` and `playwright-cli --help`.
+- Do not use `require.resolve('@playwright/test')` to decide whether browser automation is available.
+- Do not inspect a target project's `package.json`, lockfile, or `node_modules` for the platform runtime.
+- Do not install Playwright into a target project or modify its dependency files as part of design review.
+- If a direct Node API script is explicitly needed, the container exposes global `@playwright/test` through `NODE_PATH`; resolve it without changing the target project.
+- If neither the global CLI nor this skill's wrapper is available in a managed Project Flow container, stop with `PLAYWRIGHT_PLATFORM_RUNTIME_UNAVAILABLE` instead of installing packages into the target repo.
 
 ## Prerequisite check (required)
 
-Before proposing commands, check whether `npx` is available (the wrapper depends on it):
+First prefer the managed runtime:
+
+```bash
+if command -v playwright-cli >/dev/null 2>&1; then
+  playwright-cli --help
+fi
+```
+
+Only when the global CLI is unavailable and the wrapper is needed, check whether `npx` is available:
 
 ```bash
 command -v npx >/dev/null 2>&1
@@ -29,7 +48,7 @@ npm install -g @playwright/cli@latest
 playwright-cli --help
 ```
 
-Once `npx` is present, proceed with the wrapper script. A global install of `playwright-cli` is optional.
+Once `npx` is present, proceed with the wrapper script. Outside managed Project Flow containers, a global install of `playwright-cli` is optional.
 
 ## Skill path (set once)
 
@@ -127,7 +146,7 @@ The wrapper script uses `npx --package @playwright/cli playwright-cli` so the CL
 "$PWCLI" --help
 ```
 
-Prefer the wrapper unless the repository already standardizes on a global install.
+Prefer the image-provided global CLI in Project Flow. Otherwise prefer the wrapper unless the environment already standardizes on a global install.
 
 ## References
 
@@ -145,3 +164,4 @@ Open only what you need:
 - Use `--headed` when a visual check will help.
 - When capturing artifacts in this repo, use `output/playwright/` and avoid introducing new top-level artifact folders.
 - Default to CLI commands and workflows, not Playwright test specs.
+- Never add Playwright dependencies to a target project solely to run Project Flow preview or design QA.
