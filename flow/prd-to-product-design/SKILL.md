@@ -1,13 +1,13 @@
 ---
 name: prd-to-product-design
-description: Convert one or more PRDs, specifications, source User Stories, requirements references, and repository evidence into a product-wide design context that safely drives system DESIGN.md, layout.md, UX, wireframes, and frontend previews. Use when design artifacts must be grounded in product requirements instead of generic dashboard, MVP, SaaS, or visual-reference defaults.
+description: Convert one or more PRDs, specifications, source User Stories, requirements references, and repository evidence into a product-wide design context and consolidated DESIGN.md that safely drives UX, wireframes, frontend design, and implementation. Use when design artifacts must be grounded in product requirements instead of generic dashboard, MVP, SaaS, or visual-reference defaults.
 ---
 
 # PRD to Product Design
 
 Build the product model before choosing a visual style or page layout. Treat PRD/spec evidence as authoritative, repository evidence as implementation reality, and external design references as optional supporting material only.
 
-Read [references/contracts.md](references/contracts.md) before writing `design-context.md`, `DESIGN.md`, or `layout.md`.
+Read [references/contracts.md](references/contracts.md) before writing `design-context.md` or `DESIGN.md`.
 
 ## Evidence Order
 
@@ -33,7 +33,7 @@ Assign every material input or decision a stable ID and one status:
 - `proposed`: useful extension that requires future confirmation; never normative.
 - `unknown`: missing information that affects design confidence.
 
-`DESIGN.md` and `layout.md` may contain normative rules only from `explicit`, `confirmed`, or defensible `derived` evidence. Put `proposed` and `unknown` items in clearly non-normative sections.
+`DESIGN.md` may contain normative rules only from `explicit`, `confirmed`, or defensible `derived` evidence. Put `proposed` and `unknown` items in clearly non-normative sections.
 
 ## Product Model First
 
@@ -88,37 +88,21 @@ Dashboard/workspace patterns are allowed when the evidence requires monitoring, 
 - Define domain-state treatment and non-color cues.
 - Define core primitives plus domain-specific components required by the evidence.
 - Include responsive visual behavior and accessibility requirements.
+- Define the global shell or explicitly justify no persistent shell.
+- Define navigation, screen/route/scene inventory, screen families, and cross-screen transitions from confirmed product relationships.
+- Define page-template and scene contracts, region anatomy, visual center, content priority, action placement, state placement, scroll/sticky ownership, overflow, overlays, and progressive disclosure.
+- Define exact canonical viewport geometry and desktop/tablet/mobile recomposition for every confirmed screen family.
 - Map every major rule to evidence IDs.
 - Separate system rules from representative PRD applications.
 - Keep external reference translation subordinate to product evidence.
 
-Visual options must share one neutral evaluation DOM, region order, geometry, responsive frame, product model, task/content/action/state semantics, permissions, outcomes, and acceptance criteria. They may differ through typography, semantic color, spacing rhythm, density variants, surfaces, shape grammar, component/state appearance, icons/media/motif, motion, and accessibility treatment. They must not decide app shell, navigation, columns, region placement, master-detail, disclosure, scroll/sticky ownership, or responsive region topology.
-
-## layout.md Contract
-
-`layout.md` is the product-wide spatial, navigation, and screen-composition system. It must:
-
-- Use a generated product-specific H1.
-- Define the global shell or explicitly justify no persistent shell.
-- Define navigation from confirmed screen relationships, not a generic sidebar reflex.
-- Define screen inventory, screen families, routes when known, and cross-screen transitions.
-- Define page-template contracts, region anatomy, content priority, actions, and state placement.
-- Define exact canonical viewport geometry, first-viewport budgets, visual-center placement, and scroll/sticky/overflow ownership.
-- Define desktop/tablet/mobile composition and reading order for every confirmed screen family.
-- Define dense-data overflow, inspector/drawer/modal, focus return, and destructive-action policy where applicable.
-- Include representative mappings for every selected PRD capability and acceptance criterion.
-- Map every major layout rule to evidence IDs.
-- Include screenshot-verifiable layout acceptance tests and desktop/mobile ASCII spatial frames for representative screens.
-
-Do not force a fixed external layout template when it obscures product structure. Prefer an explicit product contract that engineers can implement and reviewers can trace.
-
-Before final `layout.md`, generate three layout options that lock final `DESIGN.md` and all product invariants while differing materially in shell/navigation, grouping, master-detail, progressive disclosure, density/action anchoring, scroll ownership, and responsive recomposition. Review real desktop/mobile previews, then retain only the selected direction in final `layout.md`.
+Do not create a separate `layout.md`. Keep visual, component, spatial, navigation, screen, responsive, and interaction decisions in one consolidated `DESIGN.md` so implementation agents have one authority.
 
 ## Exhaustive Review And Batch Repair
 
 Direction review is a complete matrix audit, not an incremental issue-discovery loop. Load `bounded-design-review` for the authoritative state, matrix ownership, idempotency, resume, and repair-limit contract.
 
-- Inspect every visual/layout option at desktop and mobile before returning a verdict. Do not stop at the first blocker or cap the issue list.
+- Inspect every approved screen and required state at desktop and mobile before returning a verdict. Do not stop at the first blocker or cap the issue list.
 - For every matrix cell, record screenshot evidence, objective DOM measurements, task/visual checks, and issue IDs.
 - Persist a machine-readable review contract containing every blocking/major issue, affected cells, observed/expected behavior, root cause, repair requirements, acceptance checks, and regression cells.
 - A writer receiving a blocked report must repair all issue IDs in one coordinated batch. The platform then creates one new complete matrix for the repaired artifact hash.
@@ -128,9 +112,9 @@ Direction review is a complete matrix audit, not an incremental issue-discovery 
 
 ## Reference Policy
 
-External design/layout research is optional enrichment:
+External design research is optional enrichment:
 
-- First derive product design axes and layout jobs from evidence.
+- First derive product design axes and composition jobs from evidence.
 - Search only after the product model is stable.
 - Translate principles, never brands or exact layouts.
 - Record what each reference changed.
@@ -141,16 +125,13 @@ External design/layout research is optional enrichment:
 
 Block or rewrite when:
 
-- A normative design/layout rule has no evidence ID.
+- A normative design rule has no evidence ID.
 - Acceptance criteria are missing from the design coverage matrix.
 - A screen, role, state, control, KPI, chart, or navigation item was invented.
 - `DESIGN.md` is mainly a palette/style guide without product semantics.
-- `layout.md` is mainly one screen, a generic dashboard recipe, or a token catalog.
+- `DESIGN.md` omits shell, navigation, screen composition, geometry, responsive topology, or scroll/sticky ownership required to implement the approved UI.
 - Mobile is only desktop stacked or scaled down.
 - Loading, empty, error, permission, destructive, selected, or recovery states required by evidence are absent.
-- A visual option changes layout topology, or a layout option changes the selected visual system, task semantics, content priority, actions, states, permissions, outcomes, or product workflow.
-- Visual options change shell/grouping/disclosure/responsive composition instead of using the shared evaluation frame.
-- Layout options differ only by palette, typography, radius, shadow, or motif instead of spatial strategy.
 - A visible preview leaks screen/evidence/PRD/AC IDs, coverage, QA status, artifact paths, JSON/YAML, or design-document prose into product UI.
 - A preview presents all screens/states at once as a report wall instead of one focused product scene with real navigation.
 - Screenshot-based visual quality is below 88/100, hierarchy/composition/task focus/mobile is below 8/10, or any hard visual blocker remains.

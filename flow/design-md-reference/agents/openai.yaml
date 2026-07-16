@@ -1,0 +1,4 @@
+interface:
+  display_name: "Executable DESIGN.md"
+  short_description: "Turn approved UI evidence into an implementable DESIGN.md"
+  default_prompt: "Use $design-md-reference to document this approved UI as a complete, implementation-ready DESIGN.md."
