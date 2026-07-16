@@ -19,6 +19,7 @@ Playwright is platform infrastructure in Project Flow. It is not a dependency th
 - Do not install Playwright into a target project or modify its dependency files as part of design review.
 - If a direct Node API script is explicitly needed, the container exposes global `@playwright/test` through `NODE_PATH`; resolve it without changing the target project.
 - If neither the global CLI nor this skill's wrapper is available in a managed Project Flow container, stop with `PLAYWRIGHT_PLATFORM_RUNTIME_UNAVAILABLE` instead of installing packages into the target repo.
+- `playwright-cli` writes `.playwright-cli` state in its current directory. For Project Flow, create and change into a run-scoped directory under the PRD `artifactDir` before browser commands; never execute it from `targetProjectRoot`.
 
 ## Prerequisite check (required)
 
