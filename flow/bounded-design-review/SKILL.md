@@ -31,7 +31,7 @@ Do not implement these limits only in prose. `manage-design-review-cycle` is aut
 
 - Verify cycle, attempt, source hashes, profile, cells, screenshots, and manifest completeness.
 - Inspect every screenshot and merge deterministic findings with the owning qualitative rubric.
-- Persist the complete matrix, scores, issues, repair requirements, acceptance checks, regression cells, and verdict to attempt-specific reports. Never overwrite an initial report with post-repair evidence.
+- Persist the complete matrix, scores, issues, repair requirements, acceptance checks, regression cells, and verdict to `<cycleDir>/reports/` with attempt-specific names. Never overwrite another Project Flow cycle or replace initial evidence with post-repair evidence.
 - Record the review result in cycle state before responding.
 - Return only compact routing metadata. Never copy the full report into the task response.
 
