@@ -59,6 +59,14 @@ Block or regenerate if the UI is mostly generic KPI cards + filter + table, equa
 
 For final approval, inspect actual desktop, tablet, and mobile screenshots. Score 0-10 for visual hierarchy, composition craft, task focus, product specificity, typography/rhythm, surface/component craft, responsive recomposition, and polish/trust/accessibility. Use weights `15/15/15/10/10/10/15/10`. Pass only at 88/100 or higher, with hierarchy/composition/task focus/responsive each at least 8, every other dimension at least 7, and no hard blocker. Technical rendering success, long specifications, or complete token files do not raise this score.
 
+### Review Completeness And Repair Contract
+
+- Finish the entire declared option/scene × viewport matrix before deciding pass or blocked. Never return early after finding one failure.
+- Report every blocking and major issue. Common root causes may be grouped, but every affected matrix cell must remain explicit.
+- Each issue must include a stable ID, severity, category, affected cells, selector/region/component, observed evidence, expected result, root cause, concrete repair requirements, acceptance checks, regression cells, and owning artifact.
+- A repair handoff is valid only when the issue inventory and matrix coverage are complete. Repair all owner-assigned issues in one batch, then rerun the whole matrix rather than only failed cells.
+- Allow one independent post-repair review. If it still fails, return the complete unresolved matrix instead of continuing a partial repair loop.
+
 ### Aesthetics Guidelines
 
 - **Typography**: Distinctive type treatment that elevates aesthetics. Pair a display font with a refined body font when assets allow; when external fonts are unavailable, use system stacks with deliberate scale, weight, case, letter spacing, tabular numbers, and label treatment. Avoid default Inter/Roboto/Arial/Space Grotesk posture unless the product evidence supports neutral utility.

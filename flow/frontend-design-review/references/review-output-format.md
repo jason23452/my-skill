@@ -50,6 +50,30 @@
 
 ### Issues
 
+Before summarizing issues, include matrix coverage and confirm whether the inventory is complete. Do not limit the number of blocking or major findings.
+
+| Cell | Screenshot | Objective probes | Product/visual checks | Status | Issue IDs |
+|------|------------|------------------|-----------------------|--------|-----------|
+| [option/scene + viewport] | [path] | [measurements] | [checks] | [Pass/Blocked] | [IDs] |
+
+Each blocking/major issue uses this repair contract:
+
+```yaml
+issueId: LR-overflow-01
+severity: blocking
+category: overflow
+affectedCells: []
+selectorsOrRegions: []
+observed: ""
+expected: ""
+evidence: []
+rootCause: ""
+repairRequirements: []
+acceptanceChecks: []
+regressionCells: []
+owner: ""
+```
+
 **Blocking (must fix before merge):**
 1. [Pillar/Design System/Aesthetic] Issue description + recommendation with link
 

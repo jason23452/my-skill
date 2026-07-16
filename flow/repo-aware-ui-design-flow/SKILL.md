@@ -37,11 +37,13 @@ Produce repo-aware product design artifacts from an approved `design-context.md`
 6. Select And Write The Visual System.
    - The Product Visual System Director creates three visual directions on one identical neutral evaluation DOM, region order, geometry, responsive frame, task, content, actions, and states.
    - Visual options differ through typography, semantic color, spacing rhythm, density variants, surfaces, shape grammar, domain component/state appearance, icons/media/motif, motion, and accessibility. They cannot decide shell, navigation, columns, grouping, master-detail, disclosure, scroll/sticky, or responsive region composition.
+   - The writer self-validates all three options at desktop/mobile before independent review. A blocked review inventories every matrix issue, then triggers one complete batch repair and one full re-review.
    - After selection, `DESIGN.md` and `visual-design-spec.md` define only the selected visual/component system and explicitly defer layout decisions.
 
 7. Select And Write The Layout System.
    - The Layout Architect creates three layout directions that lock final `DESIGN.md` and product invariants while differing in shell/navigation, scene composition, grouping, master-detail, progressive disclosure, density/action anchoring, scroll ownership, and responsive recomposition.
    - Review real desktop/mobile previews, select one direction, then write final `layout.md` with exact canonical geometry, first-viewport budgets, scroll/sticky ownership, responsive composition, ASCII spatial frames, and executable acceptance tests.
+   - The writer must test all three layouts at desktop/mobile, repair all known root causes together, and rerun the entire matrix. Never repair only the first failed option or viewport. Post-repair independent review either passes or stops with the complete unresolved report.
    - `layout.md` defines the whole product system layout contract: app shell, navigation model, route/page template taxonomy, grid/container policy, action/state placement, responsive policy, and component layout policy.
    - Current PRD, UX spec, and wireframe spec are representative evidence surfaces used to validate the product-wide layout system, not the boundary of the layout system.
    - Completion: the layout contract can explain how the current feature fits the product-wide templates without becoming a single-feature screen spec.

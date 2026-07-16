@@ -114,6 +114,17 @@ Do not force a fixed external layout template when it obscures product structure
 
 Before final `layout.md`, generate three layout options that lock final `DESIGN.md` and all product invariants while differing materially in shell/navigation, grouping, master-detail, progressive disclosure, density/action anchoring, scroll ownership, and responsive recomposition. Review real desktop/mobile previews, then retain only the selected direction in final `layout.md`.
 
+## Exhaustive Review And Batch Repair
+
+Direction review is a complete matrix audit, not an incremental issue-discovery loop.
+
+- Inspect every visual/layout option at desktop and mobile before returning a verdict. Do not stop at the first blocker or cap the issue list.
+- For every matrix cell, record screenshot evidence, objective DOM measurements, task/visual checks, and issue IDs.
+- Persist a machine-readable review contract containing every blocking/major issue, affected cells, observed/expected behavior, root cause, repair requirements, acceptance checks, and regression cells.
+- A writer receiving a blocked report must repair all issue IDs in one coordinated batch, then rerun the complete matrix, including cells that previously passed.
+- Independent review runs once after that batch. If the full post-repair review still fails, stop with the complete unresolved matrix instead of starting another issue-by-issue cycle.
+- Never route a partial report to a writer. `issueInventoryComplete:true` and complete matrix coverage are prerequisites for repair.
+
 ## Reference Policy
 
 External design/layout research is optional enrichment:
