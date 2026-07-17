@@ -2,7 +2,7 @@
 name: backend-feature-fastapi
 description: >-
   當使用者要做後端、API、FastAPI、SQLAlchemy、Alembic、資料庫功能或後端 feature 開發時，使用這個 skill。這個 skill 適用於 uv 管理的 Python 3.12 FastAPI 專案，架構包含 FastAPI app factory、app/core 設定、app/db async session，以及 app/features 依 feature 拆分 router、schemas、service、repository、models、dependencies。只要使用者要新增或修改後端 endpoint、feature module、database model、repository、service、migration 或類似 FastAPI 後端程式碼，即使沒有明確提到這個架構，也應優先使用。
-compatibility: Python 3.12 FastAPI 後端，使用 uv、SQLAlchemy 2 async、asyncpg、Alembic、pydantic-settings。
+compatibility: Python 3.12 FastAPI 後端，使用 uv、uvicorn、SQLAlchemy 2 async、asyncpg、Alembic、pydantic-settings。
 ---
 
 # FastAPI 後端功能開發
@@ -16,14 +16,14 @@ compatibility: Python 3.12 FastAPI 後端，使用 uv、SQLAlchemy 2 async、asy
   "packageManager": "uv",
   "scaffoldCommand": [
     "uv init --app --name greenfield-backend --no-readme --no-workspace --vcs none",
-    "uv add \"fastapi[standard]>=0.115.0\"",
+    "uv add \"fastapi[standard]>=0.115.0\" \"uvicorn[standard]>=0.30.0\"",
     "if test -f .opencode/skills/backend-feature-fastapi/scripts/bootstrap-01-03.cjs; then node .opencode/skills/backend-feature-fastapi/scripts/bootstrap-01-03.cjs; else node ${OPENCODE_PROJECT_SKILLS_PRESEEDED_DIR:-/app/.opencode/skills}/backend-feature-fastapi/scripts/bootstrap-01-03.cjs; fi",
     "uv sync"
   ],
   "verificationCommands": [
     "uv run python -m compileall app"
   ],
-  "runtimeSmokeCommand": "uv run fastapi dev app/main.py --host 127.0.0.1 --port $PORT",
+  "runtimeSmokeCommand": "uv run uvicorn app.main:app --host 127.0.0.1 --port $PORT",
   "runtimeSmokeHealthUrl": "http://127.0.0.1:$PORT/health"
 }
 ```
@@ -34,14 +34,14 @@ compatibility: Python 3.12 FastAPI 後端，使用 uv、SQLAlchemy 2 async、asy
   "order": 15,
   "packageManager": "uv",
   "scaffoldCommand": [
-    "uv add \"fastapi[standard]>=0.115.0\" \"pydantic-settings>=2.0.0\"",
+    "uv add \"fastapi[standard]>=0.115.0\" \"uvicorn[standard]>=0.30.0\" \"pydantic-settings>=2.0.0\"",
     "if test -f .opencode/skills/backend-feature-fastapi/scripts/bootstrap-02-02.cjs; then node .opencode/skills/backend-feature-fastapi/scripts/bootstrap-02-02.cjs; else node ${OPENCODE_PROJECT_SKILLS_PRESEEDED_DIR:-/app/.opencode/skills}/backend-feature-fastapi/scripts/bootstrap-02-02.cjs; fi",
     "uv sync"
   ],
   "verificationCommands": [
     "uv run python -m compileall app"
   ],
-  "runtimeSmokeCommand": "uv run fastapi dev app/main.py --host 127.0.0.1 --port $PORT",
+  "runtimeSmokeCommand": "uv run uvicorn app.main:app --host 127.0.0.1 --port $PORT",
   "runtimeSmokeHealthUrl": "http://127.0.0.1:$PORT/api/health"
 }
 ```
@@ -60,6 +60,8 @@ compatibility: Python 3.12 FastAPI 後端，使用 uv、SQLAlchemy 2 async、asy
 ## 架構規則
 
 - `app/main.py` 負責建立 FastAPI app，並只掛載集中後的 feature router。不要在這裡逐一 import 個別 feature router。
+- `app/main.py` 要加入 `CORSMiddleware`，預設允許所有來源與所有 HTTP methods：`allow_origins=["*"]`、`allow_methods=["*"]`、`allow_headers=["*"]`。使用 wildcard origin 時不要啟用 credentials，避免瀏覽器拒絕 CORS response。
+- 開發與 smoke test 啟動使用 `uv run uvicorn app.main:app --host 127.0.0.1 --port $PORT`，不要依賴 `fastapi dev` 或專案自訂 `uv run dev`。
 - `app/features/router.py` 負責收集各 feature router。新增 feature router 時在這裡註冊。
 - `app/core/config.py` 負責透過 `pydantic-settings` 管理環境變數設定。
 - `app/db/` 負責共用 SQLAlchemy base、async engine 與 async session dependency。
@@ -149,7 +151,7 @@ Repository 使用 async SQLAlchemy API。不要引入 sync session 或 sync data
 ```bash
 uv run python -m compileall app
 uv run alembic upgrade head
-uv run dev
+uv run uvicorn app.main:app --reload
 ```
 
 如果環境沒有 Postgres，說明 migration/runtime verification 無法執行；仍然要盡可能執行 syntax-level checks。

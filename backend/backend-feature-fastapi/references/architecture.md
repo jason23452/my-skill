@@ -7,6 +7,7 @@
 - Python `>=3.12`
 - 依賴與執行環境管理：`uv`
 - Web framework：`FastAPI`
+- ASGI server：`uvicorn`
 - ORM：`SQLAlchemy 2.x async`
 - Postgres driver：`asyncpg`
 - Migration：`Alembic`
@@ -14,8 +15,7 @@
 
 ## 入口點
 
-- `backend/main.py`：`uv run dev` 的 CLI 入口，會用 `uvicorn` 啟動 `app.main:app`。
-- `backend/app/main.py`：包含 `AppFactory`，負責建立 `FastAPI`、設定 title/debug/lifespan，並用 `settings.api_prefix` 掛載 `api_router`。
+- `backend/app/main.py`：ASGI 入口，使用 `uvicorn app.main:app` 啟動，負責建立 `FastAPI`、設定 CORS、title/debug/lifespan，並用 `settings.api_prefix` 掛載 `api_router`。
 - `backend/app/features/router.py`：匯入 feature packages，並掛載每個 feature router。
 
 ## 共用基礎設施
@@ -57,6 +57,7 @@
 - 保持 `app/main.py` 不直接 import 個別 feature。
 - 新 feature 要註冊在 `app/features/router.py`。
 - route prefix 保持 feature-local；API versioning 由 `settings.api_prefix` 統一處理。
+- CORS 預設允許所有來源與 methods：`allow_origins=["*"]`、`allow_methods=["*"]`、`allow_headers=["*"]`。
 - 資料庫存取放在 repositories，不要放在 routers 或 services。
 - business rules 放在 services，不要放在 repositories。
 - 使用 async repository methods 與 `AsyncSession`。
@@ -70,7 +71,6 @@
 
 ```bash
 uv sync
-uv run dev
 uv run uvicorn app.main:app --reload
 uv run alembic upgrade head
 uv run python -m compileall app

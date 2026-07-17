@@ -1,3 +1,59 @@
 #!/usr/bin/env node
 
-const fs=require('fs'),p=require('path');const w=(f,s)=>{fs.mkdirSync(p.dirname(f),{recursive:true});fs.writeFileSync(f,s)};w('app/__init__.py','');w('app/core/__init__.py','');w('app/core/config.py','from pydantic_settings import BaseSettings, SettingsConfigDict\n\nclass Settings(BaseSettings):\n    api_prefix: str = \"/api\"\n    cors_origins: list[str] = [\"http://localhost:5173\", \"http://127.0.0.1:5173\"]\n    database_url: str = \"postgresql+asyncpg://postgres:postgres@db:5432/app_db\"\n    model_config = SettingsConfigDict(env_file=\".env\", extra=\"ignore\")\n\nsettings = Settings()\n');w('app/features/__init__.py','');w('app/features/router.py','from fastapi import APIRouter\n\nrouter = APIRouter()\n\n@router.get(\"/health\", tags=[\"health\"])\ndef health():\n    return {\"status\": \"ok\", \"service\": \"backend\"}\n');w('app/main.py','from fastapi import FastAPI\nfrom fastapi.middleware.cors import CORSMiddleware\n\nfrom app.core.config import settings\nfrom app.features.router import router as feature_router\n\napp = FastAPI(title=\"Greenfield Backend\")\napp.add_middleware(CORSMiddleware, allow_origins=settings.cors_origins, allow_credentials=True, allow_methods=[\"*\"], allow_headers=[\"*\"])\napp.include_router(feature_router, prefix=settings.api_prefix)\n\n@app.get(\"/health\", tags=[\"health\"])\ndef root_health():\n    return {\"status\": \"ok\", \"service\": \"backend\"}\n');
+const fs = require("fs");
+const path = require("path");
+
+const writeFile = (filePath, contents) => {
+  fs.mkdirSync(path.dirname(filePath), { recursive: true });
+  fs.writeFileSync(filePath, contents);
+};
+
+writeFile("app/__init__.py", "");
+writeFile("app/core/__init__.py", "");
+writeFile(
+  "app/core/config.py",
+  `from pydantic_settings import BaseSettings, SettingsConfigDict
+
+class Settings(BaseSettings):
+    api_prefix: str = "/api"
+    cors_origins: list[str] = ["*"]
+    database_url: str = "postgresql+asyncpg://postgres:postgres@db:5432/app_db"
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
+settings = Settings()
+`,
+);
+writeFile("app/features/__init__.py", "");
+writeFile(
+  "app/features/router.py",
+  `from fastapi import APIRouter
+
+router = APIRouter()
+
+@router.get("/health", tags=["health"])
+def health():
+    return {"status": "ok", "service": "backend"}
+`,
+);
+writeFile(
+  "app/main.py",
+  `from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+from app.core.config import settings
+from app.features.router import router as feature_router
+
+app = FastAPI(title="Greenfield Backend")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.cors_origins,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+app.include_router(feature_router, prefix=settings.api_prefix)
+
+@app.get("/health", tags=["health"])
+def root_health():
+    return {"status": "ok", "service": "backend"}
+`,
+);
