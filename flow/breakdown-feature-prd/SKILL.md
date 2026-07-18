@@ -156,4 +156,4 @@ Rules:
 
 ## SDD Wiki Design Maintenance
 
-When selected PRDs later enter the separate `Project Flow` primary agent, design markdown may be maintained in the PRD session and frontend repo `design/` directory as working copies for preview and planning. After HTML preview approval, the maintained shared copies must be synced to ADO Wiki under `/design/<repo>/*.md`; do not treat repo `design/*.md` as the canonical long-term source.
+When selected PRDs later enter the separate `Project Flow` primary agent, design markdown is maintained in the PRD session working area for preview and planning. After HTML preview approval, the maintained shared copies must be synced to ADO Wiki under `/<repo>/*.md`, with the generated UI design contract named `/<repo>/DESIGN.md`; do not treat repo `design/*.md` as the canonical long-term source.
