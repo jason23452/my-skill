@@ -68,6 +68,7 @@ Bootstrap metadata：
   "packageManager": "pnpm",
   "scaffoldCommand": [
     "pnpm create nuxt@latest . --template v4 --packageManager pnpm --gitInit false --no-install --force",
+    "if test -f .opencode/skills/nuxt4-creater/scripts/bootstrap-00-pnpm-allow-builds.cjs; then node .opencode/skills/nuxt4-creater/scripts/bootstrap-00-pnpm-allow-builds.cjs; else node ${OPENCODE_PROJECT_SKILLS_PRESEEDED_DIR:-/app/.opencode/skills}/nuxt4-creater/scripts/bootstrap-00-pnpm-allow-builds.cjs; fi",
     "pnpm install"
   ],
   "verificationCommands": ["pnpm build"],
