@@ -15,13 +15,13 @@ description: Nuxt 4 專案建立、啟動與架構導覽。當需要建立 Nuxt 
 
 ## 啟動與驗證
 
-建立新的 Nuxt 4 專案時，依 Nuxt 官方安裝文件使用：
+建立新的 Nuxt 4 專案時，互動式終端可依 Nuxt 官方安裝文件使用：
 
 ```powershell
 pnpm create nuxt@latest <project-name>
 ```
 
-如果 bootstrap 已經在空的目標 repo 根目錄執行，使用 metadata 裡的 `pnpm create nuxt@latest .` 直接初始化目前目錄。
+如果 bootstrap 已經在空的目標 repo 根目錄執行，必須使用 metadata 裡的非互動 command 直接初始化目前目錄。create-nuxt 在 non-interactive terminal 需要明確指定 `--template`、`--packageManager`、`--gitInit`，而既有空 repo 目錄也需要 `--force`。
 
 進入專案目錄後再執行後續指令：
 
@@ -66,7 +66,10 @@ Bootstrap metadata：
   "role": "frontend",
   "order": 0,
   "packageManager": "pnpm",
-  "scaffoldCommand": ["pnpm create nuxt@latest ."],
+  "scaffoldCommand": [
+    "pnpm create nuxt@latest . --template v4 --packageManager pnpm --gitInit false --no-install --force",
+    "pnpm install"
+  ],
   "verificationCommands": ["pnpm build"],
   "runtimeSmokeCommand": "pnpm dev --host 0.0.0.0 --port 3000",
   "runtimeSmokeHealthUrl": "http://127.0.0.1:3000"
