@@ -1,6 +1,6 @@
 ---
 name: axios-token-baseurl-error
-description: "Framework-agnostic frontend Axios/API client skill. Use when a frontend project needs axios, an API client, dynamic parameter-based HTTP method calls, exported method helper functions, baseURL configuration, token or Authorization/Bearer headers, request interceptors, or normalized API error handling. Keep this skill independent of a fixed folder structure: adapt to the repository's existing API/http/lib/service conventions and do not create business endpoint wrappers unless explicitly requested."
+description: "Framework-agnostic frontend Axios/API client skill for Vite-based React SPA, Vite-based Vue SPA, and optional Nuxt Axios integration. Use when a frontend project needs axios, an API client, dynamic parameter-based HTTP method calls, exported method helper functions, baseURL configuration, token or Authorization/Bearer headers, request interceptors, or normalized API error handling. Treat react-spa and vue-spa as Vite SPA aliases; add Next.js support only when the user explicitly requests it."
 ---
 
 # Axios Token BaseURL Error
@@ -11,7 +11,7 @@ description: "Framework-agnostic frontend Axios/API client skill. Use when a fro
 {
   "role": "frontend",
   "category": "frontend-addon",
-  "frameworks": ["frontend", "react", "react-vite", "vue", "nuxt", "nuxt4"],
+  "frameworks": ["frontend", "vite", "vite-spa", "react-spa", "react-vite", "vue-spa", "vue-vite", "nuxt", "nuxt4"],
   "order": 20,
   "packageManager": "pnpm",
   "scaffoldCommand": [
@@ -34,7 +34,7 @@ Use this skill to add or repair the frontend HTTP foundation only:
 - normalize Axios errors into one predictable app error shape
 - keep endpoint calls inside the feature, page, store, composable, or domain module that owns the business behavior
 
-When this Axios skill is selected, custom API wrappers created by this skill must stay Axios-backed across React, Next, Vue, and Nuxt. Do not switch this skill's transport to native `fetch`, `$fetch`, `ofetch`, or another client unless the user explicitly changes the project standard. Nuxt projects that do not select this skill should keep using Nuxt's official data fetching helpers from their framework scaffold.
+When this Axios skill is selected, custom API wrappers created by this skill must stay Axios-backed across Vite-based React SPA, Vite-based Vue SPA, and optional Nuxt Axios integration. Treat `react-spa` and `vue-spa` as Vite SPA aliases. Do not switch this skill's transport to native `fetch`, `$fetch`, `ofetch`, or another client unless the user explicitly changes the project standard. Nuxt projects that do not select this skill should keep using Nuxt's official data fetching helpers from their framework scaffold. Add Next.js conventions only when the user explicitly asks for Next support.
 
 Do not create a global endpoint registry, generic CRUD layer, service factory, or feature-specific business API wrapper unless the user explicitly asks for that abstraction.
 
@@ -65,7 +65,9 @@ The chosen API client folder should contain only transport-level concerns:
 
 Endpoint functions belong where the feature already lives. The dynamic method helpers are for transport calls only; they are not a global endpoint registry. Examples:
 
-- a React hook can call `api.request<Resource[]>({ method: 'GET', url: '/resources', query: { page: 1 } })` from the hook or feature API file
+- a React Vite SPA hook can call `api.request<Resource[]>({ method: 'GET', url: '/resources', query: { page: 1 } })` from the hook or feature API file
+- a React Vite SPA component, hook, Zustand store, Redux thunk, or TanStack Query function can import `getApi`/`postApi` and pass dynamic arguments
+- a Vue Vite SPA component, composable, or Pinia action can import `getApi`/`postApi` and pass dynamic arguments
 - a Nuxt composable can call Axios-backed helpers directly for event-driven calls, or use `useAxiosData`/`useAsyncData` for SSR-aware setup or route data
 - a store action can call `apiClient` from the store
 - any framework script can import `getApi`, `postApi`, `putApi`, `patchApi`, or `deleteApi` and pass `endpoint`, `body`, `query`, `config`, and `headers` dynamically
@@ -235,6 +237,66 @@ export function UpdateUser<TResponse = User, TBody = Partial<User>>(
 ```
 
 Do not add named business endpoint methods such as `getUsers()` or `createOrder()` globally unless the user explicitly asks for endpoint wrappers. The scaffolded helper layer must stay framework-agnostic and transport-level.
+
+## React And Vue Vite SPA Usage
+
+For `react-spa`, `react-vite`, `vue-spa`, and `vue-vite`, treat the project as Vite-based. Keep the generated API client in the repository's existing source convention, usually `src/api`, `src/lib/api`, `src/services/api`, or a matching existing folder. Do not introduce server-framework conventions.
+
+React hook or query function example:
+
+```ts
+import type { AxiosRequestConfig } from 'axios'
+import { getApi, postApi, type HeaderParams, type QueryParams } from '@/api'
+
+export function GetUser<TResponse = User>(
+  endpoint: string,
+  body?: unknown,
+  query?: QueryParams,
+  config?: AxiosRequestConfig,
+  headers?: HeaderParams,
+) {
+  return getApi<TResponse>(endpoint, body, query, config, headers)
+}
+
+export function CreateUser<TResponse = User, TBody = Partial<User>>(
+  endpoint: string,
+  body?: TBody,
+  query?: QueryParams,
+  config?: AxiosRequestConfig,
+  headers?: HeaderParams,
+) {
+  return postApi<TResponse, TBody>(endpoint, body, query, config, headers)
+}
+```
+
+Vue composable or Pinia action example:
+
+```ts
+import type { AxiosRequestConfig } from 'axios'
+import { getApi, putApi, type HeaderParams, type QueryParams } from '@/api'
+
+export function useUsersApi() {
+  const GetUser = <TResponse = User>(
+    endpoint: string,
+    body?: unknown,
+    query?: QueryParams,
+    config?: AxiosRequestConfig,
+    headers?: HeaderParams,
+  ) => getApi<TResponse>(endpoint, body, query, config, headers)
+
+  const UpdateUser = <TResponse = User, TBody = Partial<User>>(
+    endpoint: string,
+    body?: TBody,
+    query?: QueryParams,
+    config?: AxiosRequestConfig,
+    headers?: HeaderParams,
+  ) => putApi<TResponse, TBody>(endpoint, body, query, config, headers)
+
+  return { GetUser, UpdateUser }
+}
+```
+
+Use `config` for SPA request cancellation, timeout, credentials, and adapter-specific options. Keep loading state, retry, query cache, toast, and form error mapping in the hook/composable/store layer rather than the transport module.
 
 ## Nuxt Data Fetching Integration
 
