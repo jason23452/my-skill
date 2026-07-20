@@ -143,6 +143,7 @@ function ensureDirectories() {
     "app/components/app",
     "app/components/seo",
     "app/components/ui",
+    "app/constants",
     "app/content/home",
     "app/composables",
     "app/layouts",
@@ -163,6 +164,51 @@ function ensureDirectories() {
 
 ensureDirectories()
 ensureComponentsAutoImport()
+
+writeFile(
+  "app/constants/site.ts",
+  `export const SITE_CONFIG = {
+  name: 'Site',
+  title: 'Home',
+  description: 'A Nuxt 4 page built from reusable content sections.',
+  copyright: 'All rights reserved.',
+} as const
+
+export const SITE_NAV_ITEMS = [
+  { label: 'Home', to: '/' },
+] as const
+
+export const HOME_CONTENT = {
+  hero: {
+    eyebrow: 'Nuxt 4 Starter',
+    title: 'Build pages from reusable content sections.',
+    description: 'Keep route pages focused on SEO and composition while shared UI components handle layout and styling.',
+    ctaLabel: 'Get started',
+    ctaTo: '/',
+  },
+  features: [
+    {
+      title: 'Components',
+      description: 'Shared UI primitives live in app/components and stay reusable across pages.',
+    },
+    {
+      title: 'Content',
+      description: 'Page-specific sections live in app/content and compose shared components.',
+    },
+    {
+      title: 'Pages',
+      description: 'Route pages assemble sections and keep SEO, layout, and route data easy to scan.',
+    },
+  ],
+  contact: {
+    title: 'Ready for your content',
+    description: 'Add more sections under app/content/home or create a new page folder under app/content.',
+    ctaLabel: 'View home',
+    ctaTo: '/',
+  },
+} as const
+`,
+)
 
 writeFile(
   "app/app.vue",
@@ -194,16 +240,25 @@ writeFile(
   <header class="border-b border-slate-200 bg-white/90 backdrop-blur">
     <BaseContainer class="flex h-16 items-center justify-between">
       <NuxtLink to="/" class="text-sm font-semibold text-slate-950">
-        Site
+        {{ SITE_CONFIG.name }}
       </NuxtLink>
       <nav class="flex items-center gap-4 text-sm text-slate-600">
-        <NuxtLink to="/" class="transition hover:text-slate-950">
-          Home
+        <NuxtLink
+          v-for="item in SITE_NAV_ITEMS"
+          :key="item.to"
+          :to="item.to"
+          class="transition hover:text-slate-950"
+        >
+          {{ item.label }}
         </NuxtLink>
       </nav>
     </BaseContainer>
   </header>
 </template>
+
+<script setup lang="ts">
+import { SITE_CONFIG, SITE_NAV_ITEMS } from '~/constants/site'
+</script>
 `,
 )
 
@@ -212,12 +267,14 @@ writeFile(
   `<template>
   <footer class="border-t border-slate-200 bg-white">
     <BaseContainer class="py-6 text-sm text-slate-500">
-      <p>{{ year }} Site. All rights reserved.</p>
+      <p>{{ year }} {{ SITE_CONFIG.name }}. {{ SITE_CONFIG.copyright }}</p>
     </BaseContainer>
   </footer>
 </template>
 
 <script setup lang="ts">
+import { SITE_CONFIG } from '~/constants/site'
+
 const year = new Date().getFullYear()
 </script>
 `,
@@ -339,9 +396,11 @@ writeFile(
 </template>
 
 <script setup lang="ts">
+import { SITE_CONFIG } from '~/constants/site'
+
 useSeoMeta({
-  title: 'Home',
-  description: 'A Nuxt 4 page built from reusable content sections.'
+  title: SITE_CONFIG.title,
+  description: SITE_CONFIG.description
 })
 </script>
 `,
@@ -354,20 +413,24 @@ writeFile(
   <BaseSection>
     <div class="max-w-3xl">
       <p class="text-sm font-semibold uppercase tracking-widest text-slate-500">
-        Nuxt 4 Starter
+        {{ HOME_CONTENT.hero.eyebrow }}
       </p>
       <h1 class="mt-4 text-4xl font-bold tracking-normal text-slate-950 sm:text-6xl">
-        Build pages from reusable content sections.
+        {{ HOME_CONTENT.hero.title }}
       </h1>
       <p class="mt-6 text-lg leading-8 text-slate-600">
-        Keep route pages focused on SEO and composition while shared UI components handle layout and styling.
+        {{ HOME_CONTENT.hero.description }}
       </p>
-      <BaseButton to="/" class="mt-8">
-        Get started
+      <BaseButton :to="HOME_CONTENT.hero.ctaTo" class="mt-8">
+        {{ HOME_CONTENT.hero.ctaLabel }}
       </BaseButton>
     </div>
   </BaseSection>
 </template>
+
+<script setup lang="ts">
+import { HOME_CONTENT } from '~/constants/site'
+</script>
 `,
 )
 
@@ -376,27 +439,17 @@ writeFile(
   `<template>
   <BaseSection tone="muted">
     <div class="grid gap-6 md:grid-cols-3">
-      <BaseCard>
-        <h2 class="text-lg font-semibold text-slate-950">Components</h2>
-        <p class="mt-3 text-sm leading-6 text-slate-600">
-          Shared UI primitives live in app/components and stay reusable across pages.
-        </p>
-      </BaseCard>
-      <BaseCard>
-        <h2 class="text-lg font-semibold text-slate-950">Content</h2>
-        <p class="mt-3 text-sm leading-6 text-slate-600">
-          Page-specific sections live in app/content and compose shared components.
-        </p>
-      </BaseCard>
-      <BaseCard>
-        <h2 class="text-lg font-semibold text-slate-950">Pages</h2>
-        <p class="mt-3 text-sm leading-6 text-slate-600">
-          Route pages assemble sections and keep SEO, layout, and route data easy to scan.
-        </p>
+      <BaseCard v-for="feature in HOME_CONTENT.features" :key="feature.title">
+        <h2 class="text-lg font-semibold text-slate-950">{{ feature.title }}</h2>
+        <p class="mt-3 text-sm leading-6 text-slate-600">{{ feature.description }}</p>
       </BaseCard>
     </div>
   </BaseSection>
 </template>
+
+<script setup lang="ts">
+import { HOME_CONTENT } from '~/constants/site'
+</script>
 `,
 )
 
@@ -407,17 +460,21 @@ writeFile(
     <BaseCard>
       <div class="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
         <div>
-          <h2 class="text-2xl font-bold text-slate-950">Ready for your content</h2>
+          <h2 class="text-2xl font-bold text-slate-950">{{ HOME_CONTENT.contact.title }}</h2>
           <p class="mt-3 text-slate-600">
-            Add more sections under app/content/home or create a new page folder under app/content.
+            {{ HOME_CONTENT.contact.description }}
           </p>
         </div>
-        <BaseButton to="/" variant="secondary">
-          View home
+        <BaseButton :to="HOME_CONTENT.contact.ctaTo" variant="secondary">
+          {{ HOME_CONTENT.contact.ctaLabel }}
         </BaseButton>
       </div>
     </BaseCard>
   </BaseSection>
 </template>
+
+<script setup lang="ts">
+import { HOME_CONTENT } from '~/constants/site'
+</script>
 `,
 )

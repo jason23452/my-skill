@@ -104,6 +104,7 @@ node <skill-dir>/scripts/bootstrap-02-section-architecture.cjs
 - `app/components/ui/BaseCard.vue`
 - `app/components/ui/BaseButton.vue`
 - `app/components/seo/SeoJsonLd.vue`
+- `app/constants/site.ts`
 - `app/composables/`、`app/plugins/`、`app/stores/`、`app/types/`、`app/utils/`
 - `server/api/`、`server/routes/`、`server/utils/`
 - `shared/types/`、`shared/utils/`
@@ -121,6 +122,7 @@ node <skill-dir>/scripts/bootstrap-02-section-architecture.cjs
 - `app/components/ui/`：跨頁共用 UI primitives，例如 button、card、container、section
 - `app/components/seo/`：SEO 與 structured data 輔助元件
 - `app/components/<domain>/`：跨頁共用的 domain display components
+- `app/constants/`：集中管理站台固定參數，例如站名、導覽、SEO 預設值與 starter content
 - `app/content/<page>/`：頁面專屬 content section components
 - `app/composables/`：auto-imported composables
 - `app/plugins/`：Nuxt plugins
