@@ -76,7 +76,7 @@ frontend-design/rendered-design-qa.md
 frontend-design/visual-quality-review.md
 ```
 
-After rendered browser QA, Visual Quality Critic, and final contract review pass and the user explicitly approves the preview, sync the markdown files to ADO Wiki under `/<repo>/*.md` with `sync-design-wiki-pages`; the generated UI design contract is always named `/<repo>/DESIGN.md`. ADO Wiki is the shared maintained copy. Keep `screen-preview.html` and screenshots as session preview artifacts unless a separate Wiki attachment policy publishes them.
+After rendered browser QA, Visual Quality Critic, and final contract review pass and the user explicitly approves the preview, sync only the approved UI design contract to ADO Wiki as `/<repo>/DESIGN.md` with `sync-design-wiki-pages`. ADO Wiki is the shared maintained copy. Keep UX specs, wireframes, handoff records, `screen-preview.html`, and screenshots as session-local artifacts unless a separate attachment policy publishes them.
 
 ## Contract Authority
 
