@@ -1,7 +1,6 @@
 ---
 name: coss
-description: Helps implement coss UI components correctly. Use when building UIs with coss primitives (buttons, dialogs, selects, forms, menus, tabs, inputs, toasts, etc.), migrating from shadcn/Radix to coss/Base UI, composing trigger-based overlays, or troubleshooting coss component behavior. Covers imports, accessibility, Tailwind styling, and common pitfalls.
-compatibility: Requires Tailwind CSS v4 and @base-ui/react. Designed for React projects using the coss component registry.
+description: React UI kit skill for coss UI components. Use with React/Vite frontends when building UIs with coss primitives (buttons, dialogs, selects, forms, menus, tabs, inputs, toasts, etc.), migrating from shadcn/Radix to coss/Base UI, composing trigger-based overlays, or troubleshooting coss component behavior. Requires Tailwind CSS v4 and @base-ui/react. Covers imports, accessibility, Tailwind styling, and common pitfalls.
 license: MIT
 metadata:
   author: cosscom
@@ -20,6 +19,10 @@ Registry specs such as `@coss/ui`, `@coss/colors-neutral`, `@coss/style`, `coss/
 ```opencode-bootstrap-json
 {
   "role": "frontend",
+  "category": "ui-kit",
+  "uiKit": "coss",
+  "frameworks": ["react", "react-vite"],
+  "requiresPrimarySkills": ["react-vite-feature-based"],
   "order": 30,
   "packageManager": "pnpm",
   "scaffoldCommand": [

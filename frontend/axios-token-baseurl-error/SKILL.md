@@ -10,6 +10,8 @@ description: 當使用者在 React + Vite 或前端專案中提到 axios、api c
 ```opencode-bootstrap-json
 {
   "role": "frontend",
+  "category": "frontend-addon",
+  "frameworks": ["react", "react-vite"],
   "order": 20,
   "packageManager": "pnpm",
   "scaffoldCommand": [
@@ -23,6 +25,8 @@ description: 當使用者在 React + Vite 或前端專案中提到 axios、api c
 ```opencode-bootstrap-json
 {
   "role": "frontend",
+  "category": "frontend-addon",
+  "frameworks": ["react", "react-vite"],
   "order": 25,
   "packageManager": "pnpm",
   "scaffoldCommand": [

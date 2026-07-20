@@ -1,0 +1,4 @@
+interface:
+  display_name: "Nuxt UI"
+  short_description: "Nuxt framework UI kit bootstrap"
+  default_prompt: "Use $nuxt-ui to add Nuxt UI to a Nuxt 4 frontend."

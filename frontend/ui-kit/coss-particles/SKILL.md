@@ -1,7 +1,6 @@
 ---
 name: coss-particles
-description: Index of all COSS UI particle examples. Use when implementing UI features to find copy-paste-ready component patterns built on coss primitives. Each particle has a description and a JSON URL for easy installation.
-compatibility: Requires coss UI components installed in the project.
+description: React UI kit pattern index for coss UI particles. Use with React/Vite frontends after coss is selected or installed to find copy-paste-ready component patterns built on coss primitives. Requires coss UI components installed in the project. Each particle has a description and a JSON URL for easy installation.
 license: MIT
 metadata:
   author: cosscom
@@ -14,6 +13,11 @@ metadata:
 ```opencode-bootstrap-json
 {
   "role": "frontend",
+  "category": "ui-kit-patterns",
+  "uiKit": "coss",
+  "frameworks": ["react", "react-vite"],
+  "requiresPrimarySkills": ["react-vite-feature-based"],
+  "requiresUiKitSkills": ["coss"],
   "order": 31,
   "packageManager": "pnpm",
   "scaffoldCommand": [],

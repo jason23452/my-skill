@@ -27,10 +27,13 @@
     writing-great-skills/
   frontend/
     axios-token-baseurl-error/
-    coss/
-    coss-particles/
+    nuxt4-creater/
     playwright-e2e-testing/
     react-vite-feature-based/
+    ui-kit/
+      coss/
+      coss-particles/
+      nuxt-ui/
     .agents/skills/
       frontend-design/
       web-design-guidelines/
@@ -90,11 +93,13 @@ description: 這個 skill 做什麼，以及何時應該使用。
 ## 前端
 
 - `react-vite-feature-based`: 用於 React + Vite frontend 的 feature-based 架構開發。
+- `nuxt4-creater`: 用於 Nuxt 4 frontend scaffold、Tailwind CSS v4 與 section composition 架構。
 - `axios-token-baseurl-error`: 用於 axios client、baseURL、token、Authorization header 與 API error normalization。
-- `coss`: 用於 coss ui / Base UI 元件整合到 `src/shared/components/ui/`。
-- `coss-particles`: coss UI particles 範例索引，用於尋找可複製的 UI component patterns。
 - `playwright-e2e-testing`: 用於 Playwright E2E 測試設計、撰寫、執行與除錯。
-- Metadata: 以上 frontend skills 都有 `name` 與 `description`。`coss`、`coss-particles` 有 `compatibility`、`license` 與 `metadata.author`；`react-vite-feature-based`、`axios-token-baseurl-error`、`coss`、`coss-particles`、`playwright-e2e-testing` 都包含 `opencode-bootstrap-json`。
+- `ui-kit/coss`: React / React Vite 的 UI 套件 skill，用於 coss ui / Base UI 元件整合到 `src/shared/components/ui/`。
+- `ui-kit/coss-particles`: coss UI particles 範例索引，用於尋找可複製的 UI component patterns。
+- `ui-kit/nuxt-ui`: Nuxt / Nuxt 4 的 UI 套件 skill，用於安裝與配置官方 Nuxt UI。
+- Metadata: 以上 frontend skills 都有 `name` 與 `description`。UI 套件 skills 放在 `frontend/ui-kit/`，並在 `opencode-bootstrap-json` 內標記 `category`、`frameworks` 與 `requiresPrimarySkills`；framework scaffold skills 標記 `category:"framework"`。
 
 ## Frontend Agent Skills
 

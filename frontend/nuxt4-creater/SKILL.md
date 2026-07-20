@@ -62,6 +62,8 @@ Bundled bootstrap metadata 是 pnpm 範例。若使用 npm、yarn 或 bun，保�
 ```opencode-bootstrap-json
 {
   "role": "frontend",
+  "category": "framework",
+  "framework": "nuxt4",
   "order": 0,
   "packageManager": "pnpm",
   "scaffoldCommand": [
