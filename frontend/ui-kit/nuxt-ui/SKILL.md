@@ -33,7 +33,7 @@ This skill is a UI kit add-on for Nuxt projects. It does not create the Nuxt app
 Use Nuxt UI when the selected frontend framework is Nuxt or Nuxt 4 and the project needs a production-ready Vue/Nuxt component system.
 
 - Install `@nuxt/ui` and `tailwindcss`.
-- Ensure pnpm `allowBuilds` includes Nuxt/Nuxt UI build-script packages before install, including `vue-demi`.
+- Ensure pnpm `allowBuilds` includes Nuxt/Nuxt UI build-script packages before install, including `vue-demi`. For future packages, pass extra names through `OPENCODE_PNPM_ALLOW_BUILDS` or script arguments instead of adding project-specific logic.
 - Add `@nuxt/ui` to `nuxt.config.*` modules.
 - Ensure the global CSS imports both Tailwind CSS and Nuxt UI.
 - Keep Nuxt UI as the UI kit layer; do not mix it with React-only kits such as coss.

@@ -6,6 +6,18 @@ const requiredAllowBuilds = {
   "vue-demi": true,
 }
 
+function extraAllowBuilds() {
+  return [
+    ...String(process.env.OPENCODE_PNPM_ALLOW_BUILDS || process.env.PNPM_ALLOW_BUILDS || "")
+      .split(/[\s,]+/u),
+    ...process.argv.slice(2),
+  ].map((name) => name.trim()).filter(Boolean)
+}
+
+for (const name of extraAllowBuilds()) {
+  requiredAllowBuilds[name] = true
+}
+
 function renderAllowBuild(name, value) {
   return `  ${name.includes("@") ? JSON.stringify(name) : name}: ${value ? "true" : "false"}`
 }
