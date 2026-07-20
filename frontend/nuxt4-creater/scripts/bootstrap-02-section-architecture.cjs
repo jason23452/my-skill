@@ -25,6 +25,18 @@ function writeFile(relativePath, content, options = {}) {
   }
 }
 
+function removeGeneratedFile(relativePath, markers) {
+  const filePath = path.join(cwd, relativePath)
+  if (!fs.existsSync(filePath)) return
+
+  const current = fs.readFileSync(filePath, "utf8").replace(/^\uFEFF/u, "")
+  const isGenerated = markers.every((marker) => current.includes(marker))
+
+  if (isGenerated) {
+    fs.unlinkSync(filePath)
+  }
+}
+
 function findMatchingClose(source, openIndex, openChar, closeChar) {
   let depth = 0
   let quote = null
@@ -83,6 +95,18 @@ function findArrayProperty(source, objectRange, name) {
   return { open, close }
 }
 
+function findObjectProperty(source, objectRange, name) {
+  const bodyStart = objectRange.open + 1
+  const body = source.slice(bodyStart, objectRange.close)
+  const re = new RegExp(`\\b${name}\\s*:\\s*\\{`, "u")
+  const match = re.exec(body)
+  if (!match) return null
+  const open = bodyStart + match.index + match[0].lastIndexOf("{")
+  const close = findMatchingClose(source, open, "{", "}")
+  if (close === -1 || close > objectRange.close) return null
+  return { open, close }
+}
+
 function insertTopLevelProperty(source, propertyText) {
   const config = findConfigObject(source)
   if (!config) {
@@ -137,6 +161,46 @@ function ensureComponentsAutoImport() {
   }
 }
 
+function ensureRuntimeConfig() {
+  const configPath = findConfigPath()
+  let source = fs.existsSync(configPath)
+    ? fs.readFileSync(configPath, "utf8").replace(/^\uFEFF/u, "")
+    : "export default defineNuxtConfig({\n})\n"
+
+  if (/\bapiBase\s*:/u.test(source)) {
+    return
+  }
+
+  let config = findConfigObject(source)
+  if (!config) {
+    fs.writeFileSync(configPath, source)
+    return
+  }
+
+  const runtimeConfig = findObjectProperty(source, config, "runtimeConfig")
+  if (!runtimeConfig) {
+    source = insertTopLevelProperty(
+      source,
+      "runtimeConfig: {\n    public: {\n      apiBase: process.env.NUXT_PUBLIC_API_BASE || '/api'\n    }\n  },",
+    )
+    fs.writeFileSync(configPath, source)
+    return
+  }
+
+  const publicConfig = findObjectProperty(source, runtimeConfig, "public")
+  if (!publicConfig) {
+    source = `${source.slice(0, runtimeConfig.open + 1)}\n    public: {\n      apiBase: process.env.NUXT_PUBLIC_API_BASE || '/api'\n    },${source.slice(runtimeConfig.open + 1)}`
+    fs.writeFileSync(configPath, source)
+    return
+  }
+
+  const beforeClose = source.slice(0, publicConfig.close).replace(/\s*$/u, "")
+  const afterClose = source.slice(publicConfig.close)
+  const needsComma = !beforeClose.endsWith("{")
+  source = `${beforeClose}${needsComma ? "," : ""}\n      apiBase: process.env.NUXT_PUBLIC_API_BASE || '/api'\n    ${afterClose}`
+  fs.writeFileSync(configPath, source)
+}
+
 function ensureDirectories() {
   [
     "app/assets/css",
@@ -153,6 +217,7 @@ function ensureDirectories() {
     "app/stores",
     "app/types",
     "app/utils",
+    "app/utils/api",
     "public",
     "server/api",
     "server/routes",
@@ -164,6 +229,16 @@ function ensureDirectories() {
 
 ensureDirectories()
 ensureComponentsAutoImport()
+ensureRuntimeConfig()
+
+removeGeneratedFile("app/components/app/AppLayout.vue", [
+  "min-h-screen bg-slate-50 text-slate-950 antialiased",
+  "<AppHeader />",
+  "<AppFooter />",
+])
+removeGeneratedFile("app/utils/api/client.ts", ["axios.create", "createApiClient", "getAccessToken"])
+removeGeneratedFile("app/utils/api/errors.ts", ["axios.isAxiosError", "normalizeApiError", "ApiErrorPayload"])
+removeGeneratedFile("app/utils/api/token.ts", ["AccessTokenProvider", "accessToken", "localStorage"])
 
 writeFile(
   "app/constants/site.ts",
@@ -211,17 +286,272 @@ export const HOME_CONTENT = {
 )
 
 writeFile(
-  "app/app.vue",
-  `<template>
-  <NuxtRouteAnnouncer />
-  <NuxtPage />
-</template>
+  "app/utils/api/types.ts",
+  `export type QueryValue = string | number | boolean | null | undefined
+export type QueryParams = Record<string, QueryValue | QueryValue[]>
+export type HeaderValue = string | number | boolean | null | undefined
+export type HeaderParams = Record<string, HeaderValue>
+
+export type ApiMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
+
+export type ApiFetchConfig = Record<string, unknown> & {
+  query?: QueryParams
+  params?: QueryParams
+  body?: unknown
+  headers?: HeadersInit
+  signal?: AbortSignal
+}
 `,
-  { replaceWhen: [/NuxtWelcome/u] },
+  { replaceWhen: [/ApiErrorPayload/u, /class ApiError/u] },
 )
 
 writeFile(
-  "app/components/app/AppLayout.vue",
+  "app/utils/api/methods.ts",
+  `import { $fetch, useRuntimeConfig } from '#imports'
+import type { ApiFetchConfig, ApiMethod, HeaderParams, QueryParams } from './types'
+
+export type { ApiFetchConfig, ApiMethod, HeaderParams, QueryParams } from './types'
+
+export type ApiRequestOptions<TBody = unknown> = {
+  method?: ApiMethod
+  endpoint?: string
+  url?: string
+  query?: QueryParams
+  params?: QueryParams
+  body?: TBody
+  data?: TBody
+  headers?: HeaderParams
+  options?: ApiFetchConfig
+}
+
+export type ApiMethodOptions<TBody = unknown> = Omit<ApiRequestOptions<TBody>, 'method' | 'endpoint' | 'url'>
+
+function hasOwn(object: object, key: PropertyKey) {
+  return Object.prototype.hasOwnProperty.call(object, key)
+}
+
+function resolveUrl<TBody>(options: ApiRequestOptions<TBody>) {
+  const url = options.endpoint || options.url
+  if (!url) throw new Error('API request requires endpoint or url.')
+  return url
+}
+
+function mergeHeaders(
+  configHeaders?: HeadersInit,
+  headers?: HeaderParams,
+): HeadersInit | undefined {
+  const output: Record<string, string> = {}
+
+  if (configHeaders instanceof Headers) {
+    configHeaders.forEach((value, name) => {
+      output[name] = value
+    })
+  } else if (Array.isArray(configHeaders)) {
+    for (const [name, value] of configHeaders) {
+      output[name] = value
+    }
+  } else if (configHeaders && typeof configHeaders === 'object') {
+    Object.assign(output, configHeaders)
+  }
+
+  for (const [name, value] of Object.entries(headers || {})) {
+    if (value === null || value === undefined) {
+      delete output[name]
+    } else {
+      output[name] = String(value)
+    }
+  }
+
+  return output
+}
+
+function resolveApiBaseUrl() {
+  const config = useRuntimeConfig()
+  return config.public.apiBase || '/api'
+}
+
+function buildRequestOptions<TBody>(options: ApiRequestOptions<TBody>): ApiFetchConfig {
+  const requestOptions = options.options || {}
+  const data = hasOwn(options, 'body')
+    ? options.body
+    : hasOwn(options, 'data')
+      ? options.data
+      : requestOptions.body
+
+  return {
+    ...requestOptions,
+    method: options.method || 'GET',
+    baseURL: resolveApiBaseUrl(),
+    query: options.query || options.params || requestOptions.query || requestOptions.params,
+    body: data,
+    headers: mergeHeaders(requestOptions.headers, options.headers),
+  }
+}
+
+export async function apiRequest<TResponse = unknown, TBody = unknown>(
+  options: ApiRequestOptions<TBody>,
+): Promise<TResponse> {
+  return await $fetch<TResponse>(resolveUrl(options), buildRequestOptions(options))
+}
+
+function requestWithMethod(method: ApiMethod) {
+  return <TResponse = unknown, TBody = unknown>(
+    endpoint: string,
+    body?: TBody,
+    query?: QueryParams,
+    options?: ApiFetchConfig,
+    headers?: HeaderParams,
+  ) => apiRequest<TResponse, TBody>({ method, endpoint, body, query, options, headers })
+}
+
+export const api = {
+  request: apiRequest,
+  get: requestWithMethod('GET'),
+  post: requestWithMethod('POST'),
+  put: requestWithMethod('PUT'),
+  patch: requestWithMethod('PATCH'),
+  delete: requestWithMethod('DELETE'),
+}
+`,
+  { replaceWhen: [/AxiosRequestConfig/u, /createApiClient/u] },
+)
+
+writeFile(
+  "app/utils/api/helpers.ts",
+  `import { apiRequest, type ApiFetchConfig, type ApiMethod, type HeaderParams, type QueryParams } from './methods'
+
+export type ApiFunction<TResponse = unknown, TBody = unknown> = (
+  endpoint: string,
+  body?: TBody,
+  query?: QueryParams,
+  options?: ApiFetchConfig,
+  headers?: HeaderParams,
+) => Promise<TResponse>
+
+export function callApi<TResponse = unknown, TBody = unknown>(
+  method: ApiMethod,
+  endpoint: string,
+  body?: TBody,
+  query?: QueryParams,
+  options?: ApiFetchConfig,
+  headers?: HeaderParams,
+) {
+  return apiRequest<TResponse, TBody>({
+    method,
+    endpoint,
+    body,
+    query,
+    options,
+    headers,
+  })
+}
+
+export function getApi<TResponse = unknown, TBody = unknown>(
+  endpoint: string,
+  body?: TBody,
+  query?: QueryParams,
+  options?: ApiFetchConfig,
+  headers?: HeaderParams,
+) {
+  return callApi<TResponse, TBody>('GET', endpoint, body, query, options, headers)
+}
+
+export function postApi<TResponse = unknown, TBody = unknown>(
+  endpoint: string,
+  body?: TBody,
+  query?: QueryParams,
+  options?: ApiFetchConfig,
+  headers?: HeaderParams,
+) {
+  return callApi<TResponse, TBody>('POST', endpoint, body, query, options, headers)
+}
+
+export function putApi<TResponse = unknown, TBody = unknown>(
+  endpoint: string,
+  body?: TBody,
+  query?: QueryParams,
+  options?: ApiFetchConfig,
+  headers?: HeaderParams,
+) {
+  return callApi<TResponse, TBody>('PUT', endpoint, body, query, options, headers)
+}
+
+export function patchApi<TResponse = unknown, TBody = unknown>(
+  endpoint: string,
+  body?: TBody,
+  query?: QueryParams,
+  options?: ApiFetchConfig,
+  headers?: HeaderParams,
+) {
+  return callApi<TResponse, TBody>('PATCH', endpoint, body, query, options, headers)
+}
+
+export function deleteApi<TResponse = unknown, TBody = unknown>(
+  endpoint: string,
+  body?: TBody,
+  query?: QueryParams,
+  options?: ApiFetchConfig,
+  headers?: HeaderParams,
+) {
+  return callApi<TResponse, TBody>('DELETE', endpoint, body, query, options, headers)
+}
+`,
+  { replaceWhen: [/AxiosRequestConfig/u] },
+)
+
+writeFile(
+  "app/utils/api/index.ts",
+  `export * from './types'
+export * from './methods'
+export * from './helpers'
+`,
+  { replaceWhen: [/export \* from ['"]\.\/client['"]/u, /export \* from ['"]\.\/token['"]/u, /export \* from ['"]\.\/errors['"]/u] },
+)
+
+writeFile(
+  "app/composables/useApiData.ts",
+  `import { useAsyncData } from '#imports'
+import type { ApiRequestOptions } from '~/utils/api'
+import { apiRequest } from '~/utils/api'
+
+type ApiDataRequest<TBody = unknown> = ApiRequestOptions<TBody> | (() => ApiRequestOptions<TBody>)
+type UseApiDataOptions<TResponse> = Parameters<typeof useAsyncData<TResponse>>[2]
+
+export function useApiData<TResponse = unknown, TBody = unknown>(
+  key: string,
+  request: ApiDataRequest<TBody>,
+  options?: UseApiDataOptions<TResponse>,
+) {
+  return useAsyncData<TResponse>(key, (_nuxtApp, { signal }) => {
+    const resolved = typeof request === 'function' ? request() : request
+
+    return apiRequest<TResponse, TBody>({
+      ...resolved,
+      options: {
+        ...resolved.options,
+        signal,
+      },
+    })
+  }, options)
+}
+`,
+  { replaceWhen: [/resolved\.config/u] },
+)
+
+writeFile(
+  "app/app.vue",
+  `<template>
+  <NuxtRouteAnnouncer />
+  <NuxtLayout>
+    <NuxtPage />
+  </NuxtLayout>
+</template>
+`,
+  { replaceWhen: [/NuxtWelcome/u, /<NuxtRouteAnnouncer \/>[\s\S]*<NuxtPage \/>/u] },
+)
+
+writeFile(
+  "app/layouts/default.vue",
   `<template>
   <div class="min-h-screen bg-slate-50 text-slate-950 antialiased">
     <AppHeader />
@@ -388,11 +718,9 @@ useHead({
 writeFile(
   "app/pages/index.vue",
   `<template>
-  <AppLayout>
-    <HomeHero />
-    <HomeFeature />
-    <HomeContact />
-  </AppLayout>
+  <HomeHero />
+  <HomeFeature />
+  <HomeContact />
 </template>
 
 <script setup lang="ts">
@@ -404,7 +732,7 @@ useSeoMeta({
 })
 </script>
 `,
-  { replaceWhen: [/NuxtWelcome/u, /Welcome to Nuxt/u] },
+  { replaceWhen: [/NuxtWelcome/u, /Welcome to Nuxt/u, /<AppLayout>/u] },
 )
 
 writeFile(

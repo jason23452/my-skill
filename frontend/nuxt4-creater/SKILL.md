@@ -92,11 +92,11 @@ node <skill-dir>/scripts/bootstrap-02-section-architecture.cjs
 它會建立或補齊：
 
 - `app/app.vue`
+- `app/layouts/default.vue`
 - `app/pages/index.vue`
 - `app/content/home/HomeHero.vue`
 - `app/content/home/HomeFeature.vue`
 - `app/content/home/HomeContact.vue`
-- `app/components/app/AppLayout.vue`
 - `app/components/app/AppHeader.vue`
 - `app/components/app/AppFooter.vue`
 - `app/components/ui/BaseContainer.vue`
@@ -105,6 +105,8 @@ node <skill-dir>/scripts/bootstrap-02-section-architecture.cjs
 - `app/components/ui/BaseButton.vue`
 - `app/components/seo/SeoJsonLd.vue`
 - `app/constants/site.ts`
+- `app/utils/api/`：Nuxt `$fetch` transport helpers and method helpers
+- `app/composables/useApiData.ts`：Nuxt `useAsyncData` wrapper around the generated API helpers
 - `app/composables/`、`app/plugins/`、`app/stores/`、`app/types/`、`app/utils/`
 - `server/api/`、`server/routes/`、`server/utils/`
 - `shared/types/`、`shared/utils/`
@@ -118,7 +120,7 @@ node <skill-dir>/scripts/bootstrap-02-section-architecture.cjs
 - `app/app.vue`：應用入口，通常放 `<NuxtLayout>`、`<NuxtPage>` 與 route announcer
 - `app/pages/`：route pages，只做路由層組裝
 - `app/layouts/`：頁面 layout
-- `app/components/app/`：全站框架元件，例如 layout、header、footer
+- `app/components/app/`：全站框架元件，例如 header、footer；頁面 layout 放在 `app/layouts/`
 - `app/components/ui/`：跨頁共用 UI primitives，例如 button、card、container、section
 - `app/components/seo/`：SEO 與 structured data 輔助元件
 - `app/components/<domain>/`：跨頁共用的 domain display components
@@ -163,11 +165,9 @@ Page 範例：
 
 ```vue
 <template>
-  <AppLayout>
-    <HomeHero />
-    <HomeFeature />
-    <HomeContact />
-  </AppLayout>
+  <HomeHero />
+  <HomeFeature />
+  <HomeContact />
 </template>
 
 <script setup lang="ts">
@@ -176,6 +176,17 @@ useSeoMeta({
   description: 'Page description'
 })
 </script>
+```
+
+`app/app.vue` 應啟用官方 layout wrapper：
+
+```vue
+<template>
+  <NuxtRouteAnnouncer />
+  <NuxtLayout>
+    <NuxtPage />
+  </NuxtLayout>
+</template>
 ```
 
 Content section 範例：
@@ -259,7 +270,7 @@ Nuxt pages 命名慣例：
 
 頁面 SEO 優先使用 `useSeoMeta`、`useHead` 或專案既有 SEO helper。新增 route meta 時保持 title、description、canonical、Open Graph 與 JSON-LD 的資料來源一致。
 
-資料請求優先使用 Nuxt 原生能力與專案既有封裝，例如 `$fetch`、`useFetch`、`useAsyncData`、plugin 注入的 API client 或 store action。不要在多個頁面重複硬寫 endpoint、locale、auth header 或 error handling。
+資料請求優先跟隨 Nuxt 官方 data fetching 模式：`useFetch` 用於 setup/route data，`$fetch` 用於事件型互動呼叫，`useAsyncData` 用於包自訂 query function 或需要更細控制的資料流程。若專案另外選擇 `axios-token-baseurl-error`，才使用 Axios 作為 transport，並用 `useAsyncData` 包 Axios helper 取得 Nuxt SSR payload/cache 行為。
 
 環境變數與 API base URL 優先放在 `runtimeConfig`：
 
@@ -275,6 +286,35 @@ export default defineNuxtConfig({
 ```
 
 Client 可讀資料放在 `runtimeConfig.public`；server-only secret 不要放到 public。
+
+## Nuxt Data Fetching And API Calls
+
+Nuxt scaffold does not install Axios by default. It creates lightweight helpers on top of Nuxt's built-in `$fetch` and `useAsyncData`:
+
+- `app/utils/api/types.ts`: common method/query/header/config types
+- `app/utils/api/methods.ts`: `$fetch`-backed dynamic calls such as `api.request({ method, endpoint, body, query, options, headers })`
+- `app/utils/api/helpers.ts`: exported method helpers such as `getApi(endpoint, body, query, options, headers)`
+- `app/composables/useApiData.ts`: `useAsyncData` wrapper around the generated API helper for route/setup data loading
+
+Use direct helpers for event-driven calls:
+
+```ts
+import { postApi } from '~/utils/api'
+
+await postApi('/users', { name: 'Ada' })
+```
+
+Use `useApiData`, `useFetch`, or `useAsyncData` for SSR-aware page data:
+
+```ts
+const { data, error, status } = await useApiData<User[]>('users', {
+  method: 'GET',
+  endpoint: '/users',
+  query: { page: 1 }
+})
+```
+
+When the project explicitly uses Axios, keep Axios in the `axios-token-baseurl-error` skill and follow the same Nuxt rule: direct Axios helpers for event calls, `useAsyncData` around Axios helpers for setup/route data.
 
 ## Nuxt Plugin Warnings
 
