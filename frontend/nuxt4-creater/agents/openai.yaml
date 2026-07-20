@@ -1,4 +1,4 @@
 interface:
-  display_name: "Nuxt4-creater"
-  short_description: "啟動、驗證並維護 Nuxt 4 專案架構與路由規範"
-  default_prompt: "Use $nuxt4-creater to start and work within this Nuxt 4 project structure."
+  display_name: "Nuxt 4 Creator"
+  short_description: "建立 Tailwind 與 Nuxt 4 section 架構"
+  default_prompt: "Use $nuxt4-creater to create a Nuxt 4 project with Tailwind CSS and section composition architecture."
