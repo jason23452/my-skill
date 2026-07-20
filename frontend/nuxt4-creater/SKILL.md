@@ -52,6 +52,7 @@ pnpm create nuxt@latest <project-name>
 
 ```powershell
 pnpm create nuxt@latest . --template v4 --packageManager pnpm --gitInit false --no-install --no-modules --force
+pnpm install --frozen-lockfile=false
 pnpm add -D tailwindcss @tailwindcss/vite
 node <skill-dir>/scripts/bootstrap-01-tailwind-v4.cjs
 node <skill-dir>/scripts/bootstrap-02-section-architecture.cjs
@@ -69,12 +70,13 @@ Bundled bootstrap metadata 是 pnpm 範例。若使用 npm、yarn 或 bun，保�
   "scaffoldCommand": [
     "pnpm create nuxt@latest . --template v4 --packageManager pnpm --gitInit false --no-install --no-modules --force",
     "if test -f .opencode/skills/nuxt4-creater/scripts/bootstrap-00-pnpm-allow-builds.cjs; then node .opencode/skills/nuxt4-creater/scripts/bootstrap-00-pnpm-allow-builds.cjs; else node ${OPENCODE_PROJECT_SKILLS_PRESEEDED_DIR:-/app/.opencode/skills}/nuxt4-creater/scripts/bootstrap-00-pnpm-allow-builds.cjs; fi",
+    "pnpm install --frozen-lockfile=false",
     "pnpm add -D tailwindcss @tailwindcss/vite",
     "if test -f .opencode/skills/nuxt4-creater/scripts/bootstrap-01-tailwind-v4.cjs; then node .opencode/skills/nuxt4-creater/scripts/bootstrap-01-tailwind-v4.cjs; else node ${OPENCODE_PROJECT_SKILLS_PRESEEDED_DIR:-/app/.opencode/skills}/nuxt4-creater/scripts/bootstrap-01-tailwind-v4.cjs; fi",
     "if test -f .opencode/skills/nuxt4-creater/scripts/bootstrap-02-section-architecture.cjs; then node .opencode/skills/nuxt4-creater/scripts/bootstrap-02-section-architecture.cjs; else node ${OPENCODE_PROJECT_SKILLS_PRESEEDED_DIR:-/app/.opencode/skills}/nuxt4-creater/scripts/bootstrap-02-section-architecture.cjs; fi"
   ],
   "verificationCommands": ["pnpm build"],
-  "runtimeSmokeCommand": "pnpm dev --host 127.0.0.1 --port $PORT",
+  "runtimeSmokeCommand": "pnpm exec nuxt dev --host 127.0.0.1 --port $PORT --no-fork",
   "runtimeSmokeHealthUrl": "http://127.0.0.1:$PORT/"
 }
 ```
