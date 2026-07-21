@@ -2,6 +2,58 @@ const fs = require("fs")
 const path = require("path")
 const childProcess = require("child_process")
 
+function readJson(filePath, fallback) {
+  try {
+    return JSON.parse(fs.readFileSync(filePath, "utf8").replace(/^\uFEFF/u, ""))
+  } catch {
+    return fallback
+  }
+}
+
+function detectPackageManager() {
+  if (fs.existsSync("pnpm-lock.yaml")) return "pnpm"
+  if (fs.existsSync("bun.lock") || fs.existsSync("bun.lockb")) return "bun"
+  if (fs.existsSync("yarn.lock")) return "yarn"
+  if (fs.existsSync("package-lock.json")) return "npm"
+  return "npm"
+}
+
+function hasPackage(pkg, name) {
+  return Boolean((pkg.dependencies || {})[name] || (pkg.devDependencies || {})[name])
+}
+
+function run(command, args) {
+  childProcess.execFileSync(command, args, {
+    stdio: "inherit",
+    shell: process.platform === "win32",
+    env: {
+      ...process.env,
+      PLAYWRIGHT_BROWSERS_PATH: process.env.PLAYWRIGHT_BROWSERS_PATH || undefined,
+    },
+  })
+}
+
+function installPackage(packageManager) {
+  const commands = {
+    pnpm: ["pnpm", ["add", "-D", "@playwright/test"]],
+    npm: ["npm", ["install", "-D", "@playwright/test"]],
+    yarn: ["yarn", ["add", "-D", "@playwright/test"]],
+    bun: ["bun", ["add", "-d", "@playwright/test"]],
+  }
+  const [command, args] = commands[packageManager] || commands.npm
+  run(command, args)
+}
+
+function playwrightCommand(packageManager) {
+  const commands = {
+    pnpm: ["pnpm", ["exec", "playwright"]],
+    npm: ["npx", ["playwright"]],
+    yarn: ["yarn", ["playwright"]],
+    bun: ["bunx", ["playwright"]],
+  }
+  return commands[packageManager] || commands.npm
+}
+
 function commandOutput(command, args) {
   try {
     return childProcess.execFileSync(command, args, { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim()
@@ -30,20 +82,27 @@ function resolvePlaywright() {
   return ""
 }
 
-function runPlaywrightInstall() {
-  childProcess.execFileSync("pnpm", ["exec", "playwright", "install", "chromium"], {
-    stdio: "inherit",
-    env: {
-      ...process.env,
-      PLAYWRIGHT_BROWSERS_PATH: process.env.PLAYWRIGHT_BROWSERS_PATH || "/root/.cache/ms-playwright",
-    },
-  })
+function runPlaywrightInstall(packageManager) {
+  const [command, args] = playwrightCommand(packageManager)
+  run(command, [...args, "install", "chromium"])
+}
+
+if (!fs.existsSync("package.json")) {
+  console.log("playwright-e2e-testing: package.json not found; skipped Node Playwright bootstrap.")
+  process.exit(0)
+}
+
+const packageManager = detectPackageManager()
+const pkg = readJson("package.json", {})
+if (!hasPackage(pkg, "@playwright/test")) {
+  console.log(`playwright-e2e-testing: installing @playwright/test with ${packageManager}.`)
+  installPackage(packageManager)
 }
 
 const resolved = resolvePlaywright()
 if (!resolved) {
-  console.log("Playwright package was not resolvable; installing Chromium with repo-local pnpm.")
-  runPlaywrightInstall()
+  console.log("Playwright package was not resolvable after install; installing Chromium with package runner.")
+  runPlaywrightInstall(packageManager)
   process.exit(0)
 }
 
@@ -55,4 +114,4 @@ if (chromiumPath && fs.existsSync(chromiumPath)) {
 }
 
 console.log(`Playwright Chromium missing at expected path: ${chromiumPath || "unknown"}`)
-runPlaywrightInstall()
+runPlaywrightInstall(packageManager)

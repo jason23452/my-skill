@@ -47,7 +47,7 @@ my-skill/
 - `react-vite-feature-based`: React + Vite framework scaffold，包含 `src/app`、`src/features`、`src/shared`、routing、pages、components、hooks、types、assets。
 - `nuxt4-creater`: Nuxt 4 framework scaffold，包含 Nuxt 4 `app/` 架構、section composition、pages、layouts、components、composables、plugins、stores、server routes 與 starter CSS。
 - `axios-token-baseurl-error`: Framework-aware API transport。Vite React/Vue 使用 Axios；Nuxt 使用 `$fetch`。業務 API wrapper 放在 owning feature/domain/module。
-- `playwright-e2e-testing`: Playwright E2E 測試設計、撰寫、執行與除錯。此 skill 不參與 Greenfield framework bootstrap。
+- `playwright-e2e-testing`: 通用 Playwright testing add-on，支援 React、Vue、Nuxt、Next.js、SvelteKit、Astro、Angular、Vite、static frontend 等瀏覽器專案。只有在選用或要求 E2E testing 時執行，不屬於任何 framework scaffold。
 - `ui-kit/nuxt-ui`: Nuxt UI add-on，依賴 Nuxt/Nuxt 4 project，負責 `@nuxt/ui`、Tailwind CSS、Nuxt UI icon collection 與 Nuxt UI config。
 - `ui-kit/coss`: React/Vite coss UI add-on，依賴 React/Vite project，負責 coss/shadcn registry、Base UI、Tailwind v4 與 coss component conventions。
 - `ui-kit/coss-particles`: coss pattern index，只在 coss 已選用或已安裝後用來查找 particles。
@@ -81,6 +81,7 @@ description: 這個 skill 負責什麼，以及何時應該使用。
 - `react-vite-feature-based`
 - `nuxt4-creater`
 - `axios-token-baseurl-error`
+- `playwright-e2e-testing`
 - `ui-kit/nuxt-ui`
 - `ui-kit/coss`
 
