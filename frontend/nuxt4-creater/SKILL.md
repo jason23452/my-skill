@@ -1,6 +1,6 @@
 ---
 name: nuxt4-creater
-description: Nuxt 4 通用專案建立、啟動、驗證與維護。首次建立新專案時 scaffold Nuxt app 與 section composition 架構：共用 components 組成 page-specific content sections，多個 content sections 組成 route pages。當需要建立或初始化 Nuxt 4 專案、建立 app/server/shared 目錄架構、加入 pages、app/content、components、composables、plugins、store、server routes，或處理路由、SEO/meta、runtime config、Nuxt plugin warnings、模組與部署前驗證時使用。
+description: Nuxt 4 通用專案建立、啟動、驗證與維護。首次建立新專案時 scaffold Nuxt app 與 section composition 架構：共用 components 組成 page-specific content sections，多個 content sections 組成 route pages。當需要建立或初始化 Nuxt 4 專案、建立 app/server 與 app/types、app/utils 目錄架構、加入 pages、app/content、components、server API route，或處理路由、SEO/meta、runtime config、Nuxt plugin warnings、模組與部署前驗證時使用。
 ---
 
 # Nuxt 4 通用建立與維護
@@ -14,10 +14,10 @@ description: Nuxt 4 通用專案建立、啟動、驗證與維護。首次建立
 - `package.json`
 - lockfile
 - `nuxt.config.*`
-- `app/`、`server/`、`shared/`、`content/`
+- `app/`、`server/`、`app/types/`、`app/utils/`、`content/`
 - 現有 scripts、CSS 入口、components 設定與 UI library
 
-既有專案優先跟隨當地模式；新專案第一次使用此 skill 時，直接建立此 skill 的預設架構。只有在使用者要求時才把既有 Nuxt 3/root-level 結構遷移到 Nuxt 4 `app/` 結構。
+既有專案優先跟隨當地模式；新專案第一次使用此 skill 時，直接建立此 skill 的預設架構。只有在使用者要求時才把既有 Nuxt 3 舊結構遷移到 Nuxt 4 `app/` 結構。
 
 ## Package Manager
 
@@ -88,7 +88,7 @@ Do not run `pnpm exec nuxt dev` directly from `/workspace` for Nuxt smoke checks
 node <skill-dir>/scripts/bootstrap-02-section-architecture.cjs
 ```
 
-它會建立或補齊：
+Nuxt 4 scaffold 的架構語意是：
 
 - `app/app.vue`
 - `app/layouts/default.vue`
@@ -105,11 +105,10 @@ node <skill-dir>/scripts/bootstrap-02-section-architecture.cjs
 - `app/components/seo/SeoJsonLd.vue`
 - `app/constants/site.ts`
 - `server/api/health.get.ts`
-- `app/composables/`、`app/plugins/`、`app/store/`、`app/types/`、`app/utils/`
-- `server/api/`、`server/routes/`、`server/utils/`
-- `shared/types/`、`shared/utils/`
+- `server/api/`
+- `app/types/`、`app/utils/`
 
-此 script 是 first-use scaffold：它會建立缺少的檔案，並只替換明確可辨識的 Nuxt welcome/default files。對已有自訂內容的既有專案，先讀現況，再手動套用相同架構規則。
+此 script 是 first-use scaffold：它會建立缺少的檔案，並只替換明確可辨識的 Nuxt welcome/default files。對架構做語意判斷時，`app/types` 與 `app/utils` 是 Nuxt 4 預設的型別/工具層；state、API transport、plugin、middleware、composable 與額外 server route 目錄由實際功能需求建立。對已有自訂內容的既有專案，先讀現況，再手動套用相同架構規則。
 
 ## Nuxt 4 目錄結構
 
@@ -124,15 +123,9 @@ node <skill-dir>/scripts/bootstrap-02-section-architecture.cjs
 - `app/components/<domain>/`：跨頁共用的 domain display components
 - `app/constants/`：集中管理站台固定參數，例如站名、導覽、SEO 預設值與 starter content
 - `app/content/<page>/`：頁面專屬 content section components
-- `app/composables/`：auto-imported composables
-- `app/plugins/`：Nuxt plugins
-- `app/middleware/`：route middleware
 - `app/assets/`：會進入 build pipeline 的樣式與資產
-- `app/utils/`：app 端工具函式
+- `app/types/` 與 `app/utils/`：Nuxt app 端型別與工具
 - `server/api/`：`/api/*` server endpoints
-- `server/routes/`：非 `/api` prefix 的 server routes
-- `server/utils/`：Nitro server 端工具函式
-- `shared/types/` 與 `shared/utils/`：前後端共用型別與工具
 - `public/`：原樣公開的靜態檔案
 - `content/`：只有在使用 Nuxt Content module 儲存 Markdown 或 collections 時才建立
 

@@ -39,6 +39,23 @@ function removeGeneratedFile(relativePath, markers) {
   }
 }
 
+function removeEmptyDir(relativePath) {
+  const dirPath = path.join(cwd, relativePath)
+  if (!fs.existsSync(dirPath)) return
+
+  try {
+    if (fs.readdirSync(dirPath).length === 0) {
+      fs.rmdirSync(dirPath)
+    }
+  } catch {
+    // Best-effort cleanup of obsolete empty scaffold folders.
+  }
+}
+
+function normalizeAppUtilityLayout() {
+  ;[path.basename("app/types"), path.basename("app/utils")].forEach(removeEmptyDir)
+}
+
 function findMatchingClose(source, openIndex, openChar, closeChar) {
   let depth = 0
   let quote = null
@@ -439,19 +456,15 @@ function ensureDirectories() {
     "app/middleware",
     "app/pages",
     "app/plugins",
-    "app/store",
     "app/types",
     "app/utils",
     "public",
     "server/api",
-    "server/routes",
-    "server/utils",
-    "shared/types",
-    "shared/utils",
   ].forEach(ensureDir)
 }
 
 ensureDirectories()
+normalizeAppUtilityLayout()
 ensureComponentsAutoImport()
 ensureCssConfig()
 ensureBaseCssFile()
@@ -479,18 +492,18 @@ export const HOME_CONTENT = {
   hero: {
     eyebrow: 'Nuxt 4 Starter',
     title: 'Build pages from reusable content sections.',
-    description: 'Keep route pages focused on SEO and composition while shared UI components handle layout and styling.',
+    description: 'Keep route pages focused on SEO and composition while reusable UI components handle layout and styling.',
     ctaLabel: 'Get started',
     ctaTo: '/',
   },
   features: [
     {
       title: 'Components',
-      description: 'Shared UI primitives live in app/components and stay reusable across pages.',
+      description: 'Reusable UI primitives live in app/components and stay available across pages.',
     },
     {
       title: 'Content',
-      description: 'Page-specific sections live in app/content and compose shared components.',
+      description: 'Page-specific sections live in app/content and compose reusable components.',
     },
     {
       title: 'Pages',
