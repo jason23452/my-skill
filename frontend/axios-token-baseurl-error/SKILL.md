@@ -252,37 +252,15 @@ const users = await getApi<User[]>('/users', { page: 1 }, undefined, {
 const updated = await putApi<User, Partial<User>>('/users/1', undefined, { name: 'Ada' })
 ```
 
-If a feature wants business-named wrappers, define them in the owning feature module and keep the arguments dynamic:
+## Business API Wrappers
+
+Use business-named API wrappers as a thin layer over the generated transport API. Keep the same argument order across Vite React, Vite Vue, and Nuxt:
 
 ```ts
-import { api, type ApiRequestConfig, type QueryParams } from '@/api'
-
-export function getUser<TResponse = User>(
-  endpoint: string,
-  query?: QueryParams,
-  body?: unknown,
-  config?: ApiRequestConfig,
-) {
-  return api.get<TResponse, unknown>(endpoint, query, body, config)
-}
-
-export function updateUser<TResponse = User, TBody = Partial<User>>(
-  endpoint: string,
-  query?: QueryParams,
-  body?: TBody,
-  config?: ApiRequestConfig,
-) {
-  return api.put<TResponse, TBody>(endpoint, query, body, config)
-}
+endpoint, query, body, config
 ```
 
-Keep named business endpoint methods such as `getUsers()` or `createOrder()` in the owning feature or domain module. Keep the scaffolded helper layer framework-aware and transport-level.
-
-## React And Vue Vite SPA Usage
-
-For `react-spa`, `react-vite`, `vue-spa`, and `vue-vite`, treat the project as Vite-based. Keep the generated API client in the repository's existing source convention, usually `src/api`, `src/lib/api`, `src/services/api`, or a matching existing folder.
-
-React hook or query function example:
+Place wrappers in the owning feature, domain, API, service, hook, or composable module. Import `ApiRequestConfig` and `QueryParams` from the generated API transport so the wrapper stays transport-agnostic across axios and `$fetch`.
 
 ```ts
 import { api, type ApiRequestConfig, type QueryParams } from '@/api'
@@ -304,29 +282,58 @@ export function createUser<TResponse = User, TBody = Partial<User>>(
 ) {
   return api.post<TResponse, TBody>(endpoint, query, body, config)
 }
+
+export function updateUser<TResponse = User, TBody = Partial<User>>(
+  endpoint: string,
+  query?: QueryParams,
+  body?: TBody,
+  config?: ApiRequestConfig,
+) {
+  return api.put<TResponse, TBody>(endpoint, query, body, config)
+}
+```
+
+Use the repository's import alias for the generated transport location:
+
+```ts
+import { api, type ApiRequestConfig, type QueryParams } from '~/utils/api'
+```
+
+Call business wrappers from pages, hooks, composables, stores, and query functions:
+
+```ts
+const users = await getUser<User[]>('/users', { page: 1 })
+
+const created = await createUser<User, Partial<User>>(
+  '/users',
+  undefined,
+  { name: 'Ada' },
+)
+```
+
+## React And Vue Vite SPA Usage
+
+For `react-spa`, `react-vite`, `vue-spa`, and `vue-vite`, treat the project as Vite-based. Keep the generated API client in the repository's existing source convention, usually `src/api`, `src/lib/api`, `src/services/api`, or a matching existing folder.
+
+React hook or query function example:
+
+```ts
+import { getUser } from '@/features/users/api'
+
+const users = await getUser<User[]>('/users', { page: 1 })
 ```
 
 Vue composable or Pinia action example:
 
 ```ts
-import { api, type ApiRequestConfig, type QueryParams } from '@/api'
+import { getUser, updateUser } from '@/features/users/api'
 
 export function useUsersApi() {
-  const getUser = <TResponse = User>(
-    endpoint: string,
-    query?: QueryParams,
-    body?: unknown,
-    config?: ApiRequestConfig,
-  ) => api.get<TResponse, unknown>(endpoint, query, body, config)
-
-  const updateUser = <TResponse = User, TBody = Partial<User>>(
-    endpoint: string,
-    query?: QueryParams,
-    body?: TBody,
-    config?: ApiRequestConfig,
-  ) => api.put<TResponse, TBody>(endpoint, query, body, config)
-
-  return { getUser, updateUser }
+  return {
+    getUsers: (page = 1) => getUser<User[]>('/users', { page }),
+    updateUserName: (id: string, name: string) =>
+      updateUser<User, Partial<User>>(`/users/${id}`, undefined, { name }),
+  }
 }
 ```
 
@@ -336,20 +343,7 @@ Use `config` for SPA request cancellation, timeout, credentials, and adapter-spe
 
 When this skill runs in a Nuxt project, generate `$fetch`-backed transport files and use Nuxt's built-in runtime fetch dependency.
 
-For Nuxt, keep business-named API wrappers in the owning API, service, or composable module:
-
-```ts
-import { api, type ApiRequestConfig, type QueryParams } from '~/utils/api'
-
-export function getUser<TResponse = User>(
-  endpoint: string,
-  query?: QueryParams,
-  body?: unknown,
-  config?: ApiRequestConfig,
-) {
-  return api.get<TResponse, unknown>(endpoint, query, body, config)
-}
-```
+For Nuxt, use business-named API wrappers from the owning API, service, or composable module.
 
 Use direct `$fetch`-backed helpers for event-driven calls:
 
@@ -362,6 +356,8 @@ await postApi('/users', undefined, { name: 'Ada' })
 Use Nuxt's `useAsyncData` directly for page initialization or SSR-aware route data:
 
 ```ts
+import { getUser } from '~/api/user'
+
 const query = { page: 1 }
 
 const { data, error, status, refresh } = await useAsyncData('users', () =>
@@ -372,6 +368,8 @@ const { data, error, status, refresh } = await useAsyncData('users', () =>
 When request cancellation matters, pass Nuxt's signal through the normal `config` argument:
 
 ```ts
+import { getUser } from '~/api/user'
+
 const { data, error, status } = await useAsyncData('users', (_nuxtApp, { signal }) =>
   getUser<User[]>('/users', { page: 1 }, undefined, { signal })
 )
