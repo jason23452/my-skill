@@ -42,10 +42,12 @@ Keep this skill focused on the transport layer. Place endpoint registries, CRUD 
 
 Inspect the repository and choose the smallest API client location that matches the project:
 
-1. Reuse an existing Axios, `$fetch`, http, or request client file if one already exists.
-2. Reuse an existing `api`, `http`, `lib`, `services`, `utils`, `composables`, or framework-local folder.
-3. For Nuxt, create generated transport files in `app/utils/api` by default, or `src/utils/api` when the project uses `src` as its source root.
-4. For Vite SPA projects, create generated transport files under the current source root's `api` folder.
+1. Inspect the source architecture before choosing a path; do not assume `src/api`.
+2. Reuse an existing custom Axios, `$fetch`, http, or request client file when it is clearly the project's transport client.
+3. For layered `src/app` + `src/features` + `src/shared` projects, put the generated transport in `src/shared/api`. Keep business endpoint wrappers in `src/features/<feature-name>/api`, service, hook, composable, or store modules owned by that feature.
+4. If a project has `src/app` but no `src/shared`, use `src/app/api` for app-shell transport unless a custom transport client already exists elsewhere.
+5. For Nuxt with a root `app/` directory, create generated transport files in `app/utils/api` by default. For Nuxt projects using `src` layered architecture, follow the `src/shared/api` rule first.
+6. For plain Vite SPA projects without app/shared/feature layers, use the repo's existing API convention or fall back to `src/api`.
 
 When documenting the result, report the chosen folder as "API client location".
 
@@ -314,7 +316,7 @@ const created = await createUser<User, Partial<User>>(
 
 ## React And Vue Vite SPA Usage
 
-For `react-spa`, `react-vite`, `vue-spa`, and `vue-vite`, treat the project as Vite-based. Keep the generated API client in the repository's existing source convention, usually `src/api`, `src/lib/api`, `src/services/api`, or a matching existing folder.
+For `react-spa`, `react-vite`, `vue-spa`, and `vue-vite`, treat the project as Vite-based. Keep the generated API client in the repository's existing architecture: `src/shared/api` for layered app/features/shared projects, `src/app/api` when the app layer owns transport and no shared layer exists, or the existing plain-SPA convention such as `src/api`, `src/lib/api`, or `src/services/api`.
 
 React hook or query function example:
 

@@ -12,18 +12,6 @@ const viteMainCandidates = [
   path.join("main.ts"),
   path.join("main.js"),
 ]
-const nuxtStoreDirCandidates = [
-  path.join("app", "store"),
-  path.join("src", "shared", "store"),
-  path.join("src", "store"),
-  "store",
-]
-const vueViteStoreDirCandidates = [
-  path.join("src", "shared", "store"),
-  path.join("src", "store"),
-  "store",
-]
-
 function abs(filePath) {
   return path.join(cwd, filePath)
 }
@@ -65,13 +53,42 @@ function firstExisting(candidates) {
   return candidates.find(exists)
 }
 
-function featureStoreDirs() {
-  const featureRoot = path.join("src", "features")
-  if (!exists(featureRoot)) return []
+function unique(items) {
+  return [...new Set(items)]
+}
 
-  return fs.readdirSync(abs(featureRoot), { withFileTypes: true })
-    .filter((entry) => entry.isDirectory())
-    .map((entry) => path.join(featureRoot, entry.name, "store"))
+function sourceLayerDirs(layerName) {
+  return [
+    path.join("src", layerName),
+    layerName,
+  ].filter(exists)
+}
+
+function featureStoreDirs() {
+  const featureRoots = sourceLayerDirs("features")
+  const dirs = []
+
+  for (const featureRoot of featureRoots) {
+    dirs.push(
+      ...fs.readdirSync(abs(featureRoot), { withFileTypes: true })
+        .filter((entry) => entry.isDirectory())
+        .map((entry) => path.join(featureRoot, entry.name, "store")),
+    )
+  }
+
+  return dirs
+}
+
+function storeDirCandidates() {
+  return unique([
+    path.join("src", "app", "store"),
+    path.join("app", "store"),
+    path.join("src", "shared", "store"),
+    path.join("shared", "store"),
+    ...featureStoreDirs(),
+    path.join("src", "store"),
+    "store",
+  ])
 }
 
 function detectTarget(manifest) {
@@ -98,8 +115,8 @@ function verifyNuxt(manifest) {
     fail("@pinia/nuxt is missing from nuxt.config modules.")
   }
 
-  const storeDir = firstExisting([...nuxtStoreDirCandidates, ...featureStoreDirs()])
-  if (!storeDir) fail("store directory is missing. Expected app/store, src/shared/store, src/features/<feature>/store, src/store, or store.")
+  const storeDir = firstExisting(storeDirCandidates())
+  if (!storeDir) fail("store directory is missing. Expected src/app/store, app/store, src/shared/store, src/features/<feature>/store, src/store, or store.")
 
   console.log(`pinia verification passed: Nuxt dependencies, @pinia/nuxt module, and store directory ${storeDir} are configured.`)
 }
@@ -118,8 +135,8 @@ function verifyVueVite(manifest) {
     fail("Pinia is not registered with app.use(...) in the Vue app entry.")
   }
 
-  const storeDir = firstExisting([...vueViteStoreDirCandidates, ...featureStoreDirs()])
-  if (!storeDir) fail("store directory is missing. Expected src/shared/store, src/features/<feature>/store, src/store, or store.")
+  const storeDir = firstExisting(storeDirCandidates())
+  if (!storeDir) fail("store directory is missing. Expected src/app/store, src/shared/store, src/features/<feature>/store, src/store, or store.")
 
   console.log(`pinia verification passed: Vue Vite dependency, app entry ${mainPath}, and store directory ${storeDir} are configured.`)
 }

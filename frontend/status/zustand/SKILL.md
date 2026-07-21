@@ -68,11 +68,11 @@ If no lockfile exists, prefer `pnpm` for greenfield work.
 
 Install `zustand`. Zustand does not need a root provider in a plain React SPA; create hook-based store modules and import selectors where state is consumed.
 
-Use the repo's existing singular `store/` convention when one exists. For a plain React Vite project without a convention, use `src/store/`. For the `react-vite-feature-based` scaffold, prefer the placement rules below.
+Inspect the repo's actual source architecture before choosing a store path. Use the existing singular `store/` convention only when it matches the current layout. For a plain React Vite project without app/shared/feature layers, use `src/store/`. For layered React layouts, prefer the placement rules below.
 
 ### React Vite Feature-Based Placement
 
-When the project follows the `react-vite-feature-based` layout with `src/app`, `src/features`, and `src/shared`, place Zustand store files by ownership:
+When the project follows a layered layout with `src/app`, `src/features`, and `src/shared`, place Zustand store files by ownership:
 
 - `src/app/store/` or root-level `app/store/`: app-wide state owned by the app shell, such as session view state, theme preference, command palette state, global drawers, route-independent selection, or other state consumed across multiple features. Use this as the bootstrap default for a starter app store.
 - `src/features/<feature-name>/store/`: state owned by one feature, such as cart state inside `features/cart`, profile-edit draft state inside `features/profile`, or filters for one feature's page set. Feature components, hooks, and router pages should import from their own feature store.
@@ -205,7 +205,7 @@ Name store files by domain, not by widget: `auth-store.ts`, `session-store.ts`, 
 
 For React Vite feature-based projects, choose the store path from the ownership rule before writing code:
 
-- Cross-feature app shell state -> `src/app/store/<domain>-store.ts`
+- Cross-feature app shell state -> `src/app/store/<domain>-store.ts` or `app/store/<domain>-store.ts`, matching the existing app layer.
 - Single-feature state -> `src/features/<feature-name>/store/<domain>-store.ts`
 - Domain-neutral reusable primitive -> `src/shared/store/<domain>-store.ts`
 

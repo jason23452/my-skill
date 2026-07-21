@@ -297,35 +297,52 @@ function isReactFeatureBasedLayout() {
     exists(path.join("src", "shared"))
 }
 
-function featureStoreDirs() {
-  const featureRoot = path.join("src", "features")
-  if (!exists(featureRoot)) return []
-
-  return fs.readdirSync(abs(featureRoot), { withFileTypes: true })
-    .filter((entry) => entry.isDirectory())
-    .flatMap((entry) => [
-      path.join(featureRoot, entry.name, "store"),
-    ])
+function unique(items) {
+  return [...new Set(items)]
 }
 
-function reactViteStoreDirCandidates() {
+function sourceLayerDirs(layerName) {
   return [
+    path.join("src", layerName),
+    layerName,
+  ].filter(exists)
+}
+
+function featureStoreDirs() {
+  const featureRoots = sourceLayerDirs("features")
+  const dirs = []
+
+  for (const featureRoot of featureRoots) {
+    dirs.push(
+      ...fs.readdirSync(abs(featureRoot), { withFileTypes: true })
+        .filter((entry) => entry.isDirectory())
+        .map((entry) => path.join(featureRoot, entry.name, "store")),
+    )
+  }
+
+  return dirs
+}
+
+function layeredStoreDirCandidates() {
+  const candidates = [
     path.join("src", "app", "store"),
     path.join("app", "store"),
     path.join("src", "shared", "store"),
+    path.join("shared", "store"),
     ...featureStoreDirs(),
     path.join("src", "store"),
     "store",
   ]
+
+  return unique(candidates)
+}
+
+function reactViteStoreDirCandidates() {
+  return layeredStoreDirCandidates()
 }
 
 function generatedAppStoreDirCandidates() {
-  return [
-    path.join("src", "app", "store"),
-    path.join("app", "store"),
-    path.join("src", "store"),
-    "store",
-  ]
+  return layeredStoreDirCandidates().filter((storeDir) => !/[/\\]features[/\\][^/\\]+[/\\]store$/u.test(storeDir))
 }
 
 function findExistingStorePath(storeDirs) {
@@ -340,6 +357,8 @@ function selectReactViteStoreDir(mainPath) {
   const existingStoreDir = generatedAppStoreDirCandidates().find((storeDir) => exists(storeDir))
 
   if (existingStoreDir) return existingStoreDir
+  if (exists(path.join("src", "app"))) return path.join("src", "app", "store")
+  if (exists("app")) return path.join("app", "store")
   if (isReactFeatureBasedLayout()) return path.join("src", "app", "store")
   return exists("src") || mainPath.startsWith("src") ? path.join("src", "store") : "store"
 }

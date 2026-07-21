@@ -34,20 +34,6 @@ const pagesAppCandidates = [
 ]
 const appStoreFileNames = ["app-store.ts", "app-store.js", "app-store.tsx", "app-store.jsx"]
 const storeFilePattern = /^[a-z0-9][a-z0-9-]*-store\.(ts|js|tsx|jsx)$/u
-const reactViteStaticStoreDirs = [
-  path.join("src", "app", "store"),
-  path.join("app", "store"),
-  path.join("src", "shared", "store"),
-  path.join("src", "store"),
-  "store",
-]
-const nextStaticStoreDirs = [
-  path.join("src", "app", "store"),
-  path.join("app", "store"),
-  path.join("src", "shared", "store"),
-  path.join("src", "store"),
-  "store",
-]
 const providerCandidates = [
   path.join("src", "providers", "app-store-provider.tsx"),
   path.join("src", "providers", "app-store-provider.jsx"),
@@ -129,29 +115,50 @@ function storeFileCandidates(storeDirs) {
   return [...new Set(candidates)]
 }
 
-function featureStoreDirs() {
-  const featureRoot = path.join("src", "features")
-  if (!exists(featureRoot)) return []
+function unique(items) {
+  return [...new Set(items)]
+}
 
-  return fs.readdirSync(abs(featureRoot), { withFileTypes: true })
-    .filter((entry) => entry.isDirectory())
-    .flatMap((entry) => [
-      path.join(featureRoot, entry.name, "store"),
-    ])
+function sourceLayerDirs(layerName) {
+  return [
+    path.join("src", layerName),
+    layerName,
+  ].filter(exists)
+}
+
+function featureStoreDirs() {
+  const featureRoots = sourceLayerDirs("features")
+  const dirs = []
+
+  for (const featureRoot of featureRoots) {
+    dirs.push(
+      ...fs.readdirSync(abs(featureRoot), { withFileTypes: true })
+        .filter((entry) => entry.isDirectory())
+        .map((entry) => path.join(featureRoot, entry.name, "store")),
+    )
+  }
+
+  return dirs
+}
+
+function storeDirCandidates() {
+  return unique([
+    path.join("src", "app", "store"),
+    path.join("app", "store"),
+    path.join("src", "shared", "store"),
+    path.join("shared", "store"),
+    ...featureStoreDirs(),
+    path.join("src", "store"),
+    "store",
+  ])
 }
 
 function reactViteStoreCandidates() {
-  return storeFileCandidates([
-    ...reactViteStaticStoreDirs,
-    ...featureStoreDirs(),
-  ])
+  return storeFileCandidates(storeDirCandidates())
 }
 
 function nextStoreCandidates() {
-  return storeFileCandidates([
-    ...nextStaticStoreDirs,
-    ...featureStoreDirs(),
-  ])
+  return storeFileCandidates(storeDirCandidates())
 }
 
 function verifyReactVite(manifest) {

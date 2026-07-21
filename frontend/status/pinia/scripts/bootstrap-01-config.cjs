@@ -155,23 +155,53 @@ function firstExisting(candidates) {
   return candidates.find(exists)
 }
 
-function featureStoreDirs() {
-  const featureRoot = path.join("src", "features")
-  if (!exists(featureRoot)) return []
-
-  return fs.readdirSync(abs(featureRoot), { withFileTypes: true })
-    .filter((entry) => entry.isDirectory())
-    .map((entry) => path.join(featureRoot, entry.name, "store"))
+function unique(items) {
+  return [...new Set(items)]
 }
 
-function ensureNuxtStoreDir() {
-  const storeDir = firstExisting([
+function sourceLayerDirs(layerName) {
+  return [
+    path.join("src", layerName),
+    layerName,
+  ].filter(exists)
+}
+
+function featureStoreDirs() {
+  const featureRoots = sourceLayerDirs("features")
+  const dirs = []
+
+  for (const featureRoot of featureRoots) {
+    dirs.push(
+      ...fs.readdirSync(abs(featureRoot), { withFileTypes: true })
+        .filter((entry) => entry.isDirectory())
+        .map((entry) => path.join(featureRoot, entry.name, "store")),
+    )
+  }
+
+  return dirs
+}
+
+function storeDirCandidates() {
+  return unique([
+    path.join("src", "app", "store"),
     path.join("app", "store"),
     path.join("src", "shared", "store"),
+    path.join("shared", "store"),
     ...featureStoreDirs(),
     path.join("src", "store"),
     "store",
-  ]) || (exists("app") ? path.join("app", "store") : "store")
+  ])
+}
+
+function defaultStoreDir(target) {
+  if (exists(path.join("src", "app"))) return path.join("src", "app", "store")
+  if (exists("app")) return path.join("app", "store")
+  if (target === "vue-vite" && exists("src")) return path.join("src", "store")
+  return exists("src") ? path.join("src", "store") : "store"
+}
+
+function ensureNuxtStoreDir() {
+  const storeDir = firstExisting(storeDirCandidates()) || defaultStoreDir("nuxt")
 
   ensureDir(storeDir)
   const keepFile = path.join(storeDir, ".gitkeep")
@@ -237,12 +267,7 @@ function configureVueVite() {
   const current = read(mainPath)
   const withImport = insertPiniaImport(current)
   const next = ensurePiniaRegistration(withImport)
-  const storeDir = firstExisting([
-    path.join("src", "shared", "store"),
-    ...featureStoreDirs(),
-    path.join("src", "store"),
-    "store",
-  ]) || path.join("src", "store")
+  const storeDir = firstExisting(storeDirCandidates()) || defaultStoreDir("vue-vite")
 
   write(mainPath, next.endsWith("\n") ? next : `${next}\n`)
   ensureDir(storeDir)

@@ -98,6 +98,30 @@ function hasAnyFile(dirPath) {
   return fs.readdirSync(dirPath).some((name) => /\.(ts|tsx|js|jsx|vue)$/u.test(name))
 }
 
+function apiFiles(dirPath) {
+  if (!isDirectory(dirPath)) return []
+
+  return fs.readdirSync(dirPath, { withFileTypes: true })
+    .filter((entry) => entry.isFile() && /\.(ts|tsx|js|jsx)$/u.test(entry.name))
+    .map((entry) => path.join(dirPath, entry.name))
+}
+
+function hasManagedGeneratedApiFiles(dirPath) {
+  return apiFiles(dirPath).some((filePath) => {
+    const content = fs.readFileSync(filePath, "utf8")
+    return isManagedGeneratedApiFile(filePath, content)
+  })
+}
+
+function hasCustomApiTransportFile(dirPath) {
+  return apiFiles(dirPath).some((filePath) => {
+    const content = fs.readFileSync(filePath, "utf8")
+    if (isManagedGeneratedApiFile(filePath, content)) return false
+
+    return /axios\.create|\$fetch|apiClient|normalizeApiError|setAccessTokenProvider/u.test(content)
+  })
+}
+
 function usesTypeScript() {
   return exists("tsconfig.json")
     || exists("tsconfig.app.json")
@@ -124,9 +148,85 @@ function detectSourceRoot() {
   return "."
 }
 
-function chooseApiDir(isNuxt) {
-  const candidates = [
+function unique(items) {
+  return [...new Set(items)]
+}
+
+function hasSrcLayeredLayout() {
+  return isDirectory("src") &&
+    (isDirectory(path.join("src", "app")) || isDirectory(path.join("src", "features")) || isDirectory(path.join("src", "shared")))
+}
+
+function preferredApiDirs(isNuxt) {
+  if (isNuxt) {
+    if (hasSrcLayeredLayout()) {
+      return [
+        path.join("src", "shared", "api"),
+        path.join("src", "app", "api"),
+        path.join("src", "utils", "api"),
+        path.join("src", "lib", "api"),
+        path.join("src", "services", "api"),
+      ]
+    }
+
+    if (isDirectory("app")) {
+      return [
+        path.join("app", "utils", "api"),
+        path.join("app", "lib", "api"),
+        path.join("app", "composables", "api"),
+        path.join("app", "api"),
+      ]
+    }
+
+    if (isDirectory("src")) {
+      return [
+        path.join("src", "utils", "api"),
+        path.join("src", "shared", "api"),
+        path.join("src", "lib", "api"),
+        path.join("src", "services", "api"),
+        path.join("src", "api"),
+      ]
+    }
+
+    return [path.join("utils", "api"), "api"]
+  }
+
+  if (hasSrcLayeredLayout()) {
+    return [
+      path.join("src", "shared", "api"),
+      path.join("src", "app", "api"),
+      path.join("src", "lib", "api"),
+      path.join("src", "services", "api"),
+      path.join("src", "utils", "api"),
+    ]
+  }
+
+  const root = detectSourceRoot()
+  if (root === "src") {
+    return [
+      path.join("src", "api"),
+      path.join("src", "lib", "api"),
+      path.join("src", "services", "api"),
+      path.join("src", "utils", "api"),
+      path.join("src", "shared", "api"),
+    ]
+  }
+
+  if (root === "app") {
+    return [
+      path.join("app", "api"),
+      path.join("app", "lib", "api"),
+      path.join("app", "utils", "api"),
+    ]
+  }
+
+  return ["api", path.join("lib", "api"), path.join("services", "api"), path.join("utils", "api")]
+}
+
+function knownApiDirs() {
+  return [
     "src/shared/api",
+    "src/app/api",
     "src/lib/api",
     "src/api",
     "src/services/api",
@@ -140,23 +240,23 @@ function chooseApiDir(isNuxt) {
     "utils/api",
     "api",
   ]
+}
 
-  for (const candidate of candidates) {
-    if (hasAnyFile(candidate)) return candidate
-  }
+function chooseApiDir(isNuxt) {
+  const preferred = unique(preferredApiDirs(isNuxt))
+  const fallbacks = knownApiDirs().filter((candidate) => !preferred.includes(candidate))
+  const candidates = unique([...preferred, ...fallbacks])
 
-  for (const candidate of candidates) {
-    if (isDirectory(candidate)) return candidate
-  }
+  const customApiDir = candidates.find(hasCustomApiTransportFile)
+  if (customApiDir) return customApiDir
 
-  const root = detectSourceRoot()
-  if (isNuxt) {
-    if (root === "src") return path.join("src", "utils", "api")
-    return path.join("app", "utils", "api")
-  }
-  if (root === "src") return path.join("src", "api")
-  if (root === "app") return path.join("app", "utils", "api")
-  return "api"
+  const managedApiDir = preferred.find(hasManagedGeneratedApiFiles)
+  if (managedApiDir) return managedApiDir
+
+  const existingPreferredDir = preferred.find(isDirectory)
+  if (existingPreferredDir) return existingPreferredDir
+
+  return preferred[0] || "api"
 }
 
 const ext = usesTypeScript() ? "ts" : "js"

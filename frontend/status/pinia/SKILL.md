@@ -67,7 +67,7 @@ If no lockfile exists, prefer `pnpm` for greenfield work.
 
 Install `pinia` and `@pinia/nuxt`. Add `@pinia/nuxt` to `nuxt.config.*` modules. Do not create a manual `createPinia()` plugin in Nuxt; Nuxt should own Pinia SSR setup through the module.
 
-Use `app/store/` when the project has the Nuxt 4 `app/` directory. Use `store/` when the project follows the older Nuxt root convention. In feature-based Vue/Nuxt repos, use `src/features/<feature-name>/store/` for feature-owned state and `src/shared/store/` for domain-neutral shared state.
+Inspect the repo's actual source architecture before choosing a store path. Use `app/store/` when the project has the Nuxt 4 root `app/` directory. Use `src/app/store/` when the project has a `src/app` app layer. Use `store/` only when the project follows the older Nuxt root convention. In layered Vue/Nuxt repos, use `src/features/<feature-name>/store/` for feature-owned state and `src/shared/store/` for domain-neutral shared state.
 
 Nuxt store example:
 
@@ -116,7 +116,7 @@ app.use(createPinia())
 app.mount('#app')
 ```
 
-Use `src/store/` by default. In feature-based Vue Vite repos, use `src/features/<feature-name>/store/` for feature-owned state and `src/shared/store/` for domain-neutral shared state.
+For plain Vue Vite repos, use `src/store/` by default. When the repo has `src/app`, use `src/app/store/` for app-level state. In layered Vue Vite repos, use `src/features/<feature-name>/store/` for feature-owned state and `src/shared/store/` for domain-neutral shared state.
 
 Vue Vite store example:
 
@@ -144,7 +144,7 @@ Name store files by domain, not by widget: `auth.ts`, `session.ts`, `cart.ts`, `
 
 For feature-based projects, choose the store path from the ownership rule before writing code:
 
-- App-level or legacy state -> `app/store/<domain>.ts`, `src/store/<domain>.ts`, or `store/<domain>.ts`
+- App-level or legacy state -> `src/app/store/<domain>.ts`, `app/store/<domain>.ts`, `src/store/<domain>.ts`, or `store/<domain>.ts`
 - Single-feature state -> `src/features/<feature-name>/store/<domain>.ts`
 - Domain-neutral reusable primitive -> `src/shared/store/<domain>.ts`
 
