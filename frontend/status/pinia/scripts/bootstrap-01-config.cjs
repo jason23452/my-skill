@@ -159,11 +159,30 @@ function unique(items) {
   return [...new Set(items)]
 }
 
+function rootPath(root, ...segments) {
+  return root === "." ? path.join(...segments) : path.join(root, ...segments)
+}
+
+function sharedFeaturesLayoutRoots() {
+  return ["src", "."].filter((root) => {
+    return (root === "." || exists(root)) &&
+      (exists(rootPath(root, "features")) || exists(rootPath(root, "shared")))
+  })
+}
+
+function sharedFeaturesLayoutRoot() {
+  const roots = sharedFeaturesLayoutRoots()
+  return roots.find((root) => exists(rootPath(root, "shared"))) || roots[0] || ""
+}
+
+function hasSharedFeaturesBasedLayout() {
+  return sharedFeaturesLayoutRoots().length > 0
+}
+
 function sourceLayerDirs(layerName) {
-  return [
-    path.join("src", layerName),
-    layerName,
-  ].filter(exists)
+  return sharedFeaturesLayoutRoots()
+    .map((root) => rootPath(root, layerName))
+    .filter(exists)
 }
 
 function featureStoreDirs() {
@@ -182,22 +201,59 @@ function featureStoreDirs() {
 }
 
 function storeDirCandidates() {
-  return unique([
-    path.join("src", "app", "store"),
-    path.join("app", "store"),
-    path.join("src", "shared", "store"),
-    path.join("shared", "store"),
+  const candidates = [
+    ...sharedFeaturesLayoutRoots().map((root) => rootPath(root, "shared", "store")),
     ...featureStoreDirs(),
-    path.join("src", "store"),
-    "store",
-  ])
+  ]
+
+  if (!hasSharedFeaturesBasedLayout()) {
+    candidates.push(path.join("src", "store"), "store", path.join("src", "app", "store"), path.join("app", "store"))
+  }
+
+  return unique(candidates)
 }
 
 function defaultStoreDir(target) {
-  if (exists(path.join("src", "app"))) return path.join("src", "app", "store")
-  if (exists("app")) return path.join("app", "store")
+  const sharedRoot = sharedFeaturesLayoutRoot()
+  if (hasSharedFeaturesBasedLayout()) return rootPath(sharedRoot, "shared", "store")
+  if (exists(path.join("src", "shared"))) return path.join("src", "shared", "store")
+  if (exists("shared")) return path.join("shared", "store")
+  if (target === "nuxt" && exists("app")) return path.join("app", "store")
   if (target === "vue-vite" && exists("src")) return path.join("src", "store")
   return exists("src") ? path.join("src", "store") : "store"
+}
+
+function removeEmptyDir(dirPath) {
+  try {
+    if (exists(dirPath) && fs.readdirSync(abs(dirPath)).length === 0) fs.rmdirSync(abs(dirPath))
+  } catch {
+    // Best-effort cleanup only.
+  }
+}
+
+function misplacedGeneratedStoreDirs() {
+  return [
+    path.join("src", "app", "store"),
+    path.join("app", "store"),
+    path.join("src", "store"),
+    "store",
+  ]
+}
+
+function removeGeneratedMisplacedStoreKeepFiles(targetDir) {
+  if (!hasSharedFeaturesBasedLayout()) return
+
+  for (const storeDir of misplacedGeneratedStoreDirs()) {
+    if (storeDir === targetDir || !exists(storeDir)) continue
+
+    const keepFile = path.join(storeDir, ".gitkeep")
+    const entries = fs.readdirSync(abs(storeDir))
+    if (entries.length === 1 && entries[0] === ".gitkeep" && exists(keepFile)) {
+      fs.unlinkSync(abs(keepFile))
+      removeEmptyDir(storeDir)
+      console.log(`pinia: removed generated misplaced store placeholder ${keepFile}.`)
+    }
+  }
 }
 
 function ensureNuxtStoreDir() {
@@ -206,6 +262,7 @@ function ensureNuxtStoreDir() {
   ensureDir(storeDir)
   const keepFile = path.join(storeDir, ".gitkeep")
   if (!exists(keepFile)) write(keepFile, "")
+  removeGeneratedMisplacedStoreKeepFiles(storeDir)
 
   return storeDir
 }
@@ -273,6 +330,7 @@ function configureVueVite() {
   ensureDir(storeDir)
   const keepFile = path.join(storeDir, ".gitkeep")
   if (!exists(keepFile)) write(keepFile, "")
+  removeGeneratedMisplacedStoreKeepFiles(storeDir)
 
   console.log(`pinia: configured Vue Vite app entry ${mainPath}; store directory: ${storeDir}.`)
 }

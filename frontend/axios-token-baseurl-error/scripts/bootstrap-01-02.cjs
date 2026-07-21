@@ -142,33 +142,52 @@ function isNuxtProject() {
   }
 }
 
-function detectSourceRoot() {
-  if (isDirectory("src")) return "src"
-  if (isDirectory("app")) return "app"
-  return "."
-}
-
 function unique(items) {
   return [...new Set(items)]
 }
 
-function hasSrcLayeredLayout() {
-  return isDirectory("src") &&
-    (isDirectory(path.join("src", "app")) || isDirectory(path.join("src", "features")) || isDirectory(path.join("src", "shared")))
+function samePath(left, right) {
+  return path.normalize(left) === path.normalize(right)
+}
+
+function includesPath(items, candidate) {
+  return items.some((item) => samePath(item, candidate))
+}
+
+function rootPath(root, ...segments) {
+  return root === "." ? path.join(...segments) : path.join(root, ...segments)
+}
+
+function sharedFeaturesLayoutRoots() {
+  return ["src", "."].filter((root) => {
+    return (root === "." || isDirectory(root)) &&
+      (isDirectory(rootPath(root, "features")) || isDirectory(rootPath(root, "shared")))
+  })
+}
+
+function sharedFeaturesLayoutRoot() {
+  const roots = sharedFeaturesLayoutRoots()
+  return roots.find((root) => isDirectory(rootPath(root, "shared"))) || roots[0] || ""
+}
+
+function hasSharedFeaturesBasedLayout() {
+  return sharedFeaturesLayoutRoots().length > 0
+}
+
+function sharedFeaturesApiDirs() {
+  return sharedFeaturesLayoutRoots().map((root) => rootPath(root, "shared", "api"))
 }
 
 function preferredApiDirs(isNuxt) {
-  if (isNuxt) {
-    if (hasSrcLayeredLayout()) {
-      return [
-        path.join("src", "shared", "api"),
-        path.join("src", "app", "api"),
-        path.join("src", "utils", "api"),
-        path.join("src", "lib", "api"),
-        path.join("src", "services", "api"),
-      ]
-    }
+  if (hasSharedFeaturesBasedLayout()) {
+    const sharedRoot = sharedFeaturesLayoutRoot()
+    return [
+      rootPath(sharedRoot, "shared", "api"),
+      ...sharedFeaturesApiDirs(),
+    ]
+  }
 
+  if (isNuxt) {
     if (isDirectory("app")) {
       return [
         path.join("app", "utils", "api"),
@@ -181,7 +200,6 @@ function preferredApiDirs(isNuxt) {
     if (isDirectory("src")) {
       return [
         path.join("src", "utils", "api"),
-        path.join("src", "shared", "api"),
         path.join("src", "lib", "api"),
         path.join("src", "services", "api"),
         path.join("src", "api"),
@@ -191,32 +209,12 @@ function preferredApiDirs(isNuxt) {
     return [path.join("utils", "api"), "api"]
   }
 
-  if (hasSrcLayeredLayout()) {
-    return [
-      path.join("src", "shared", "api"),
-      path.join("src", "app", "api"),
-      path.join("src", "lib", "api"),
-      path.join("src", "services", "api"),
-      path.join("src", "utils", "api"),
-    ]
-  }
-
-  const root = detectSourceRoot()
-  if (root === "src") {
+  if (isDirectory("src")) {
     return [
       path.join("src", "api"),
       path.join("src", "lib", "api"),
       path.join("src", "services", "api"),
       path.join("src", "utils", "api"),
-      path.join("src", "shared", "api"),
-    ]
-  }
-
-  if (root === "app") {
-    return [
-      path.join("app", "api"),
-      path.join("app", "lib", "api"),
-      path.join("app", "utils", "api"),
     ]
   }
 
@@ -226,6 +224,7 @@ function preferredApiDirs(isNuxt) {
 function knownApiDirs() {
   return [
     "src/shared/api",
+    "shared/api",
     "src/app/api",
     "src/lib/api",
     "src/api",
@@ -242,9 +241,17 @@ function knownApiDirs() {
   ]
 }
 
+function misplacedGeneratedApiDirs() {
+  const sharedApiDirs = sharedFeaturesApiDirs()
+  return knownApiDirs().filter((candidate) => !includesPath(sharedApiDirs, candidate))
+}
+
 function chooseApiDir(isNuxt) {
   const preferred = unique(preferredApiDirs(isNuxt))
-  const fallbacks = knownApiDirs().filter((candidate) => !preferred.includes(candidate))
+  const known = hasSharedFeaturesBasedLayout()
+    ? sharedFeaturesApiDirs()
+    : knownApiDirs()
+  const fallbacks = known.filter((candidate) => !includesPath(preferred, candidate))
   const candidates = unique([...preferred, ...fallbacks])
 
   const customApiDir = candidates.find(hasCustomApiTransportFile)
@@ -257,6 +264,30 @@ function chooseApiDir(isNuxt) {
   if (existingPreferredDir) return existingPreferredDir
 
   return preferred[0] || "api"
+}
+
+function removeGeneratedMisplacedApiFiles(targetDir) {
+  if (!hasSharedFeaturesBasedLayout()) return
+
+  for (const candidateDir of misplacedGeneratedApiDirs()) {
+    if (samePath(candidateDir, targetDir) || !isDirectory(candidateDir)) continue
+
+    const generatedFiles = apiFiles(candidateDir).filter((filePath) => {
+      const content = fs.readFileSync(filePath, "utf8")
+      return isManagedGeneratedApiFile(filePath, content)
+    })
+
+    for (const filePath of generatedFiles) {
+      fs.unlinkSync(filePath)
+      console.log(`axios-token-baseurl-error: removed misplaced generated ${toPosix(filePath)}`)
+    }
+
+    try {
+      if (fs.readdirSync(candidateDir).length === 0) fs.rmdirSync(candidateDir)
+    } catch {
+      // Keep non-empty or externally managed directories intact.
+    }
+  }
 }
 
 const ext = usesTypeScript() ? "ts" : "js"
@@ -1292,5 +1323,6 @@ writeApiFile(path.join(apiDir, `client.${ext}`), clientModule)
 writeApiFile(path.join(apiDir, `methods.${ext}`), methodsModule)
 writeApiFile(path.join(apiDir, `helpers.${ext}`), helpersModule)
 writeApiFile(path.join(apiDir, `index.${ext}`), indexModule)
+removeGeneratedMisplacedApiFiles(apiDir)
 
 console.log(`axios-token-baseurl-error: API client location ${toPosix(apiDir)}`)

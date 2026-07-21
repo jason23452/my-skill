@@ -11,7 +11,7 @@ description: "Framework-aware frontend API client skill for Vite-based React SPA
 {
   "role": "frontend",
   "category": "api-client",
-  "frameworks": ["frontend", "vite", "vite-spa", "react-spa", "react-vite", "vue-spa", "vue-vite", "nuxt", "nuxt4"],
+  "frameworks": ["frontend", "vite", "vite-spa", "react-spa", "react-vite", "vue-spa", "vue-vite", "nuxt", "nuxt-spa", "nuxt4"],
   "order": 20,
   "packageManager": "node",
   "scaffoldCommand": [
@@ -44,10 +44,11 @@ Inspect the repository and choose the smallest API client location that matches 
 
 1. Inspect the source architecture before choosing a path; do not assume `src/api`.
 2. Reuse an existing custom Axios, `$fetch`, http, or request client file when it is clearly the project's transport client.
-3. For layered `src/app` + `src/features` + `src/shared` projects, put the generated transport in `src/shared/api`. Keep business endpoint wrappers in `src/features/<feature-name>/api`, service, hook, composable, or store modules owned by that feature.
-4. If a project has `src/app` but no `src/shared`, use `src/app/api` for app-shell transport unless a custom transport client already exists elsewhere.
-5. For Nuxt with a root `app/` directory, create generated transport files in `app/utils/api` by default. For Nuxt projects using `src` layered architecture, follow the `src/shared/api` rule first.
-6. For plain Vite SPA projects without app/shared/feature layers, use the repo's existing API convention or fall back to `src/api`.
+3. For shared/features based projects, use only `src/shared` + `src/features` or root `shared` + `features` as the layer signal. Put the generated transport in `src/shared/api` or `shared/api`, matching the repo root convention.
+4. Keep business endpoint wrappers in `src/features/<feature-name>/api`, `features/<feature-name>/api`, service, hook, composable, or store modules owned by that feature.
+5. Treat `app/` and `src/app/` as router/app composition. Do not choose app-layer folders as shared/features transport locations; use `src/shared/api` or `shared/api` instead.
+6. For Nuxt with a root `app/` directory and no shared/features layout, create generated transport files in `app/utils/api` by default. For Nuxt/Nuxt-SPA projects using shared/features architecture, follow the `src/shared/api` or `shared/api` rule first.
+7. For plain Vite SPA projects without shared/features layers, use the repo's existing API convention or fall back to `src/api`.
 
 When documenting the result, report the chosen folder as "API client location".
 
@@ -316,7 +317,7 @@ const created = await createUser<User, Partial<User>>(
 
 ## React And Vue Vite SPA Usage
 
-For `react-spa`, `react-vite`, `vue-spa`, and `vue-vite`, treat the project as Vite-based. Keep the generated API client in the repository's existing architecture: `src/shared/api` for layered app/features/shared projects, `src/app/api` when the app layer owns transport and no shared layer exists, or the existing plain-SPA convention such as `src/api`, `src/lib/api`, or `src/services/api`.
+For `react-spa`, `react-vite`, `vue-spa`, and `vue-vite`, treat the project as Vite-based. Keep the generated API client in the repository's existing architecture: `src/shared/api` or `shared/api` for shared/features based projects, or the existing plain-SPA convention such as `src/api`, `src/lib/api`, or `src/services/api` when no shared/features layer exists. Do not put generated shared transport under `app/` or `src/app/` in shared/features based projects.
 
 React hook or query function example:
 

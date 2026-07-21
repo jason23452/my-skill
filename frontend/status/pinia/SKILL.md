@@ -23,7 +23,7 @@ This skill is a frontend state add-on. Select it only after the primary frontend
   "role": "frontend",
   "category": "state",
   "state": "pinia",
-  "frameworks": ["vue", "vue-spa", "vue-vite", "nuxt", "nuxt4"],
+  "frameworks": ["vue", "vue-spa", "vue-vite", "nuxt", "nuxt4", "nuxt-spa"],
   "order": 25,
   "packageManager": "node",
   "scaffoldCommand": [
@@ -67,7 +67,7 @@ If no lockfile exists, prefer `pnpm` for greenfield work.
 
 Install `pinia` and `@pinia/nuxt`. Add `@pinia/nuxt` to `nuxt.config.*` modules. Do not create a manual `createPinia()` plugin in Nuxt; Nuxt should own Pinia SSR setup through the module.
 
-Inspect the repo's actual source architecture before choosing a store path. Use `app/store/` when the project has the Nuxt 4 root `app/` directory. Use `src/app/store/` when the project has a `src/app` app layer. Use `store/` only when the project follows the older Nuxt root convention. In layered Vue/Nuxt repos, use `src/features/<feature-name>/store/` for feature-owned state and `src/shared/store/` for domain-neutral shared state.
+Inspect the repo's actual source architecture before choosing a store path. Use `app/store/` only for the Nuxt root `app/` directory convention when the project is not organized around `shared` and `features`. In shared/features based Vue/Nuxt/Nuxt-SPA repos, use `features/<feature-name>/store/` or `src/features/<feature-name>/store/` for feature-owned state and `shared/store/` or `src/shared/store/` for shared cross-feature state. Treat `app/` and `src/app` as router/app composition, not shared store locations.
 
 Nuxt store example:
 
@@ -116,7 +116,7 @@ app.use(createPinia())
 app.mount('#app')
 ```
 
-For plain Vue Vite repos, use `src/store/` by default. When the repo has `src/app`, use `src/app/store/` for app-level state. In layered Vue Vite repos, use `src/features/<feature-name>/store/` for feature-owned state and `src/shared/store/` for domain-neutral shared state.
+For plain Vue Vite repos without shared/features folders, use `src/store/` by default. In shared/features based Vue Vite or Nuxt-SPA repos, use `features/<feature-name>/store/` or `src/features/<feature-name>/store/` for feature-owned state and `shared/store/` or `src/shared/store/` for shared cross-feature state. Treat `app/` and `src/app` as router/app composition, not shared store locations.
 
 Vue Vite store example:
 
@@ -144,9 +144,10 @@ Name store files by domain, not by widget: `auth.ts`, `session.ts`, `cart.ts`, `
 
 For feature-based projects, choose the store path from the ownership rule before writing code:
 
-- App-level or legacy state -> `src/app/store/<domain>.ts`, `app/store/<domain>.ts`, `src/store/<domain>.ts`, or `store/<domain>.ts`
-- Single-feature state -> `src/features/<feature-name>/store/<domain>.ts`
-- Domain-neutral reusable primitive -> `src/shared/store/<domain>.ts`
+- Cross-feature shared state -> `src/shared/store/<domain>.ts` or `shared/store/<domain>.ts`, matching the repo root convention.
+- Single-feature state -> `src/features/<feature-name>/store/<domain>.ts` or `features/<feature-name>/store/<domain>.ts`, matching the repo root convention.
+- Legacy/plain-SPA state -> `src/store/<domain>.ts`, `store/<domain>.ts`, or root `app/store/<domain>.ts` only when that is the established Nuxt convention.
+- Router/app composition state should stay local to `app` or `src/app` components unless it is shared across features; shared state still belongs in `shared/store` or `src/shared/store`.
 
 Prefer setup-style store definitions for new Vue 3 code unless the repo already uses option-style store definitions consistently. Return all reactive state from setup-style definitions so Pinia can track state, devtools, SSR, and plugins correctly.
 

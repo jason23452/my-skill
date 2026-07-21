@@ -119,11 +119,25 @@ function unique(items) {
   return [...new Set(items)]
 }
 
+function rootPath(root, ...segments) {
+  return root === "." ? path.join(...segments) : path.join(root, ...segments)
+}
+
+function sharedFeaturesLayoutRoots() {
+  return ["src", "."].filter((root) => {
+    return (root === "." || exists(root)) &&
+      (exists(rootPath(root, "features")) || exists(rootPath(root, "shared")))
+  })
+}
+
+function hasSharedFeaturesBasedLayout() {
+  return sharedFeaturesLayoutRoots().length > 0
+}
+
 function sourceLayerDirs(layerName) {
-  return [
-    path.join("src", layerName),
-    layerName,
-  ].filter(exists)
+  return sharedFeaturesLayoutRoots()
+    .map((root) => rootPath(root, layerName))
+    .filter(exists)
 }
 
 function featureStoreDirs() {
@@ -142,15 +156,16 @@ function featureStoreDirs() {
 }
 
 function storeDirCandidates() {
-  return unique([
-    path.join("src", "app", "store"),
-    path.join("app", "store"),
-    path.join("src", "shared", "store"),
-    path.join("shared", "store"),
+  const candidates = [
+    ...sharedFeaturesLayoutRoots().map((root) => rootPath(root, "shared", "store")),
     ...featureStoreDirs(),
-    path.join("src", "store"),
-    "store",
-  ])
+  ]
+
+  if (!hasSharedFeaturesBasedLayout()) {
+    candidates.push(path.join("src", "store"), "store", path.join("src", "app", "store"), path.join("app", "store"))
+  }
+
+  return unique(candidates)
 }
 
 function reactViteStoreCandidates() {
@@ -166,7 +181,7 @@ function verifyReactVite(manifest) {
 
   const storePath = firstExisting(reactViteStoreCandidates())
   if (!storePath) {
-    fail("store file is missing from app/store, src/app/store, src/shared/store, src/features/<feature>/store, src/store, or store.")
+    fail("store file is missing. In shared/features based layouts, shared stores belong in src/shared/store or shared/store, and feature stores belong in src/features/<feature>/store or features/<feature>/store; do not place shared stores under app/store, src/app/store, src/store, or store.")
   }
 
   const source = read(storePath)
@@ -182,7 +197,7 @@ function verifyNext(manifest) {
 
   const storePath = firstExisting(nextStoreCandidates())
   if (!storePath) {
-    fail("store file is missing from app/store, src/app/store, src/shared/store, src/features/<feature>/store, src/store, or store.")
+    fail("store file is missing. In shared/features based layouts, shared stores belong in src/shared/store or shared/store, and feature stores belong in src/features/<feature>/store or features/<feature>/store; do not place shared stores under app/store, src/app/store, src/store, or store.")
   }
 
   const storeSource = read(storePath)

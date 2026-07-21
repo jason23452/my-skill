@@ -297,15 +297,34 @@ function isReactFeatureBasedLayout() {
     exists(path.join("src", "shared"))
 }
 
+function rootPath(root, ...segments) {
+  return root === "." ? path.join(...segments) : path.join(root, ...segments)
+}
+
+function sharedFeaturesLayoutRoots() {
+  return ["src", "."].filter((root) => {
+    return (root === "." || exists(root)) &&
+      (exists(rootPath(root, "features")) || exists(rootPath(root, "shared")))
+  })
+}
+
+function sharedFeaturesLayoutRoot() {
+  const roots = sharedFeaturesLayoutRoots()
+  return roots.find((root) => exists(rootPath(root, "shared"))) || roots[0] || ""
+}
+
+function hasSharedFeaturesBasedLayout() {
+  return sharedFeaturesLayoutRoots().length > 0
+}
+
 function unique(items) {
   return [...new Set(items)]
 }
 
 function sourceLayerDirs(layerName) {
-  return [
-    path.join("src", layerName),
-    layerName,
-  ].filter(exists)
+  return sharedFeaturesLayoutRoots()
+    .map((root) => rootPath(root, layerName))
+    .filter(exists)
 }
 
 function featureStoreDirs() {
@@ -325,14 +344,13 @@ function featureStoreDirs() {
 
 function layeredStoreDirCandidates() {
   const candidates = [
-    path.join("src", "app", "store"),
-    path.join("app", "store"),
-    path.join("src", "shared", "store"),
-    path.join("shared", "store"),
+    ...sharedFeaturesLayoutRoots().map((root) => rootPath(root, "shared", "store")),
     ...featureStoreDirs(),
-    path.join("src", "store"),
-    "store",
   ]
+
+  if (!hasSharedFeaturesBasedLayout()) {
+    candidates.push(path.join("src", "store"), "store", path.join("src", "app", "store"), path.join("app", "store"))
+  }
 
   return unique(candidates)
 }
@@ -355,23 +373,88 @@ function findExistingStorePath(storeDirs) {
 
 function selectReactViteStoreDir(mainPath) {
   const existingStoreDir = generatedAppStoreDirCandidates().find((storeDir) => exists(storeDir))
+  const sharedRoot = sharedFeaturesLayoutRoot()
 
   if (existingStoreDir) return existingStoreDir
-  if (exists(path.join("src", "app"))) return path.join("src", "app", "store")
-  if (exists("app")) return path.join("app", "store")
-  if (isReactFeatureBasedLayout()) return path.join("src", "app", "store")
+  if (hasSharedFeaturesBasedLayout()) return rootPath(sharedRoot, "shared", "store")
+  if (isReactFeatureBasedLayout()) return path.join("src", "shared", "store")
+  if (exists(path.join("src", "shared"))) return path.join("src", "shared", "store")
+  if (exists("shared")) return path.join("shared", "store")
   return exists("src") || mainPath.startsWith("src") ? path.join("src", "store") : "store"
+}
+
+function isGeneratedStarterAppStore(source) {
+  return source.includes("export const useAppStore") &&
+    source.includes("count: 0") &&
+    source.includes("increment:") &&
+    source.includes("reset:") &&
+    /from\s*['"]zustand['"]/u.test(source)
+}
+
+function removeEmptyDir(dirPath) {
+  try {
+    if (exists(dirPath) && fs.readdirSync(abs(dirPath)).length === 0) fs.rmdirSync(abs(dirPath))
+  } catch {
+    // Best-effort cleanup only.
+  }
+}
+
+function misplacedGeneratedStoreDirs() {
+  return [
+    path.join("src", "app", "store"),
+    path.join("app", "store"),
+    path.join("src", "store"),
+    "store",
+  ]
+}
+
+function removeGeneratedMisplacedStoreKeepFiles(targetDir) {
+  if (!hasSharedFeaturesBasedLayout()) return
+
+  for (const storeDir of misplacedGeneratedStoreDirs()) {
+    if (storeDir === targetDir || !exists(storeDir)) continue
+
+    const keepFile = path.join(storeDir, ".gitkeep")
+    const entries = fs.readdirSync(abs(storeDir))
+    if (entries.length === 1 && entries[0] === ".gitkeep" && exists(keepFile)) {
+      fs.unlinkSync(abs(keepFile))
+      removeEmptyDir(storeDir)
+      console.log(`zustand: removed generated misplaced store placeholder ${keepFile}.`)
+    }
+  }
+}
+
+function migrateGeneratedMisplacedStore(targetPath) {
+  const misplacedStorePaths = misplacedGeneratedStoreDirs()
+    .flatMap((storeDir) => appStoreFileNames.map((fileName) => path.join(storeDir, fileName)))
+
+  for (const sourcePath of misplacedStorePaths) {
+    if (!exists(sourcePath)) continue
+
+    const source = read(sourcePath)
+    if (!isGeneratedStarterAppStore(source)) continue
+
+    write(targetPath, source)
+    fs.unlinkSync(abs(sourcePath))
+    removeGeneratedMisplacedStoreKeepFiles(path.dirname(targetPath))
+    removeEmptyDir(path.dirname(sourcePath))
+    console.log(`zustand: migrated generated misplaced store ${sourcePath} to ${targetPath}.`)
+    return true
+  }
+
+  return false
 }
 
 function configureReactVite() {
   const mainPath = reactEntryCandidates.find(exists) || ""
   const isTs = usesTypeScript(mainPath)
-  const existingStorePath = findExistingStorePath(reactViteStoreDirCandidates())
+  const existingStorePath = findExistingStorePath(generatedAppStoreDirCandidates())
   const storeDir = existingStorePath ? path.dirname(existingStorePath) : selectReactViteStoreDir(mainPath)
   const storePath = existingStorePath || path.join(storeDir, `app-store${extensionFor("module", isTs)}`)
 
   ensureDir(storeDir)
-  if (!exists(storePath)) write(storePath, createReactViteStoreSource(isTs))
+  if (!exists(storePath) && !migrateGeneratedMisplacedStore(storePath)) write(storePath, createReactViteStoreSource(isTs))
+  removeGeneratedMisplacedStoreKeepFiles(storeDir)
 
   console.log(`zustand: configured React Vite store ${storePath}; no root provider is required.`)
 }
@@ -464,11 +547,12 @@ function configureNext() {
   const isTs = usesTypeScript(entryPath)
   const usesSrcRoot = entryPath.startsWith("src") || (!entryPath && exists("src"))
   const rootPrefix = usesSrcRoot ? "src" : ""
-  const existingStorePath = findExistingStorePath(reactViteStoreDirCandidates())
+  const existingStorePath = findExistingStorePath(generatedAppStoreDirCandidates())
+  const sharedRoot = sharedFeaturesLayoutRoot()
   const storeDir = existingStorePath
     ? path.dirname(existingStorePath)
-    : existingLayoutPath
-      ? path.join(path.dirname(existingLayoutPath), "store")
+    : hasSharedFeaturesBasedLayout()
+      ? rootPath(sharedRoot, "shared", "store")
       : rootPrefix
         ? path.join(rootPrefix, "store")
         : "store"

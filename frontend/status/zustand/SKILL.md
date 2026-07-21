@@ -68,15 +68,15 @@ If no lockfile exists, prefer `pnpm` for greenfield work.
 
 Install `zustand`. Zustand does not need a root provider in a plain React SPA; create hook-based store modules and import selectors where state is consumed.
 
-Inspect the repo's actual source architecture before choosing a store path. Use the existing singular `store/` convention only when it matches the current layout. For a plain React Vite project without app/shared/feature layers, use `src/store/`. For layered React layouts, prefer the placement rules below.
+Inspect the repo's actual source architecture before choosing a store path. Use the existing singular `store/` convention only when it matches the current layout. For a plain React Vite project without shared/features folders, use `src/store/`. For shared/features based React layouts, prefer the placement rules below.
 
 ### React Vite Feature-Based Placement
 
-When the project follows a layered layout with `src/app`, `src/features`, and `src/shared`, place Zustand store files by ownership:
+When the project follows a shared/features based layout with `features` and `shared` under `src/` or the repo root, place Zustand store files by ownership:
 
-- `src/app/store/` or root-level `app/store/`: app-wide state owned by the app shell, such as session view state, theme preference, command palette state, global drawers, route-independent selection, or other state consumed across multiple features. Use this as the bootstrap default for a starter app store.
-- `src/features/<feature-name>/store/`: state owned by one feature, such as cart state inside `features/cart`, profile-edit draft state inside `features/profile`, or filters for one feature's page set. Feature components, hooks, and router pages should import from their own feature store.
-- `src/shared/store/`: rare, domain-neutral shared state primitives used by multiple features when the state is not owned by the app shell or one feature. Do not put feature business state here only because two features need it; first consider whether one feature should expose a hook or action boundary.
+- `src/shared/store/` or `shared/store/`: shared state used across features, such as session view state, theme preference, command palette state, global drawers, route-independent selection, or other state consumed across multiple features. Use this as the bootstrap default for a starter shared store.
+- `src/features/<feature-name>/store/` or `features/<feature-name>/store/`: state owned by one feature, such as cart state inside `features/cart`, profile-edit draft state inside `features/profile`, or filters for one feature's page set. Feature components, hooks, and router pages should import from their own feature store.
+- `app/` or `src/app/`: router and app composition layer only in this architecture. Do not place shared state or generated starter stores under `app/store` or `src/app/store`.
 - `src/store/` or `store/`: legacy or existing-project fallback. Do not create these in a fresh `react-vite-feature-based` scaffold unless the repo already uses them.
 
 Keep feature boundaries one-way: `src/app` can compose features, features can use `src/shared`, and `src/shared` must not import from `src/features`.
@@ -205,9 +205,9 @@ Name store files by domain, not by widget: `auth-store.ts`, `session-store.ts`, 
 
 For React Vite feature-based projects, choose the store path from the ownership rule before writing code:
 
-- Cross-feature app shell state -> `src/app/store/<domain>-store.ts` or `app/store/<domain>-store.ts`, matching the existing app layer.
-- Single-feature state -> `src/features/<feature-name>/store/<domain>-store.ts`
-- Domain-neutral reusable primitive -> `src/shared/store/<domain>-store.ts`
+- Cross-feature shared state -> `src/shared/store/<domain>-store.ts` or `shared/store/<domain>-store.ts`, matching the repo root convention.
+- Single-feature state -> `src/features/<feature-name>/store/<domain>-store.ts` or `features/<feature-name>/store/<domain>-store.ts`, matching the repo root convention.
+- Router/app composition state should stay local to `app` or `src/app` components unless it is shared across features; shared state still belongs in `shared/store` or `src/shared/store`.
 
 Keep selectors small and stable. Do not destructure the whole store in components unless the component truly needs every field.
 
