@@ -699,6 +699,14 @@ useSeoMeta({
 )
 
 writeFile(
+  "server/api/health.get.ts",
+  `export default defineEventHandler(() => {
+  return { ok: true }
+})
+`,
+)
+
+writeFile(
   "app/content/home/HomeHero.vue",
   `<template>
   <BaseSection>

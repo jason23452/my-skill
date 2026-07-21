@@ -85,7 +85,8 @@ const devScriptCommand = pkg.scripts?.dev
   ? packageRunCommand(packageManager, "dev", "-- --host 127.0.0.1 --port ${port}")
   : ""
 
-writeFileIfMissing("playwright.config.ts", `import { defineConfig, devices } from "@playwright/test";
+writeFileIfMissing("playwright.config.ts", `import { existsSync } from "node:fs";
+import { defineConfig, devices } from "@playwright/test";
 
 const port = process.env.PLAYWRIGHT_PORT ?? "${defaultPort}";
 const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? \`http://127.0.0.1:\${port}\`;
@@ -93,10 +94,20 @@ const detectedFramework = ${JSON.stringify(framework)};
 const packageManager = ${JSON.stringify(packageManager)};
 const execPrefix = ${JSON.stringify(execPrefix)};
 const devScriptCommand = ${JSON.stringify(devScriptCommand)};
+const hasNuxtHealthRoute = existsSync("server/api/health.get.ts") || existsSync("server/api/health.ts");
+const webServerURL = process.env.PLAYWRIGHT_WEB_SERVER_URL ?? (detectedFramework === "nuxt" && hasNuxtHealthRoute ? \`\${baseURL}/api/health\` : baseURL);
+
+function nuxtSandboxWebServerCommand() {
+  const localScript = ".opencode/skills/nuxt4-creater/scripts/runtime-smoke-sandbox.cjs";
+  const preseedRoot = process.env.OPENCODE_PROJECT_SKILLS_PRESEEDED_DIR ?? "/app/.opencode/skills";
+  const preseedScript = \`\${preseedRoot}/nuxt4-creater/scripts/runtime-smoke-sandbox.cjs\`;
+  const fallback = \`\${execPrefix} nuxt dev --host 127.0.0.1 --port \${port} --no-fork\`;
+  return \`if test -f "\${localScript}"; then node "\${localScript}" --cwd . --port \${port}; elif test -f "\${preseedScript}"; then node "\${preseedScript}" --cwd . --port \${port}; else \${fallback}; fi\`;
+}
 
 function defaultWebServerCommand() {
   if (process.env.PLAYWRIGHT_WEB_SERVER_COMMAND) return process.env.PLAYWRIGHT_WEB_SERVER_COMMAND;
-  if (detectedFramework === "nuxt") return \`\${execPrefix} nuxt dev --host 127.0.0.1 --port \${port} --no-fork\`;
+  if (detectedFramework === "nuxt") return nuxtSandboxWebServerCommand();
   if (detectedFramework === "next") return \`\${execPrefix} next dev -H 127.0.0.1 -p \${port}\`;
   if (detectedFramework === "sveltekit") return \`\${execPrefix} vite dev --host 127.0.0.1 --port \${port} --strictPort\`;
   if (detectedFramework === "astro") return \`\${execPrefix} astro dev --host 127.0.0.1 --port \${port}\`;
@@ -127,7 +138,8 @@ export default defineConfig({
   ],
   webServer: {
     command: defaultWebServerCommand(),
-    url: baseURL,
+    url: webServerURL,
+    timeout: Number(process.env.PLAYWRIGHT_WEB_SERVER_TIMEOUT_MS ?? 120000),
     reuseExistingServer: !process.env.CI,
   },
 });

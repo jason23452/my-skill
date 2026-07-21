@@ -23,10 +23,13 @@ description: "建立與維護 FastAPI 後端專案架構、feature 模組、rout
   "verificationCommands": [
     "uv run python -m compileall app"
   ],
-  "runtimeSmokeCommand": "uv run uvicorn app.main:app --host 127.0.0.1 --port $PORT",
+  "runtimeSmokeCommand": "if test -f .opencode/skills/backend-feature-fastapi/scripts/runtime-smoke-sandbox.cjs; then node .opencode/skills/backend-feature-fastapi/scripts/runtime-smoke-sandbox.cjs --cwd \"$PWD\" --port $PORT; else node ${OPENCODE_PROJECT_SKILLS_PRESEEDED_DIR:-/app/.opencode/skills}/backend-feature-fastapi/scripts/runtime-smoke-sandbox.cjs --cwd \"$PWD\" --port $PORT; fi",
   "runtimeSmokeHealthUrl": "http://127.0.0.1:$PORT/health"
 }
 ```
+
+Runtime smoke in OpenCode Project Flow must use `scripts/runtime-smoke-sandbox.cjs`.
+Do not run `uv run uvicorn` directly from `/workspace` for smoke checks; Docker bind mounts can make runtime readiness unreliable. Keep `/health` as the liveness endpoint.
 
 這個 skill 負責 FastAPI 後端的 HTTP feature 結構與應用程式組裝。資料庫、ORM、migration、Docker database service 等資料持久層需求由 `pgdb-docker-orm` skill 負責。
 

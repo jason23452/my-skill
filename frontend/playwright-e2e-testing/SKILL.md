@@ -44,6 +44,7 @@ Keep framework setup, UI kits, API clients, backend services, database services,
 
 - Detect the target app from `package.json`, lockfiles, config files, and scripts.
 - Prefer the app's existing dev/start script when it is reliable.
+- For Nuxt projects in OpenCode Project Flow, prefer the `nuxt4-creater/scripts/runtime-smoke-sandbox.cjs` web server wrapper so Nuxt dev runs from a container-native temp directory instead of `/workspace`.
 - Use `PLAYWRIGHT_WEB_SERVER_COMMAND` when the dev server needs custom startup.
 - Use `PLAYWRIGHT_BASE_URL` when the app is already running or uses a custom URL.
 - Keep tests user-observable: assert roles, labels, headings, URLs, visible text, and stable test ids.
@@ -94,6 +95,7 @@ export default defineConfig({
   webServer: {
     command: process.env.PLAYWRIGHT_WEB_SERVER_COMMAND ?? 'npm run dev',
     url: baseURL,
+    timeout: 120000,
     reuseExistingServer: !process.env.CI,
   },
 })

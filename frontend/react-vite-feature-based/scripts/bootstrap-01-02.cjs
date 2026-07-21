@@ -38,6 +38,11 @@ tsconfigApp.compilerOptions = {
 fs.writeFileSync("tsconfig.app.json", JSON.stringify(tsconfigApp, null, 2))
 
 writeFile(
+  "public/__opencode_health.txt",
+  "ok\n",
+)
+
+writeFile(
   "src/index.css",
   ':root {\n  color: #0f172a;\n  background: #f8fafc;\n  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;\n}\n\n* {\n  box-sizing: border-box;\n}\n\nbody {\n  margin: 0;\n  min-width: 320px;\n  background: #f8fafc;\n}\n\n.app-page {\n  min-height: 100vh;\n  padding: 3rem 1.5rem;\n}\n\n.app-panel {\n  max-width: 48rem;\n  margin: 0 auto;\n  border: 1px solid #e2e8f0;\n  border-radius: 0.75rem;\n  background: #ffffff;\n  padding: 2rem;\n  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);\n}\n\n.app-title {\n  margin: 0;\n  color: #0f172a;\n  font-size: clamp(2rem, 5vw, 3rem);\n  line-height: 1;\n}\n',
 )

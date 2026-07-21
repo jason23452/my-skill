@@ -72,10 +72,13 @@ Bundled bootstrap metadata 是 pnpm 範例。若使用 npm、yarn 或 bun，保�
     "if test -f .opencode/skills/nuxt4-creater/scripts/bootstrap-02-section-architecture.cjs; then node .opencode/skills/nuxt4-creater/scripts/bootstrap-02-section-architecture.cjs; else node ${OPENCODE_PROJECT_SKILLS_PRESEEDED_DIR:-/app/.opencode/skills}/nuxt4-creater/scripts/bootstrap-02-section-architecture.cjs; fi"
   ],
   "verificationCommands": ["pnpm build"],
-  "runtimeSmokeCommand": "pnpm exec nuxt dev --host 127.0.0.1 --port $PORT --no-fork",
-  "runtimeSmokeHealthUrl": "http://127.0.0.1:$PORT/"
+  "runtimeSmokeCommand": "if test -f .opencode/skills/nuxt4-creater/scripts/runtime-smoke-sandbox.cjs; then node .opencode/skills/nuxt4-creater/scripts/runtime-smoke-sandbox.cjs --cwd \"$PWD\" --port $PORT; else node ${OPENCODE_PROJECT_SKILLS_PRESEEDED_DIR:-/app/.opencode/skills}/nuxt4-creater/scripts/runtime-smoke-sandbox.cjs --cwd \"$PWD\" --port $PORT; fi",
+  "runtimeSmokeHealthUrl": "http://127.0.0.1:$PORT/api/health"
 }
 ```
+
+Runtime smoke in OpenCode Project Flow must use `scripts/runtime-smoke-sandbox.cjs`.
+Do not run `pnpm exec nuxt dev` directly from `/workspace` for Nuxt smoke checks; Docker bind mounts can make Nuxt/Vite dev readiness hang even when the same app works from `/tmp`.
 
 ## 首次專案架構建立
 
@@ -101,6 +104,7 @@ node <skill-dir>/scripts/bootstrap-02-section-architecture.cjs
 - `app/components/ui/BaseButton.vue`
 - `app/components/seo/SeoJsonLd.vue`
 - `app/constants/site.ts`
+- `server/api/health.get.ts`
 - `app/composables/`、`app/plugins/`、`app/stores/`、`app/types/`、`app/utils/`
 - `server/api/`、`server/routes/`、`server/utils/`
 - `shared/types/`、`shared/utils/`

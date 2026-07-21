@@ -24,10 +24,13 @@ description: React + Vite feature-based frontend scaffold and maintenance skill.
   "verificationCommands": [
     "pnpm build"
   ],
-  "runtimeSmokeCommand": "pnpm dev --host 127.0.0.1 --port $PORT --strictPort",
-  "runtimeSmokeHealthUrl": "http://127.0.0.1:$PORT/"
+  "runtimeSmokeCommand": "if test -f .opencode/skills/react-vite-feature-based/scripts/runtime-smoke-sandbox.cjs; then node .opencode/skills/react-vite-feature-based/scripts/runtime-smoke-sandbox.cjs --cwd \"$PWD\" --port $PORT; else node ${OPENCODE_PROJECT_SKILLS_PRESEEDED_DIR:-/app/.opencode/skills}/react-vite-feature-based/scripts/runtime-smoke-sandbox.cjs --cwd \"$PWD\" --port $PORT; fi",
+  "runtimeSmokeHealthUrl": "http://127.0.0.1:$PORT/__opencode_health.txt"
 }
 ```
+
+Runtime smoke in OpenCode Project Flow must use `scripts/runtime-smoke-sandbox.cjs`.
+Do not run Vite dev directly from `/workspace` for smoke checks; Docker bind mounts can make dev-server readiness unreliable. The bootstrap script creates `public/__opencode_health.txt` so liveness does not depend on app rendering.
 
 以通用 React/Vite feature-based 架構進行建立與維護。既有專案優先跟隨當地慣例；新專案使用此 skill 的預設 `src/app`、`src/features`、`src/shared` 分層。
 
