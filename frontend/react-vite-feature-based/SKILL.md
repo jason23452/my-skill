@@ -29,7 +29,18 @@ description: React + Vite feature-based frontend scaffold and maintenance skill.
 }
 ```
 
-以這個專案目前的架構與規範進行前端開發。這不是通用 React 風格指南，而是針對本專案的實作規範。
+以通用 React/Vite feature-based 架構進行建立與維護。既有專案優先跟隨當地慣例；新專案使用此 skill 的預設 `src/app`、`src/features`、`src/shared` 分層。
+
+## Package Manager
+
+依 lockfile 使用既有 package manager，不要混用 lockfile：
+
+- `pnpm-lock.yaml`：`pnpm`
+- `package-lock.json`：`npm`
+- `yarn.lock`：`yarn`
+- `bun.lock` 或 `bun.lockb`：`bun`
+
+新專案若使用者未指定 package manager，Greenfield bootstrap 預設使用 `pnpm`。
 
 ## 專案結構
 
@@ -199,16 +210,22 @@ Framework scaffold 只提供最小 CSS entry 與 starter class。新增 styling 
 
 ## 驗證
 
-完成後預設執行：
+完成後優先執行既有 `package.json` scripts。常見命令如下：
 
 ```bash
 pnpm build
+npm run build
+yarn build
+bun run build
 ```
 
-若 `package.json` 有 `lint` script，再執行：
+若 `package.json` 有 `lint` script，再執行對應 package manager 的 lint：
 
 ```bash
 pnpm lint
+npm run lint
+yarn lint
+bun run lint
 ```
 
 如果失敗，先修正再回報。
@@ -217,15 +234,16 @@ pnpm lint
 
 當使用者詢問如何啟動這個專案時，直接提供以下資訊：
 
-1. 在專案根目錄 `frontend-vite-react/` 執行 `pnpm install`
-2. 執行 `pnpm dev`
-3. 在瀏覽器開啟 `http://localhost:5173`
+1. 在專案根目錄安裝依賴，使用現有 lockfile 對應的 package manager。
+2. 執行專案的 `dev` script。
+3. Vite 預設在瀏覽器開啟 `http://localhost:5173`，若終端輸出不同 URL，以終端為準。
 
 若使用者還需要其他常用指令，一併提供：
 
-- `pnpm build`
-- `pnpm lint`
-- `pnpm preview`
+- `dev`
+- `build`
+- `lint`，若專案有提供
+- `preview`，若專案有提供
 
 ## 回覆方式
 
@@ -233,7 +251,7 @@ pnpm lint
 
 1. 使用中文
 2. 直接說明變更內容與檔案路徑
-3. 若有驗證，明確回報 `pnpm build` 與 `pnpm lint` 結果
+3. 若有驗證，明確回報實際執行的 build/lint/typecheck 命令與結果
 
 ## 典型任務範例
 

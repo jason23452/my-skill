@@ -1,6 +1,6 @@
 ---
 name: ui-ux-pro-max
-description: 當使用者要設計、建立、重構、審查、改善或修復 UI/UX 時必須使用。適用於網站、landing page、dashboard、admin panel、SaaS、e-commerce、portfolio、blog、mobile app、React、Next.js、Vue、Svelte、Flutter、React Native、SwiftUI、Tailwind、shadcn/ui、HTML/CSS。觸發語句包含 UI、UX、設計系統、landing page、dashboard、介面、元件、按鈕、表單、表格、圖表、navbar、sidebar、modal、responsive、dark mode、accessibility、typography、color palette、animation、layout、mobile、讓畫面更好看、看起來更專業、改善使用體驗、審查介面。
+description: UI/UX 設計決策與可視介面品質 skill。當使用者明確要求設計、重設計、審查、改善可用性、accessibility、responsive、theme、typography、layout、motion、表單/圖表/導航體驗，或修改使用者可見的 UI/UX 時使用。不要用於 framework scaffold、API client、testing、backend、database、DevOps、CLI 或不影響畫面的純程式邏輯。
 ---
 
 # UI/UX Pro Max

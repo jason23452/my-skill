@@ -12,7 +12,7 @@ metadata:
 
 This OpenCode-only metadata installs coss UI registry artifacts during Greenfield bootstrap. The coss agent skills are expected to come from the global/preseeded skills manager, not from runtime bootstrap. The rest of this file remains the official coss skill guidance and references.
 
-Bootstrap follows the official coss install path: run the shadcn CLI and let it finish because the CLI creates files and installs dependencies. The bootstrap script reports the CLI exit code and then verifies generated artifacts plus runtime dependencies such as `class-variance-authority`, `clsx`, and `tailwind-merge`.
+Bootstrap follows the official coss install path: run the shadcn CLI with the project's existing package manager and let it finish because the CLI creates files and installs dependencies. The bootstrap script reports the CLI exit code and then verifies generated artifacts plus runtime dependencies such as `class-variance-authority`, `clsx`, and `tailwind-merge`.
 
 Registry specs such as `@coss/ui`, `@coss/colors-neutral`, `@coss/style`, `coss/ui`, and `coss/colors-neutral` are remote shadcn registry identifiers, not workspace files. Never call Read/Glob/ls on those strings. If such a read already failed with file-not-found, ignore that read error and diagnose the actual CLI process, `package.json`, lockfile, and generated UI files instead.
 
@@ -24,7 +24,7 @@ Registry specs such as `@coss/ui`, `@coss/colors-neutral`, `@coss/style`, `coss/
   "frameworks": ["react", "react-vite"],
   "requiresPrimarySkills": ["react-vite-feature-based"],
   "order": 30,
-  "packageManager": "pnpm",
+  "packageManager": "node",
   "scaffoldCommand": [
     "if test -f .opencode/skills/coss/scripts/coss-ui-bootstrap.cjs; then node .opencode/skills/coss/scripts/coss-ui-bootstrap.cjs; else node ${OPENCODE_PROJECT_SKILLS_PRESEEDED_DIR:-/app/.opencode/skills}/coss/scripts/coss-ui-bootstrap.cjs; fi"
   ],
@@ -112,7 +112,7 @@ Quick CLI pattern:
 npx shadcn@latest add @coss/<component>
 ```
 
-For Greenfield bootstrap, prefer the official commands from `https://coss.com/ui/docs/get-started`:
+For Greenfield bootstrap, prefer the official commands from `https://coss.com/ui/docs/get-started`. Examples below use pnpm; adapt to the project's existing package manager when running manually:
 
 ```bash
 pnpm dlx shadcn@latest init @coss/style

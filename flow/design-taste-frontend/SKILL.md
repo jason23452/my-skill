@@ -1,6 +1,6 @@
 ---
 name: design-taste-frontend
-description: 用於 landing page、作品集、既有頁面 redesign、admin/dashboard 與整體系統排版規劃的 anti-slop frontend design skill。協助 agent 先讀懂 brief、判斷設計方向、避免模板化 layout，並用高標準檢查 app shell、route hierarchy、page templates、typography、layout、motion、content、RWD 與互動狀態。
+description: Anti-slop frontend design taste skill. Use when the user explicitly asks for landing page, portfolio, marketing page, existing UI redesign, admin/dashboard layout planning, or higher-quality visual direction. Focus on brief reading, product-specific composition, app shell/layout decisions, typography, motion, content, responsive behavior, and interaction states. Do not use for framework scaffold, API client, testing, backend, database, DevOps, or non-visual code changes.
 ---
 
 # 前端設計品味

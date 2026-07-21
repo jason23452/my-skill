@@ -13,7 +13,7 @@ description: "Framework-aware frontend API client skill for Vite-based React SPA
   "category": "api-client",
   "frameworks": ["frontend", "vite", "vite-spa", "react-spa", "react-vite", "vue-spa", "vue-vite", "nuxt", "nuxt4"],
   "order": 20,
-  "packageManager": "pnpm",
+  "packageManager": "node",
   "scaffoldCommand": [
     "if test -f .opencode/skills/axios-token-baseurl-error/scripts/bootstrap-00-01.cjs; then node .opencode/skills/axios-token-baseurl-error/scripts/bootstrap-00-01.cjs; else node ${OPENCODE_PROJECT_SKILLS_PRESEEDED_DIR:-/app/.opencode/skills}/axios-token-baseurl-error/scripts/bootstrap-00-01.cjs; fi",
     "if test -f .opencode/skills/axios-token-baseurl-error/scripts/bootstrap-01-02.cjs; then node .opencode/skills/axios-token-baseurl-error/scripts/bootstrap-01-02.cjs; else node ${OPENCODE_PROJECT_SKILLS_PRESEEDED_DIR:-/app/.opencode/skills}/axios-token-baseurl-error/scripts/bootstrap-01-02.cjs; fi"
@@ -353,7 +353,7 @@ import { postApi } from '~/utils/api'
 await postApi('/users', undefined, { name: 'Ada' })
 ```
 
-Use Nuxt's `useAsyncData` directly for page initialization or SSR-aware route data:
+When Nuxt page data should be loaded through a business-named wrapper, call that wrapper from `useAsyncData` at the page or composable boundary:
 
 ```ts
 import { getUser } from '~/api/user'
@@ -375,7 +375,7 @@ const { data, error, status } = await useAsyncData('users', (_nuxtApp, { signal 
 )
 ```
 
-Provide a stable key for route data. Keep `useAsyncData` visible at the page or composable boundary, and keep the API wrapper shape as `api.get(endpoint, query, body, config)`. This follows Nuxt's official pattern of using `useAsyncData` with `$fetch` for setup data, SSR payload hydration, and client-side payload reuse.
+Provide a stable key for route data. Keep `useAsyncData` visible at the page or composable boundary, and keep the API wrapper shape as `api.get(endpoint, query, body, config)`. This keeps Nuxt's data-loading flow visible instead of hiding page data orchestration inside the transport layer.
 
 ## Reporting
 
@@ -398,6 +398,12 @@ Run the existing project checks first:
 ```bash
 pnpm build
 pnpm lint
+npm run build
+npm run lint
+yarn build
+yarn lint
+bun run build
+bun run lint
 ```
 
 If the project has no lint script, use the closest existing typecheck/test/build command.

@@ -242,7 +242,7 @@ export default defineNuxtConfig({
 
 Client 可讀資料放在 `runtimeConfig.public`；server-only secret 保留在 `runtimeConfig` 的 server-only 欄位。
 
-Use `useFetch` for straightforward SSR-aware route data:
+頁面資料抓取用這個直覺判斷：如果只是呼叫一個 URL，且資料會直接出現在頁面上，用 `useFetch`：
 
 ```ts
 const { data, error, status } = await useFetch<User[]>('/api/users', {
@@ -250,7 +250,7 @@ const { data, error, status } = await useFetch<User[]>('/api/users', {
 })
 ```
 
-Use `useAsyncData` when page initialization should call a business-named API wrapper:
+如果資料來源已經包成業務命名 function，讓頁面用 `useAsyncData` 呼叫該 wrapper，資料流會比較清楚：
 
 ```ts
 const { data, error, status } = await useAsyncData('users', () => getUsers({ page: 1 }))

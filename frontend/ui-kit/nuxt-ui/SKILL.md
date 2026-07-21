@@ -17,15 +17,14 @@ This skill is a UI kit add-on for Nuxt projects. It does not create the Nuxt app
   "frameworks": ["nuxt", "nuxt4"],
   "requiresPrimarySkills": ["nuxt4-creater"],
   "order": 30,
-  "packageManager": "pnpm",
+  "packageManager": "node",
   "scaffoldCommand": [
-    "if test -f .opencode/skills/nuxt-ui/scripts/pnpm-allow-builds.cjs; then node .opencode/skills/nuxt-ui/scripts/pnpm-allow-builds.cjs; else node ${OPENCODE_PROJECT_SKILLS_PRESEEDED_DIR:-/app/.opencode/skills}/nuxt-ui/scripts/pnpm-allow-builds.cjs; fi",
-    "pnpm add @nuxt/ui tailwindcss",
-    "pnpm add -D @iconify-json/lucide",
-    "if test -f .opencode/skills/nuxt-ui/scripts/nuxt-ui-bootstrap.cjs; then node .opencode/skills/nuxt-ui/scripts/nuxt-ui-bootstrap.cjs; else node ${OPENCODE_PROJECT_SKILLS_PRESEEDED_DIR:-/app/.opencode/skills}/nuxt-ui/scripts/nuxt-ui-bootstrap.cjs; fi",
-    "pnpm install --frozen-lockfile=false"
+    "if test -f .opencode/skills/nuxt-ui/scripts/bootstrap-00-install.cjs; then node .opencode/skills/nuxt-ui/scripts/bootstrap-00-install.cjs; else node ${OPENCODE_PROJECT_SKILLS_PRESEEDED_DIR:-/app/.opencode/skills}/nuxt-ui/scripts/bootstrap-00-install.cjs; fi",
+    "if test -f .opencode/skills/nuxt-ui/scripts/nuxt-ui-bootstrap.cjs; then node .opencode/skills/nuxt-ui/scripts/nuxt-ui-bootstrap.cjs; else node ${OPENCODE_PROJECT_SKILLS_PRESEEDED_DIR:-/app/.opencode/skills}/nuxt-ui/scripts/nuxt-ui-bootstrap.cjs; fi"
   ],
-  "verificationCommands": ["pnpm build"]
+  "verificationCommands": [
+    "if test -f .opencode/skills/nuxt-ui/scripts/verify-build.cjs; then node .opencode/skills/nuxt-ui/scripts/verify-build.cjs; else node ${OPENCODE_PROJECT_SKILLS_PRESEEDED_DIR:-/app/.opencode/skills}/nuxt-ui/scripts/verify-build.cjs; fi"
+  ]
 }
 ```
 
@@ -33,7 +32,7 @@ This skill is a UI kit add-on for Nuxt projects. It does not create the Nuxt app
 
 Use Nuxt UI when the selected frontend framework is Nuxt or Nuxt 4 and the project needs a production-ready Vue/Nuxt component system.
 
-- Install `@nuxt/ui`, `tailwindcss`, and the local Nuxt UI icon collection `@iconify-json/lucide`.
+- Install `@nuxt/ui`, `tailwindcss`, and the local Nuxt UI icon collection `@iconify-json/lucide` with the project's existing package manager.
 - Keep Nuxt UI default `lucide:*` icons resolvable locally through Nuxt Icon so client and server icon bundles build from installed packages.
 - If the project configures Nuxt UI to use another icon collection, install the matching `@iconify-json/<collection>` package during the same bootstrap pass.
 - Ensure pnpm `allowBuilds` includes Nuxt/Nuxt UI build-script packages before install, including `vue-demi`. For future packages, pass extra names through `OPENCODE_PNPM_ALLOW_BUILDS` or script arguments instead of adding project-specific logic.
@@ -52,8 +51,11 @@ It preserves existing config where possible and only adds missing Nuxt UI entrie
 
 ## Verification
 
-Run:
+Run the existing package manager's build script:
 
 ```bash
 pnpm build
+npm run build
+yarn build
+bun run build
 ```

@@ -22,7 +22,7 @@ This is a testing add-on for browser-rendered frontend projects. It supports eve
     "if test -f .opencode/skills/playwright-e2e-testing/scripts/bootstrap-01-02.cjs; then node .opencode/skills/playwright-e2e-testing/scripts/bootstrap-01-02.cjs; else node ${OPENCODE_PROJECT_SKILLS_PRESEEDED_DIR:-/app/.opencode/skills}/playwright-e2e-testing/scripts/bootstrap-01-02.cjs; fi"
   ],
   "verificationCommands": [
-    "npx playwright test --list"
+    "if test -f .opencode/skills/playwright-e2e-testing/scripts/verify-list.cjs; then node .opencode/skills/playwright-e2e-testing/scripts/verify-list.cjs; else node ${OPENCODE_PROJECT_SKILLS_PRESEEDED_DIR:-/app/.opencode/skills}/playwright-e2e-testing/scripts/verify-list.cjs; fi"
   ]
 }
 ```
@@ -138,11 +138,14 @@ If the package manager is unclear, use the existing project scripts and lockfile
 Run the most relevant commands:
 
 ```bash
-npx playwright test --list
-npx playwright test
-npx playwright test tests/home.spec.ts
-npx playwright test --headed
-npx playwright show-report
+pnpm e2e:list
+pnpm e2e
+npm run e2e:list
+npm run e2e
+yarn e2e:list
+yarn e2e
+bun run e2e:list
+bun run e2e
 ```
 
 For pnpm projects, prefer:

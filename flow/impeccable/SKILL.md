@@ -1,6 +1,6 @@
 ---
 name: impeccable
-description: 設計、重設計、塑形、審查、audit、polish、clarify、distill、harden、optimize、adapt、animate、colorize、extract 或改善 frontend interface 時使用。適用於網站、landing page、dashboard、product UI、app shell、component、form、settings、onboarding、empty state、UX review、visual hierarchy、information architecture、accessibility、performance、responsive、theme、typography、spacing、layout、color、motion、micro-interactions、UX copy、error states、edge cases、i18n、design system、tokens。不是純後端或非 UI 任務。
+description: Production-grade frontend interface design and refinement workflow. Use when the user explicitly invokes impeccable commands or asks to design, redesign, audit, critique, polish, improve visual hierarchy, layout, motion, responsive behavior, accessibility, UX copy, UI states, or design-system tokens for a visible interface. Do not use for framework scaffold, API client work, testing setup, backend, database, DevOps, CLI, or non-UI business logic.
 license: Apache 2.0
 metadata:
   version: "3.9.1"

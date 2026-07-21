@@ -8,9 +8,11 @@
 - UI kit skill 只負責自己的 UI kit 與直接依賴。例如 `nuxt-ui` 可以包含 `@nuxt/ui`、Tailwind CSS 與 Nuxt UI icon collection。
 - API transport skill 只負責 HTTP client、base URL、token header、error normalization、generic methods 與 thin business wrapper pattern。
 - Testing skill 只負責測試設計、測試檔與測試工具，不自動污染 framework scaffold。
+- Browser automation skill 只負責 CLI/browser 操作與截圖，不安裝 target project 的 E2E test dependencies。
 - Database skill 只負責 database、ORM、migration、schema/table，不混進一般 backend framework skill。
 - DevOps skill 只在使用者要求 Docker、Compose、image build、container runtime 時使用。
 - 只有會被 Greenfield 初始化實際執行的 scaffold/install skill 才放 `opencode-bootstrap-json`。
+- Add-on bootstrap 需要偵測既有 lockfile，避免把 npm/yarn/bun 專案改成 pnpm。
 - Reference、pattern index、review、planning、docs skills 不放 executable bootstrap metadata。
 
 ## 目前結構
@@ -50,6 +52,7 @@ my-skill/
 - `playwright-e2e-testing`: 通用 Playwright testing add-on，支援 React、Vue、Nuxt、Next.js、SvelteKit、Astro、Angular、Vite、static frontend 等瀏覽器專案。只有在選用或要求 E2E testing 時執行，不屬於任何 framework scaffold。
 - `ui-kit/nuxt-ui`: Nuxt UI add-on，依賴 Nuxt/Nuxt 4 project，負責 `@nuxt/ui`、Tailwind CSS、Nuxt UI icon collection 與 Nuxt UI config。
 - `ui-kit/coss`: React/Vite coss UI add-on，依賴 React/Vite project，負責 coss/shadcn registry、Base UI、Tailwind v4 與 coss component conventions。
+- `flow/playwright`: Playwright CLI/browser automation，不負責建立專案 E2E 測試；測試檔與 `@playwright/test` 由 `playwright-e2e-testing` 負責。
 - `ui-kit/coss-particles`: coss pattern index，只在 coss 已選用或已安裝後用來查找 particles。
 
 ## DevOps

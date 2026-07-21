@@ -136,8 +136,19 @@ function hasDependency(name) {
   return Boolean((pkg.dependencies || {})[name] || (pkg.devDependencies || {})[name])
 }
 
-function pnpmEnv() {
-  const env = { ...process.env, PNPM_CONFIG_IGNORE_SCRIPTS: "true", CI: "1" }
+function detectPackageManager() {
+  if (fs.existsSync("pnpm-lock.yaml")) return "pnpm"
+  if (fs.existsSync("bun.lock") || fs.existsSync("bun.lockb")) return "bun"
+  if (fs.existsSync("yarn.lock")) return "yarn"
+  if (fs.existsSync("package-lock.json")) return "npm"
+  return "pnpm"
+}
+
+function packageManagerEnv(packageManager) {
+  const env = { ...process.env, CI: "1" }
+  if (packageManager !== "pnpm") return env
+
+  env.PNPM_CONFIG_IGNORE_SCRIPTS = "true"
   try {
     const modules = fs.readFileSync(path.join("node_modules", ".modules.yaml"), "utf8")
     const match = modules.match(/["']?virtualStoreDirMaxLength["']?\s*:\s*(\d+)/)
@@ -146,19 +157,36 @@ function pnpmEnv() {
   return env
 }
 
+function packageInstallCommand(packageManager, names, dev) {
+  if (packageManager === "npm") return ["npm", ["install", ...(dev ? ["--save-dev"] : []), ...names]]
+  if (packageManager === "yarn") return ["yarn", ["add", ...(dev ? ["-D"] : []), ...names]]
+  if (packageManager === "bun") return ["bun", ["add", ...(dev ? ["-d"] : []), ...names]]
+  return ["pnpm", ["add", ...(dev ? ["-D"] : []), ...names]]
+}
+
+function shadcnCommand(packageManager, specs) {
+  if (packageManager === "npm") return ["npx", ["--yes", "shadcn@latest", "add", ...specs, "--yes", "--overwrite"]]
+  if (packageManager === "yarn") return ["yarn", ["dlx", "shadcn@latest", "add", ...specs, "--yes", "--overwrite"]]
+  if (packageManager === "bun") return ["bunx", ["shadcn@latest", "add", ...specs, "--yes", "--overwrite"]]
+  return ["pnpm", ["dlx", "shadcn@latest", "add", ...specs, "--yes", "--overwrite"]]
+}
+
 function installDependencies(names, dev) {
   const missing = names.filter((name) => !hasDependency(name))
   if (!missing.length) return
 
-  logStatus(`coss installing missing ${dev ? "dev " : ""}dependencies: ${missing.join(" ")}`)
-  const result = cp.spawnSync("pnpm", ["add", ...(dev ? ["-D"] : []), ...missing], {
+  const packageManager = detectPackageManager()
+  const [command, args] = packageInstallCommand(packageManager, missing, dev)
+
+  logStatus(`coss installing missing ${dev ? "dev " : ""}dependencies with ${packageManager}: ${missing.join(" ")}`)
+  const result = cp.spawnSync(command, args, {
     stdio: "inherit",
-    env: pnpmEnv(),
+    env: packageManagerEnv(packageManager),
     shell: process.platform === "win32",
   })
 
   if (result.error) throw result.error
-  if (result.status !== 0) throw new Error(`pnpm add ${missing.join(" ")} exited with code ${result.status || 1}`)
+  if (result.status !== 0) throw new Error(`${command} ${args.join(" ")} exited with code ${result.status || 1}`)
 }
 
 function ensureRuntimeDependencies() {
@@ -433,12 +461,14 @@ function installCossUi() {
     return Promise.resolve()
   }
 
-  const env = pnpmEnv()
+  const packageManager = detectPackageManager()
+  const env = packageManagerEnv(packageManager)
   const specs = installSpecs(requested)
+  const [command, args] = shadcnCommand(packageManager, specs)
 
   return new Promise((resolve, reject) => {
-    logStatus(`coss shadcn install starting: ${specs.join(" ")}`)
-    const child = cp.spawn("pnpm", ["dlx", "shadcn@latest", "add", ...specs, "--yes", "--overwrite"], {
+    logStatus(`coss shadcn install starting with ${packageManager}: ${specs.join(" ")}`)
+    const child = cp.spawn(command, args, {
       stdio: ["ignore", "pipe", "pipe"],
       env,
       shell: process.platform === "win32",

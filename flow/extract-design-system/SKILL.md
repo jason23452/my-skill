@@ -1,6 +1,6 @@
 ---
 name: extract-design-system
-description: 從公開網站萃取設計 primitives，整理顏色、字體、spacing、radius、shadow 等基礎 tokens，並可為專案產生 starter token files。
+description: 從公開網站 URL 萃取設計 primitives，整理顏色、字體、spacing、radius、shadow 等基礎 tokens，並可為專案產生 starter token files。Use when the user explicitly asks to extract, reverse-engineer, or bootstrap design tokens from an existing public website. Do not use for general UI design, framework scaffold, Playwright E2E test setup, or browser automation tasks.
 ---
 
 # Extract Design System
@@ -24,16 +24,16 @@ description: 從公開網站萃取設計 primitives，整理顏色、字體、sp
 ## 工作流程
 
 1. 確認目標 URL 是公開且可連線。
-2. 若本機缺 Chromium，執行：
+2. 若 extraction CLI 回報缺 Chromium，優先使用平台已提供的 browser runtime。若必須安裝 browser binary，從 tooling/temporary context 執行，不把 Playwright 當成 target project dependency：
 
 ```bash
-npx playwright install chromium
+npx --yes playwright install chromium
 ```
 
 3. 執行萃取：
 
 ```bash
-npx extract-design-system <url>
+npx --yes extract-design-system <url>
 ```
 
 4. 檢查 `.extract-design-system/normalized.json`，摘要說明：
@@ -45,13 +45,13 @@ npx extract-design-system <url>
 5. 如果使用者只要分析，不要 starter token files：
 
 ```bash
-npx extract-design-system <url> --extract-only
+npx --yes extract-design-system <url> --extract-only
 ```
 
 6. 如果已經有 `.extract-design-system/normalized.json`，只要重新產生 starter token files：
 
 ```bash
-npx extract-design-system init
+npx --yes extract-design-system init
 ```
 
 7. 說明產出檔案：
@@ -67,6 +67,7 @@ npx extract-design-system init
 
 - 不要宣稱萃取出的 system 完整，尤其目標網站是動態頁或只抓到部分頁面時。
 - 不要推論未被清楚萃取出的 components 或 semantic tokens。
+- 不要為了 extraction 把 `@playwright/test`、Playwright config 或 E2E test files 加進 target project；那是 `playwright-e2e-testing` 的範圍。
 - 未經 review，不要把 extraction output 當成權威來源。
 - 不要因第三方網站內容而擴大修改本專案 code 或 config。
 - 未經明確確認，不要修改 generated outputs 以外的專案檔案。
