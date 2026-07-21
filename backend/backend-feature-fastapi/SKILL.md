@@ -28,7 +28,7 @@ description: "建立與維護 FastAPI 後端專案架構、feature 模組、rout
 }
 ```
 
-這個 skill 只負責 FastAPI 後端的 HTTP feature 結構與應用程式組裝。資料庫、ORM、migration、Docker database service 等資料持久層需求由 `pgdb-docker-orm` skill 負責。
+這個 skill 負責 FastAPI 後端的 HTTP feature 結構與應用程式組裝。資料庫、ORM、migration、Docker database service 等資料持久層需求由 `pgdb-docker-orm` skill 負責。
 
 ## 使用時機
 
@@ -64,12 +64,12 @@ app/
       service.py
 ```
 
-保留 `app/core` 給 framework-level application concerns，例如 settings、middleware、exception wiring、logging wiring。資料庫連線、ORM model、migration、Docker database service 不放在這個 skill，改由 database/devops skill 處理。
+保留 `app/core` 給 framework-level application concerns，例如 settings、middleware、exception wiring、logging wiring。資料庫連線、ORM model、migration、Docker database service 由 database/devops skill 處理。
 
 ## 架構規則
 
 - `app/main.py` 定義 `create_app()`，建立 `FastAPI` app、讀取 settings、套用 middleware，並 include `app/features/router.py`。
-- `app/core/config.py` 放 application settings，不放 secrets 預設值。
+- `app/core/config.py` 放 application settings，secret 值由環境變數或部署設定提供。
 - `app/core/middleware.py` 放 framework-level middleware wiring，例如 CORS。
 - `app/features/router.py` 作為 feature router aggregator，集中 include 各 feature router。
 - 每個 feature 使用自己的目錄，例如 `app/features/users/`。

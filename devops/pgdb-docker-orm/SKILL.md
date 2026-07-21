@@ -7,9 +7,26 @@ description: 使用 Docker image / Docker Compose 開發 PostgreSQL 資料庫，
 
 ## Bootstrap Boundary
 
-PostgreSQL, ORM, migration, and table/schema work is a database add-on. Do not run it as part of a generic backend scaffold. Apply this skill only when the user asks for PGDB, Postgres, Docker database service, ORM model, migration, schema, or table work.
+PostgreSQL, ORM, migration, and table/schema work is a database add-on. Apply this skill when the user asks for PGDB, Postgres, Docker database service, ORM model, migration, schema, or table work.
 
-如果 Compose 檔已存在，不要直接跳過 PostgreSQL bootstrap；應在保留既有 service 的前提下補上 `db` service、healthcheck 與 `postgres_data` volume，並讓 backend 使用 `postgresql+asyncpg://postgres:postgres@db:5432/app_db`。
+```opencode-bootstrap-json
+{
+  "role": "backend",
+  "category": "database",
+  "database": "postgresql",
+  "frameworks": ["backend", "fastapi", "node", "django"],
+  "order": 55,
+  "packageManager": "node",
+  "scaffoldCommand": [
+    "if test -f .opencode/skills/pgdb-docker-orm/scripts/bootstrap-02-01.cjs; then node .opencode/skills/pgdb-docker-orm/scripts/bootstrap-02-01.cjs; else node ${OPENCODE_PROJECT_SKILLS_PRESEEDED_DIR:-/app/.opencode/skills}/pgdb-docker-orm/scripts/bootstrap-02-01.cjs; fi"
+  ],
+  "verificationCommands": [
+    "node -e \"const fs=require('fs'); const file=['compose.yaml','compose.yml','docker-compose.yml','docker-compose.yaml'].find((item)=>fs.existsSync(item)); if(!file) process.exit(1); const s=fs.readFileSync(file,'utf8'); if(!/postgres:|POSTGRES_DB|postgres_data/.test(s)) process.exit(1);\""
+  ]
+}
+```
+
+如果 Compose 檔已存在，在保留既有 service 的前提下補上 `db` service、healthcheck 與 `postgres_data` volume，並讓 backend 使用 `postgresql+asyncpg://postgres:postgres@db:5432/app_db`。
 
 使用這個 skill 協助使用者用 Docker 建立與維護本機 PostgreSQL 開發資料庫，同時讓後端資料表變更透過 ORM 與 migration 系統管理。
 
@@ -18,7 +35,7 @@ PostgreSQL, ORM, migration, and table/schema work is a database add-on. Do not r
 1. 先檢查既有專案，再提出命令或修改檔案。
 2. 本機 PostgreSQL 優先使用 Docker Compose，因為 image 版本、port、healthcheck、volume 與後端連線設定都能集中管理。
 3. table/schema 變更優先走 ORM migration。`psql` DDL 適合檢查或臨時實驗，但正式開發變更應寫在 model 與 migration 檔案中。
-4. 預設保護開發資料。不要未經使用者同意就刪除 database volume、drop schema、重置 migration 或清空資料庫。
+4. 預設保護開發資料。database volume、drop schema、migration 重置與清空資料庫都需要使用者明確同意。
 5. 明確區分主機與容器內連線字串。主機通常用 `localhost:<published-port>`；Compose 內其他 service 通常用資料庫 service 名稱，例如 `db:5432`。
 
 ## 專案檢查清單
@@ -34,7 +51,7 @@ PostgreSQL, ORM, migration, and table/schema work is a database add-on. Do not r
 - 既有 `.env`、`.env.example`、settings module 與 `DATABASE_URL` 命名。
 - 是否已有測試或 seed script 可驗證資料庫連線。
 
-如果 stack 不清楚，問一個簡短問題，列出最可能的 ORM 選項，不要直接猜。
+如果 stack 不清楚，問一個簡短問題，列出最可能的 ORM 選項，並以使用者答案決定。
 
 ## 建立本機 PostgreSQL Service
 
@@ -68,7 +85,7 @@ volumes:
 
 - 如果專案已指定 PostgreSQL major version，沿用既有版本。
 - 如果主機 `5432` 已被占用，先說明 tradeoff，再考慮改成 `5433:5432`。
-- 共用或正式環境的密碼不要寫死在 Compose。`postgres/postgres` 只適合本機 throwaway 開發環境。
+- 共用或正式環境的密碼由 secret 管理或部署環境提供。`postgres/postgres` 適合本機 throwaway 開發環境。
 - 後端也在 Compose 中執行時，若專案支援，替 backend service 加上 `depends_on` health condition。
 
 ## Docker 操作流程
@@ -151,7 +168,7 @@ npm run migration:generate -- <descriptive-name>
 npm run migration:run
 ```
 
-優先使用專案既有 script，不要直接猜 raw `typeorm` command，因為 TypeScript path alias 與環境變數載入常寫在 script 裡。
+優先使用專案既有 script，因為 TypeScript path alias 與環境變數載入常寫在 script 裡。
 
 ### Django ORM
 
@@ -177,7 +194,7 @@ python manage.py migrate
 - Enum 儲存策略與後續 migration 難度。
 - 專案既有 naming convention。
 - 既有資料的 backfill 或 default 策略。
-- Migration 是否可 rollback；如果不可逆，要清楚註明。
+- Migration rollback 能力；irreversible migration 要清楚註明。
 
 ## 驗證
 
@@ -193,15 +210,15 @@ python manage.py migrate
 ## 疑難排解
 
 - `connection refused`：確認 PostgreSQL 是否有跑，並檢查 backend 是否在 container 內誤用 `localhost`。Container 內通常要連 `db`，不是 `localhost`。
-- `database does not exist`：確認 `POSTGRES_DB` 與 `DATABASE_URL` 的 database 名稱一致。Postgres image 只會在 volume 第一次初始化時建立初始 database。
+- `database missing`：確認 `POSTGRES_DB` 與 `DATABASE_URL` 的 database 名稱一致。Postgres image 只會在 volume 第一次初始化時建立初始 database。
 - 改了 `POSTGRES_*` 但沒有變化：既有 volume 會保留第一次初始化的 database、role 與密碼。刪除或重建 volume 前要先問使用者。
 - Migration autogenerate 是空的：ORM metadata 可能沒有被 migration environment import，或 model file 沒被載入。
-- Migration 想 drop 不預期的物件：先停止，檢查 metadata naming、schema 與實際 database 狀態，不要直接 apply。
+- Migration 想 drop 不預期的物件：先停止，檢查 metadata naming、schema 與實際 database 狀態，再決定下一步。
 - Python async URL 問題：app runtime 可能用 `postgresql+asyncpg://...`，但 Alembic 可能需要 sync driver 或專案既有 async Alembic 設定。沿用專案既有模式。
 
 ## 回覆風格
 
-使用者提出 PGDB/ORM 需求時，工具可用就直接協助檢查、修改與驗證，不要只給抽象說明。過程中只回報有意義的發現、取捨與阻塞點。
+使用者提出 PGDB/ORM 需求時，工具可用就直接協助檢查、修改與驗證。過程中只回報有意義的發現、取捨與阻塞點。
 
 最終回覆包含：
 

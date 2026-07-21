@@ -8,15 +8,30 @@ description: >-
 
 ## Bootstrap Boundary
 
-Dockerfile and image build setup is a DevOps add-on. Do not run it as part of a generic framework scaffold. Apply this skill only when the user asks for Docker, container images, Dockerfile work, Compose build, or CI container build behavior.
+Dockerfile and image build setup is a DevOps add-on. Apply this skill when the user asks for Docker, container images, Dockerfile work, Compose build, or CI container build behavior.
 
-使用這個 skill 讓 Docker image build 更可靠、可重現、體積更小，也更容易除錯。Docker build 工作不要只看單一指令；要同時檢查 source layout、build context、dependency cache、runtime image、安全性與驗證方式。
+```opencode-bootstrap-json
+{
+  "role": "any",
+  "category": "docker",
+  "order": 50,
+  "packageManager": "node",
+  "scaffoldCommand": [
+    "if test -f .opencode/skills/docker-build/scripts/bootstrap-02-01.cjs; then node .opencode/skills/docker-build/scripts/bootstrap-02-01.cjs; else node ${OPENCODE_PROJECT_SKILLS_PRESEEDED_DIR:-/app/.opencode/skills}/docker-build/scripts/bootstrap-02-01.cjs; fi"
+  ],
+  "verificationCommands": [
+    "node -e \"const fs=require('fs'); if(!fs.existsSync('Dockerfile')) process.exit(1);\""
+  ]
+}
+```
+
+使用這個 skill 讓 Docker image build 更可靠、可重現、體積更小，也更容易除錯。Docker build 工作同時檢查 source layout、build context、dependency cache、runtime image、安全性與驗證方式。
 
 ## 開始方式
 
 1. 先確認 build 目標：app/service 名稱、Dockerfile 路徑、build context、image tag、platform，以及使用 Docker Compose 還是單純 `docker build`。
 2. 編輯前先檢查相關檔案：`Dockerfile*`、`docker-compose*.yml`、`.dockerignore`、package manifests、lockfiles、build scripts，以及有提到 Docker 的 CI workflow。
-3. 優先做最小正確修改。除非現有 Dockerfile 明顯錯誤，否則保留專案既有語言、runtime 與 package manager 慣例。
+3. 優先做最小正確修改。現有 Dockerfile 可用時，保留專案既有語言、runtime 與 package manager 慣例；明確錯誤則針對錯誤修正。
 4. 如果使用者要你實際執行 build，先跑最安全且最貼近專案設定的指令，取得失敗 stage 與 log 再修改。
 
 ## Build 指令選擇
@@ -33,14 +48,14 @@ docker buildx build --platform <platform> -t <image>:<tag> <context>
 
 ## Dockerfile 規則
 
-- build 階段需要的 dependency 不應留在 runtime image 時，使用 multi-stage build。
+- build 階段需要的 dependency 放在 builder stage；runtime image 保留執行期內容。
 - 先複製 dependency manifest 與 lockfile，再安裝 dependencies，最後才複製完整 source，讓 Docker cache 能重用 dependency layer。
 - manifest 與 lockfile 要一起複製，例如 `package.json` 搭配 `package-lock.json` / `pnpm-lock.yaml`，或 `pyproject.toml` 搭配 lockfile。
 - base image 要有意識地選擇明確版本，例如 `python:3.12-slim`、`node:22-alpine`、`golang:1.23-bookworm`，並考慮相容性。
-- runtime image 可以小，但不要為了小而脆弱。如果 native dependencies 或 glibc 相容性可能出問題，不要隨意改成 Alpine。
+- runtime image 可以小，也要維持穩定。如果 native dependencies 或 glibc 相容性可能出問題，選擇相容性更明確的 base image。
 - 在 `COPY` 與 `RUN` 前先設定 `WORKDIR`。
-- 除非真的需要自動解壓縮 archive 或 remote URL 行為，否則使用 `COPY`，不要用 `ADD`。
-- 不要把 secrets 打進 image。token、password、private key、`.env` 值不應出現在 `ARG`、`ENV` 或被複製進 image。
+- 一般檔案複製使用 `COPY`；需要自動解壓縮 archive 或 remote URL 行為時使用 `ADD`。
+- secrets 維持在 runtime/deployment 設定中。token、password、private key、`.env` 值留在 image build context 外。
 - 長時間執行的 service 儘量使用 non-root runtime user。
 - `EXPOSE` 只是文件用途；如果有實際對外連線需求，要說明 `docker run` 或 Compose 的 port mapping。
 
@@ -69,7 +84,7 @@ venv
 *.log
 ```
 
-不要忽略 build 或 runtime 需要的檔案，例如 lockfiles、runtime 需要的 migrations/templates/static files，或 Dockerfile 明確要複製的 compiled artifacts。
+納入 build 或 runtime 需要的檔案，例如 lockfiles、runtime 需要的 migrations/templates/static files，或 Dockerfile 明確要複製的 compiled artifacts。
 
 ## 語言與框架模式
 
@@ -82,7 +97,7 @@ venv
 ### Python / FastAPI
 
 - 專案若使用 `uv`、Poetry 或 pip-tools，優先用 lockfile-based install。
-- build tools 盡量不要留在最終 runtime image。
+- build tools 留在 builder stage，final runtime image 保留執行期需要的內容。
 - ASGI app 應使用專案既有啟動方式；常見形式是 `uvicorn app.main:app --host 0.0.0.0 --port 8000` 或既有 script。
 - 確認 runtime 需要的檔案都有複製進 image，例如 migrations、templates、static files。
 
@@ -96,7 +111,7 @@ venv
 
 - 專案有 wrapper 時使用 `./mvnw` 或 `./gradlew`。
 - 可行時，把 dependency resolution 與 source copy 分開，提升 cache 命中率。
-- final runtime 優先使用 JRE image，而不是完整 JDK，除非 runtime 真的需要工具鏈。
+- final runtime 優先使用 JRE image；runtime 需要工具鏈時再使用 JDK。
 
 ## 除錯流程
 
@@ -112,7 +127,7 @@ docker build --progress=plain --no-cache -t <image>:debug <context>
 docker compose build --no-cache <service>
 ```
 
-`--no-cache` 只適合診斷或懷疑 cache/dependency 損壞時使用，不應當成一般 build 問題的預設解法。
+`--no-cache` 適合診斷或懷疑 cache/dependency 損壞時使用；一般 build 問題優先從失敗 stage 與 dependency layer 定位。
 
 ## BuildKit 與 Cache
 
@@ -123,7 +138,7 @@ RUN --mount=type=cache,target=/root/.cache/pip pip install -r requirements.txt
 RUN --mount=type=cache,target=/root/.npm npm ci
 ```
 
-CI 裡的 cache 設定要明確且可重現。不要讓 Dockerfile 依賴某台本機剛好存在的 cache。
+CI 裡的 cache 設定要明確且可重現。Dockerfile 依賴可重建的 inputs 與 declarative cache 設定。
 
 ## 驗證
 

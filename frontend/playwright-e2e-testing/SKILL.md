@@ -7,7 +7,7 @@ description: "Framework-agnostic Playwright E2E testing skill for frontend web a
 
 ## OpenCode Greenfield Bootstrap Metadata
 
-This is a testing add-on for browser-rendered frontend projects. It supports every frontend framework, but it is not a dependency of any framework scaffold. Run it only when E2E testing is selected or requested.
+This is a testing add-on for browser-rendered frontend projects. It supports every frontend framework and runs when E2E testing is selected or requested.
 
 ```opencode-bootstrap-json
 {
@@ -47,8 +47,8 @@ Keep framework setup, UI kits, API clients, backend services, database services,
 - Use `PLAYWRIGHT_WEB_SERVER_COMMAND` when the dev server needs custom startup.
 - Use `PLAYWRIGHT_BASE_URL` when the app is already running or uses a custom URL.
 - Keep tests user-observable: assert roles, labels, headings, URLs, visible text, and stable test ids.
-- Keep selectors framework-neutral. Do not depend on React/Vue/Nuxt component internals.
-- Do not use fixed sleeps for synchronization. Prefer Playwright auto-wait, web-first assertions, `waitForURL`, and `waitForResponse`.
+- Keep selectors framework-neutral and assert user-visible behavior rather than React/Vue/Nuxt component internals.
+- Use Playwright auto-wait, web-first assertions, `waitForURL`, and `waitForResponse` for synchronization.
 
 ## Default Project Layout
 

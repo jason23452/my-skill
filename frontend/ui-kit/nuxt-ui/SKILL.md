@@ -7,7 +7,7 @@ description: Nuxt UI kit skill for Nuxt 4 frontends. Use when a Greenfield or ex
 
 ## OpenCode Greenfield Bootstrap Metadata
 
-This skill is a UI kit add-on for Nuxt projects. It does not create the Nuxt app; select it after a Nuxt framework scaffold such as `nuxt4-creater`.
+This skill is a UI kit add-on for Nuxt projects. Select it after a Nuxt framework scaffold such as `nuxt4-creater`.
 
 ```opencode-bootstrap-json
 {
@@ -38,7 +38,7 @@ Use Nuxt UI when the selected frontend framework is Nuxt or Nuxt 4 and the proje
 - Ensure pnpm `allowBuilds` includes Nuxt/Nuxt UI build-script packages before install, including `vue-demi`. For future packages, pass extra names through `OPENCODE_PNPM_ALLOW_BUILDS` or script arguments instead of adding project-specific logic.
 - Add `@nuxt/ui` to `nuxt.config.*` modules.
 - Ensure the global CSS imports both Tailwind CSS and Nuxt UI.
-- Keep Nuxt UI as the UI kit layer; do not mix it with React-only kits such as coss.
+- Keep Nuxt UI as the UI kit layer for Nuxt projects.
 
 ## Bootstrap
 

@@ -10,11 +10,11 @@ metadata:
 
 ## OpenCode Greenfield Bootstrap Metadata
 
-This OpenCode-only metadata installs coss UI registry artifacts during Greenfield bootstrap. The coss agent skills are expected to come from the global/preseeded skills manager, not from runtime bootstrap. The rest of this file remains the official coss skill guidance and references.
+This OpenCode-only metadata installs coss UI registry artifacts during Greenfield bootstrap. The coss agent skills come from the global/preseeded skills manager during bootstrap. The rest of this file remains the official coss skill guidance and references.
 
 Bootstrap follows the official coss install path: run the shadcn CLI with the project's existing package manager and let it finish because the CLI creates files and installs dependencies. The bootstrap script reports the CLI exit code and then verifies generated artifacts plus runtime dependencies such as `class-variance-authority`, `clsx`, and `tailwind-merge`.
 
-Registry specs such as `@coss/ui`, `@coss/colors-neutral`, `@coss/style`, `coss/ui`, and `coss/colors-neutral` are remote shadcn registry identifiers, not workspace files. Never call Read/Glob/ls on those strings. If such a read already failed with file-not-found, ignore that read error and diagnose the actual CLI process, `package.json`, lockfile, and generated UI files instead.
+Registry specs such as `@coss/ui`, `@coss/colors-neutral`, `@coss/style`, `coss/ui`, and `coss/colors-neutral` are remote shadcn registry identifiers. Use the shadcn CLI and diagnose the actual CLI process, `package.json`, lockfile, and generated UI files.
 
 ```opencode-bootstrap-json
 {
@@ -72,8 +72,8 @@ Use this skill to:
 
 Always apply before returning coss code:
 
-- Do not invent coss APIs. Verify against component docs first.
-- For trigger-based primitives (Dialog, Menu, Select, Popover, Tooltip), follow each primitive's documented trigger/content hierarchy and composition API; do not mix patterns across components.
+- Verify coss APIs against component docs first.
+- For trigger-based primitives (Dialog, Menu, Select, Popover, Tooltip), follow each primitive's documented trigger/content hierarchy and composition API for that component.
 - Preserve accessibility labels and error semantics.
 - Consult primitive-specific guides for component invariants and edge cases.
 - For manual install guidance, include all required dependencies and local component files referenced by imports.
@@ -138,7 +138,7 @@ High-risk primitives (read these guides first -- they have the most composition 
 - `./references/primitives/select.md` - items-first pattern, multiple, object values, groups
 - `./references/primitives/form.md` - Field composition, validation, submission
 - `./references/primitives/input-group.md` - addons, DOM order invariant, textarea layouts
-- `./references/primitives/toast.md` - toastManager (not Sonner), anchored toasts, providers
+- `./references/primitives/toast.md` - toastManager, anchored toasts, providers
 
 ## Output Checklist
 

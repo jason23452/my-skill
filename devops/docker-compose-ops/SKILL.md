@@ -8,19 +8,34 @@ description: >-
 
 ## Bootstrap Boundary
 
-Docker Compose setup is a DevOps add-on. Do not run it as part of a generic framework scaffold. Apply this skill only when the user asks for Compose services, container orchestration, local stack wiring, logs, ports, volumes, networks, or healthchecks.
+Docker Compose setup is a DevOps add-on. Apply this skill when the user asks for Compose services, container orchestration, local stack wiring, logs, ports, volumes, networks, or healthchecks.
 
-多 repo Greenfield 時，project-level compose 必須把 frontend、backend、db 放在同一個 stack 中；repo-local compose 只能作為 fallback。前端透過 `/api` proxy 呼叫後端，backend 在 Compose network 內使用 `db:5432`，不要使用 `localhost` 連 database。
+```opencode-bootstrap-json
+{
+  "role": "any",
+  "category": "compose",
+  "order": 60,
+  "packageManager": "node",
+  "scaffoldCommand": [
+    "if test -f .opencode/skills/docker-compose-ops/scripts/bootstrap-02-01.cjs; then node .opencode/skills/docker-compose-ops/scripts/bootstrap-02-01.cjs; else node ${OPENCODE_PROJECT_SKILLS_PRESEEDED_DIR:-/app/.opencode/skills}/docker-compose-ops/scripts/bootstrap-02-01.cjs; fi"
+  ],
+  "verificationCommands": [
+    "node -e \"const fs=require('fs'); if(!['compose.yaml','compose.yml','docker-compose.yml','docker-compose.yaml'].some((file)=>fs.existsSync(file))) process.exit(1);\""
+  ]
+}
+```
+
+多 repo Greenfield 時，project-level compose 必須把 frontend、backend、db 放在同一個 stack 中；repo-local compose 作為 fallback。前端透過 `/api` proxy 呼叫後端，backend 在 Compose network 內使用 `db:5432` 連 database。
 
 使用這個 skill 安全地操作與排查 Docker Compose 專案。Compose 工作通常不是只看單一檔案，而是整個 runtime graph：repository 結構、service 相依、環境變數、ports、volumes、healthchecks、networks 與 logs 都要一起檢查。
 
 ## 初始檢查
 
 1. 執行指令前，先確認 workspace 並找出 Compose 檔案。
-2. 優先使用專案已定義的 Compose 檔，不要直接發明新指令。
+2. 優先使用專案已定義的 Compose 檔與 README/script 裡的既有指令。
 3. 如果預期的 `docker-compose.yml` 不存在，先搜尋 `compose.yaml`、`compose.yml`、`docker-compose.yaml`、`docker/` 目錄下的檔案，或 `README.md` 中記錄的啟動方式。
-4. 如果完全沒有 Compose 檔，不要假裝它存在。先說明阻塞點，再依情況使用安全的本機 fallback，或在使用者要求時才建立最小可用的 Compose 檔。
-5. 保留使用者既有變更。不要在未經同意時刪除 volumes、重置資料庫、停止無關容器，或覆蓋 `.env` 檔。
+4. 如果完全沒有 Compose 檔，先說明阻塞點，再依情況使用安全的本機 fallback，或在使用者要求時建立最小可用的 Compose 檔。
+5. 保留使用者既有變更。volumes、資料庫、無關容器與 `.env` 檔都以使用者同意與明確範圍為準。
 
 常用探索指令：
 
@@ -56,7 +71,7 @@ docker compose config
 docker compose -f <compose-file> config
 ```
 
-這能提早抓出 YAML 錯誤、無效 service 欄位、缺少環境變數插值，以及 override merge 後的意外設定。驗證失敗時，先修 config，不要直接跑 `up`。
+這能提早抓出 YAML 錯誤、無效 service 欄位、缺少環境變數插值，以及 override merge 後的意外設定。驗證失敗時，先修 config，再跑 `up`。
 
 ## 指令選擇
 
@@ -119,7 +134,7 @@ docker compose restart <service>
 docker compose build <service>
 ```
 
-只有在需要即時觀察 startup 時才用 `logs -f`。診斷與最終回報時，優先使用有界限的 `--tail` 與 `--no-color`，避免輸出過長且難讀。
+需要即時觀察 startup 時使用 `logs -f`。診斷與最終回報時，優先使用有界限的 `--tail` 與 `--no-color`，讓輸出保持可讀。
 
 ## 常見修法
 
@@ -136,13 +151,13 @@ docker compose build <service>
 
 - 建立 `.env` 前，先檢查是否有 `.env.example`。
 - 若 `.env.example` 明確是本機預設或 placeholder，複製成 `.env` 通常可以接受。
-- 不要發明 production secrets。
-- 在 Compose network 內，database 與 API 通常要使用 `db`、`postgres`、`redis`、`backend` 這類 service name，不要用 `localhost`。
+- production secrets 由既有 secret 管理、`.env.example` placeholder 或部署環境提供。
+- 在 Compose network 內，database 與 API 通常使用 `db`、`postgres`、`redis`、`backend` 這類 service name。
 
 ### Ports
 
-- 如果 host port 被佔用，先找出佔用者，不要直接停止它。
-- 未經同意不要停止無關程序。
+- 如果 host port 被佔用，先找出佔用者，再由使用者確認改 port 或停止程序。
+- 無關程序維持原狀；使用者明確同意時才處理。
 - 若只是本機衝突，優先修改 host-side port mapping。
 
 範例：
@@ -160,13 +175,13 @@ ports:
 
 ### Healthchecks 與 Depends On
 
-- `depends_on` 主要控制啟動順序，不代表 app 已經可用；除非有 health condition。
+- `depends_on` 主要控制啟動順序；app 可用性由 health condition、retry loop 或 service health endpoint 表達。
 - 對 database 這類相依服務，加入 healthcheck，並讓 app startup 能處理可重試的連線失敗。
-- 能用 healthcheck 或 retry loop 時，不要使用固定 sleep 當作主要等待策略。
+- 能用 healthcheck 或 retry loop 時，採用可觀測的 readiness strategy。
 
 ## 建立或編輯 Compose 檔
 
-Compose 檔要簡單、明確、可預期。優先做最小正確修改，不要大幅重寫。
+Compose 檔要簡單、明確、可預期。優先做最小正確修改，保留既有 stack 結構。
 
 本機開發的良好預設：
 
@@ -178,7 +193,7 @@ Compose 檔要簡單、明確、可預期。優先做最小正確修改，不要
 - 用 named volumes 保存 container-managed dependencies 與 database data。
 - Database 或其他被依賴的 service 應有 healthchecks。
 
-避免：
+保留以下界線：
 
 - Commit 真實 secrets。
 - 沒有具體理由就使用 `container_name`，因為它容易造成不同專案間的名稱衝突。
@@ -203,7 +218,7 @@ Windows 上如果沒有 `curl`，使用：
 Invoke-WebRequest -Uri "http://localhost:<port>/<health-path>" -UseBasicParsing
 ```
 
-如果因 Docker 未啟動、port 被佔用、credential 缺失或外部服務不可用而無法完成驗證，要明確說出阻塞原因與失敗的指令。
+如果因 Docker 未啟動、port 被佔用、credential 缺失或外部服務 unavailable 而驗證受阻，要明確說出阻塞原因與失敗的指令。
 
 ## 回覆方式
 

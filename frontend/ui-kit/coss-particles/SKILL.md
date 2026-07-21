@@ -10,7 +10,22 @@ metadata:
 
 ## Bootstrap Boundary
 
-This skill is a pattern index for projects that already use coss. It does not scaffold, install, or modify a Greenfield project by itself.
+This skill is a pattern index for projects that already use coss. It provides copy-paste-ready particle discovery after the base coss UI kit is selected or installed.
+
+```opencode-bootstrap-json
+{
+  "role": "frontend",
+  "category": "ui-kit-patterns",
+  "uiKit": "coss-particles",
+  "frameworks": ["react", "react-vite"],
+  "requiresPrimarySkills": ["react-vite-feature-based"],
+  "requiresUiKitSkills": ["coss"],
+  "order": 35,
+  "packageManager": "none",
+  "scaffoldCommand": [],
+  "verificationCommands": []
+}
+```
 
 Particles are copy-paste-ready UI patterns built on [coss](https://coss.com/ui) primitives. Browse them visually at <https://coss.com/ui/particles>.
 

@@ -33,7 +33,7 @@ description: React + Vite feature-based frontend scaffold and maintenance skill.
 
 ## Package Manager
 
-依 lockfile 使用既有 package manager，不要混用 lockfile：
+依 lockfile 使用既有 package manager；每次只採用一個由 lockfile 決定的 package manager：
 
 - `pnpm-lock.yaml`：`pnpm`
 - `package-lock.json`：`npm`
@@ -76,7 +76,7 @@ src/
 
 1. 先閱讀 `src/app/`、相關的 `src/features/<feature-name>/` 與 `src/shared/`
 2. 確認需求屬於哪一個 feature
-3. 用最小正確修改完成工作，不要先做過度抽象
+3. 用最小正確修改完成工作，抽象只在能降低實際複雜度時加入
 
 ## Greenfield Bootstrap 規則
 
@@ -139,7 +139,7 @@ export default defineConfig({
 - `AppRouter.tsx`
 - `global.css`
 
-不要把 feature 專屬頁面或區塊元件放進 `app/`。
+feature 專屬頁面或區塊元件放在該 feature 目錄。
 
 ### `features/<feature-name>/router/`
 
@@ -154,7 +154,7 @@ export default defineConfig({
 
 放該 feature 專用元件。
 
-如果元件只被該 feature 使用，就留在這裡，不要提早搬到 `shared/components/`。
+如果元件只被該 feature 使用，就留在這裡；跨 feature 共用時再搬到 `shared/components/`。
 
 ### `features/<feature-name>/hooks/`
 
@@ -204,7 +204,7 @@ Framework scaffold 只提供最小 CSS entry 與 starter class。新增 styling 
 
 1. 優先維持目前專案結構
 2. 優先最小改動
-3. 若需求只影響單一 feature，就不要擴散到其他目錄
+3. 若需求只影響單一 feature，修改範圍維持在該 feature 目錄
 4. 若搬動檔案，務必同步更新 import
 5. 若新增頁面，從 `router/` 開始組裝，再從 `components/` 拆區塊
 
