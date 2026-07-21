@@ -1,6 +1,6 @@
 ---
 name: backend-feature-fastapi
-description: "建立與維護 FastAPI 後端 feature 模組、router、Pydantic schema、service layer 與 app router 註冊。使用者提到 FastAPI endpoint、backend feature、router、schema、service、request/response DTO、health endpoint 或 FastAPI greenfield backend 時使用。"
+description: "建立與維護 FastAPI 後端專案架構、feature 模組、router、Pydantic schema、service layer、app factory 與 app router 註冊。使用者提到 FastAPI endpoint、backend project architecture、backend feature、router、schema、service、request/response DTO、health endpoint 或 FastAPI greenfield backend 時使用。"
 ---
 
 # FastAPI Feature Backend
@@ -10,6 +10,8 @@ description: "建立與維護 FastAPI 後端 feature 模組、router、Pydantic 
 ```opencode-bootstrap-json
 {
   "role": "backend",
+  "category": "framework",
+  "framework": "fastapi",
   "order": 10,
   "packageManager": "uv",
   "scaffoldCommand": [
@@ -33,15 +35,42 @@ description: "建立與維護 FastAPI 後端 feature 模組、router、Pydantic 
 使用者需要以下工作時使用：
 
 - 建立 FastAPI greenfield backend。
+- 定義 FastAPI backend project architecture。
 - 新增或調整 endpoint。
 - 設計 feature-based router、schemas、service。
 - 註冊 feature router 到 app router。
 - 建立 health、version、status 等 HTTP feature。
 - 整理 FastAPI app entry、CORS 與基本路由組裝。
 
+## 專案架構
+
+Greenfield backend scaffold 採用這個最小但可擴充的 FastAPI 專案架構：
+
+```text
+app/
+  __init__.py
+  main.py                 # create_app() app factory and ASGI app
+  core/
+    __init__.py
+    config.py             # Settings and environment parsing
+    middleware.py         # app-level middleware wiring such as CORS
+  features/
+    __init__.py
+    router.py             # feature router aggregator
+    health/
+      __init__.py
+      router.py
+      schemas.py
+      service.py
+```
+
+保留 `app/core` 給 framework-level application concerns，例如 settings、middleware、exception wiring、logging wiring。資料庫連線、ORM model、migration、Docker database service 不放在這個 skill，改由 database/devops skill 處理。
+
 ## 架構規則
 
-- `app/main.py` 建立 `FastAPI` app、設定 middleware，並 include `app/features/router.py`。
+- `app/main.py` 定義 `create_app()`，建立 `FastAPI` app、讀取 settings、套用 middleware，並 include `app/features/router.py`。
+- `app/core/config.py` 放 application settings，不放 secrets 預設值。
+- `app/core/middleware.py` 放 framework-level middleware wiring，例如 CORS。
 - `app/features/router.py` 作為 feature router aggregator，集中 include 各 feature router。
 - 每個 feature 使用自己的目錄，例如 `app/features/users/`。
 - feature router 使用 feature-local prefix，例如 `/users` 或 `/projects`。
@@ -107,22 +136,25 @@ router = APIRouter()
 router.include_router(<feature>_router)
 ```
 
-`app/main.py` 只 include aggregator：
+`app/main.py` 使用 app factory 並只 include aggregator：
 
 ```python
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 
+from app.core.config import get_settings
+from app.core.middleware import configure_cors
 from app.features.router import router as feature_router
 
-app = FastAPI()
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-app.include_router(feature_router)
+
+def create_app() -> FastAPI:
+    settings = get_settings()
+    app = FastAPI(title=settings.service_name, version=settings.version)
+    configure_cors(app, settings)
+    app.include_router(feature_router)
+    return app
+
+
+app = create_app()
 ```
 
 ## 驗證

@@ -3,7 +3,7 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "在 FastAPI backend 新增 projects API，Project 需要 id、name、description、is_active，先支援 list 與 create，並遵守 feature-based router/schema/service 架構。",
+      "prompt": "在 FastAPI backend 新增 projects API。Project 需要 id、name、description、is_active，先支援 list 與 create，並遵守 feature-based router/schema/service 架構。",
       "expected_output": "A backend implementation or implementation plan that follows the FastAPI feature architecture, registers the router in app/features/router.py, and creates schemas, service, router, and __init__.py.",
       "files": [],
       "assertions": [
@@ -27,7 +27,7 @@
     },
     {
       "id": 3,
-      "prompt": "users feature 新增 GET /users/{user_id}，找不到時回 404，請說明 router、schema、service 各自怎麼改。",
+      "prompt": "users feature 新增 GET /users/{user_id}，找不到時回 404，請分層放在 router、schema、service。",
       "expected_output": "Changes that add a service-level get-by-id method, HTTPException 404 handling, and a router endpoint with response_model=UserRead.",
       "files": [],
       "assertions": [
@@ -35,6 +35,19 @@
         "Output raises HTTPException 404 from the service layer when a user is not found.",
         "Output adds GET /users/{user_id} in the router with response_model=UserRead.",
         "Output avoids putting business rules directly in the router."
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "建立一個新的 FastAPI greenfield backend，請定義專案架構並保留後續擴充 feature 的位置。",
+      "expected_output": "A greenfield FastAPI project with app/main.py, app/core/config.py, app/core/middleware.py, app/features/router.py, and a health feature under app/features/health.",
+      "files": [],
+      "assertions": [
+        "Output defines app/main.py with create_app() and app = create_app().",
+        "Output includes app/core/config.py and app/core/middleware.py for application-level concerns.",
+        "Output includes app/features/router.py as the only feature router aggregator imported by app/main.py.",
+        "Output includes app/features/health with __init__.py, router.py, schemas.py, and service.py.",
+        "Output keeps database, ORM, migration, and Docker concerns out of this FastAPI framework scaffold."
       ]
     }
   ]

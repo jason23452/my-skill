@@ -43,7 +43,7 @@ my-skill/
 
 ## Backend
 
-- `backend-feature-fastapi`: FastAPI app、feature router、Pydantic schema、service layer 與 router registration。它不包含 DB/ORM/migration。
+- `backend-feature-fastapi`: FastAPI project architecture、app factory、core config/middleware、feature router、Pydantic schema、service layer 與 router registration。它不包含 DB/ORM/migration。
 
 ## Frontend
 
