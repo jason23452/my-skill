@@ -25,7 +25,7 @@ Docker Compose setup is a DevOps add-on. Apply this skill when the user asks for
 }
 ```
 
-多 repo Greenfield 時，project-level compose 必須把 frontend、backend、db 放在同一個 stack 中；repo-local compose 作為 fallback。前端透過 `/api` proxy 呼叫後端，backend 在 Compose network 內使用 `db:5432` 連 database。
+多 repo Greenfield 時，project-level compose 必須把 frontend、backend、db 放在同一個 stack 中；repo-local compose 承載單 repo runtime。前端透過 `/api` proxy 呼叫後端，backend 在 Compose network 內使用 `db:5432` 連 database。
 
 使用這個 skill 安全地操作與排查 Docker Compose 專案。Compose 工作通常不是只看單一檔案，而是整個 runtime graph：repository 結構、service 相依、環境變數、ports、volumes、healthchecks、networks 與 logs 都要一起檢查。
 
@@ -34,7 +34,7 @@ Docker Compose setup is a DevOps add-on. Apply this skill when the user asks for
 1. 執行指令前，先確認 workspace 並找出 Compose 檔案。
 2. 優先使用專案已定義的 Compose 檔與 README/script 裡的既有指令。
 3. 如果預期的 `docker-compose.yml` 不存在，先搜尋 `compose.yaml`、`compose.yml`、`docker-compose.yaml`、`docker/` 目錄下的檔案，或 `README.md` 中記錄的啟動方式。
-4. 如果完全沒有 Compose 檔，先說明阻塞點，再依情況使用安全的本機 fallback，或在使用者要求時建立最小可用的 Compose 檔。
+4. 如果完全沒有 Compose 檔，先回報缺少 Compose source；使用者要求建立時，產生最小可用的本機 Compose 檔。
 5. 保留使用者既有變更。volumes、資料庫、無關容器與 `.env` 檔都以使用者同意與明確範圍為準。
 
 常用探索指令：
@@ -144,7 +144,7 @@ docker compose build <service>
 
 - 先搜尋其他 Compose 檔名。
 - 檢查 README 或 scripts 中的專案啟動方式。
-- 如果專案只有 app manifests，先說明目前沒有 Compose 可用，再使用本機 fallback 指令。
+- 如果專案只有 app manifests，先說明目前沒有 Compose 可用，再使用專案既有本機啟動指令。
 - 如果適合建立 Compose 檔，先只加入必要 service，並明確設定 names、ports、environment。
 
 ### 環境變數

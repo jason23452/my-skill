@@ -51,11 +51,8 @@ It preserves existing config where possible and only adds missing Nuxt UI entrie
 
 ## Verification
 
-Run the existing package manager's build script:
+Framework scaffold skills own full build verification. Nuxt UI verification checks integration state:
 
-```bash
-pnpm build
-npm run build
-yarn build
-bun run build
-```
+- `@nuxt/ui`, `tailwindcss`, `nuxt`, and `@iconify-json/lucide` are present in `package.json`.
+- `@nuxt/ui` is present in `nuxt.config.*` modules.
+- The Nuxt CSS entry imports Tailwind CSS and Nuxt UI.

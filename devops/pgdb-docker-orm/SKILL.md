@@ -51,7 +51,7 @@ PostgreSQL, ORM, migration, and table/schema work is a database add-on. Apply th
 - 既有 `.env`、`.env.example`、settings module 與 `DATABASE_URL` 命名。
 - 是否已有測試或 seed script 可驗證資料庫連線。
 
-如果 stack 不清楚，問一個簡短問題，列出最可能的 ORM 選項，並以使用者答案決定。
+Stack evidence incomplete 時，先根據 manifest、framework config 與既有 migration 檔推定最匹配的 ORM；缺少必要決策時輸出 `requiredInput`，由 flow/find-skills question gate 收斂。
 
 ## 建立本機 PostgreSQL Service
 

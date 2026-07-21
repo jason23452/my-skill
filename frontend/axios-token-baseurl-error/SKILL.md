@@ -44,7 +44,8 @@ Inspect the repository and choose the smallest API client location that matches 
 
 1. Reuse an existing Axios, `$fetch`, http, or request client file if one already exists.
 2. Reuse an existing `api`, `http`, `lib`, `services`, `utils`, `composables`, or framework-local folder.
-3. Create a minimal API folder under the current source root as the bootstrap fallback. Treat that fallback as implementation detail for transport files.
+3. For Nuxt, create generated transport files in `app/utils/api` by default, or `src/utils/api` when the project uses `src` as its source root.
+4. For Vite SPA projects, create generated transport files under the current source root's `api` folder.
 
 When documenting the result, report the chosen folder as "API client location".
 
@@ -80,7 +81,7 @@ Prefer the project's existing runtime configuration. Common sources include:
 - Vite env values such as `VITE_API_BASE_URL`
 - Nuxt public runtime config values such as `runtimeConfig.public.apiBase`
 - an existing app config module
-- fallback `/api` for same-origin proxy/server routes
+- default `/api` for same-origin proxy/server routes
 
 Resolve production hostnames and secrets from runtime configuration or environment variables.
 
@@ -88,7 +89,7 @@ Resolve production hostnames and secrets from runtime configuration or environme
 
 The transport client should depend on an auth-source-agnostic token provider.
 
-Use a default provider only as a safe bootstrap fallback:
+Use a minimal default provider during bootstrap:
 
 ```ts
 export type AccessTokenProvider = () => string | null | undefined
@@ -387,23 +388,12 @@ After applying this skill, report:
 4. How errors are normalized.
 5. How to use the dynamic parameter-based HTTP methods and exported method helper functions.
 6. For Nuxt projects, how pages should call `useAsyncData('key', () => apiWrapper(...))`.
-7. Build/lint/typecheck result when available.
+7. Project verification result from the repo's existing checks when available.
 
 Report transport-level work. Mention business endpoint wrappers when the task changed them.
 
 ## Verification
 
-Run the existing project checks first:
+This skill owns API client integration verification. Confirm that the transport wrapper, exported method helpers, token provider, base URL handling, and error normalization are wired into the project.
 
-```bash
-pnpm build
-pnpm lint
-npm run build
-npm run lint
-yarn build
-yarn lint
-bun run build
-bun run lint
-```
-
-If the project has no lint script, use the closest existing typecheck/test/build command.
+Use the repo's existing lint, typecheck, test, or framework verification commands when they are already defined by the project or framework skill. Keep project-wide build ownership in the framework scaffold skill metadata.

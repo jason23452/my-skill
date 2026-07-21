@@ -42,7 +42,7 @@ Use this skill to:
 
 - pick the right coss primitive(s) for a UI task
 - write correct coss usage code (imports, composition, props)
-- avoid common migration mistakes from shadcn/Radix assumptions
+- apply coss/Base UI migration rules from shadcn/Radix assumptions
 - reference particle examples to produce practical, production-like patterns
 
 ## Source of truth
@@ -97,7 +97,7 @@ All 54 primitives have dedicated reference guides at `./references/primitives/<n
 
 1. Identify user intent (single primitive, composed flow, form flow, overlay flow, feedback flow).
 2. Consult `references/component-registry.md` to identify candidate primitives.
-3. Select primitives from coss docs first; avoid custom fallback unless needed.
+3. Select primitives from coss docs first; compose project-local components for primitive coverage gaps.
 4. Check at least one particle example for practical composition patterns. Particle files live at `apps/ui/registry/default/particles/p-<name>-N.tsx`.
 5. Write minimal code using documented imports/props.
 6. Self-check accessibility and composition invariants.

@@ -99,7 +99,11 @@ function hasAnyFile(dirPath) {
 }
 
 function usesTypeScript() {
-  return exists("tsconfig.json") || exists("tsconfig.app.json") || exists("tsconfig.node.json")
+  return exists("tsconfig.json")
+    || exists("tsconfig.app.json")
+    || exists("tsconfig.node.json")
+    || exists("nuxt.config.ts")
+    || exists("vite.config.ts")
 }
 
 function isNuxtProject() {
@@ -120,7 +124,7 @@ function detectSourceRoot() {
   return "."
 }
 
-function chooseApiDir() {
+function chooseApiDir(isNuxt) {
   const candidates = [
     "src/shared/api",
     "src/lib/api",
@@ -146,14 +150,18 @@ function chooseApiDir() {
   }
 
   const root = detectSourceRoot()
+  if (isNuxt) {
+    if (root === "src") return path.join("src", "utils", "api")
+    return path.join("app", "utils", "api")
+  }
   if (root === "src") return path.join("src", "api")
   if (root === "app") return path.join("app", "utils", "api")
   return "api"
 }
 
-const apiDir = chooseApiDir()
 const ext = usesTypeScript() ? "ts" : "js"
 const isNuxt = isNuxtProject()
+const apiDir = chooseApiDir(isNuxt)
 
 const typeModule = ext === "ts"
   ? `export type ApiErrorPayload = { message?: string; code?: string; details?: unknown }

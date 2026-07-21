@@ -1,46 +1,64 @@
 #!/usr/bin/env node
 
 const fs = require("fs")
-const cp = require("child_process")
+const path = require("path")
+
+const cwd = process.cwd()
+const configCandidates = ["nuxt.config.ts", "nuxt.config.js", "nuxt.config.mjs"]
+const cssCandidates = [
+  path.join("app", "assets", "css", "main.css"),
+  path.join("assets", "css", "main.css"),
+]
 
 function exists(filePath) {
-  return fs.existsSync(filePath)
+  return fs.existsSync(path.join(cwd, filePath))
 }
 
-function readJson(filePath, fallback = {}) {
-  try {
-    return JSON.parse(fs.readFileSync(filePath, "utf8"))
-  } catch {
-    return fallback
-  }
+function read(filePath) {
+  return fs.readFileSync(path.join(cwd, filePath), "utf8").replace(/^\uFEFF/u, "")
 }
 
-function detectPackageManager() {
-  if (exists("pnpm-lock.yaml")) return "pnpm"
-  if (exists("bun.lock") || exists("bun.lockb")) return "bun"
-  if (exists("yarn.lock")) return "yarn"
-  if (exists("package-lock.json")) return "npm"
-  return "pnpm"
+function readJson(filePath) {
+  return JSON.parse(read(filePath))
 }
 
-function scriptCommand(packageManager, scriptName) {
-  if (packageManager === "npm") return ["npm", ["run", scriptName]]
-  if (packageManager === "bun") return ["bun", ["run", scriptName]]
-  return [packageManager, [scriptName]]
+function hasDependency(manifest, name) {
+  return Boolean((manifest.dependencies || {})[name] || (manifest.devDependencies || {})[name])
 }
+
+function fail(message) {
+  console.error(`nuxt-ui verification failed: ${message}`)
+  process.exit(1)
+}
+
+if (!exists("package.json")) fail("package.json is missing.")
 
 const manifest = readJson("package.json")
-if (!manifest.scripts?.build) {
-  console.log("nuxt-ui: package.json has no build script; skipped build verification.")
-  process.exit(0)
+for (const name of ["nuxt", "@nuxt/ui", "tailwindcss"]) {
+  if (!hasDependency(manifest, name)) fail(`${name} is missing from package dependencies.`)
 }
 
-const packageManager = detectPackageManager()
-const [command, args] = scriptCommand(packageManager, "build")
-const result = cp.spawnSync(command, args, {
-  stdio: "inherit",
-  shell: process.platform === "win32",
-})
+if (!hasDependency(manifest, "@iconify-json/lucide")) {
+  fail("@iconify-json/lucide is missing from package dependencies.")
+}
 
-if (result.error) throw result.error
-process.exit(result.status ?? 1)
+const configPath = configCandidates.find(exists)
+if (!configPath) fail("nuxt.config file is missing.")
+
+const configSource = read(configPath)
+if (!/modules\s*:\s*\[[\s\S]*['"]@nuxt\/ui['"][\s\S]*\]/u.test(configSource)) {
+  fail("@nuxt/ui is missing from nuxt.config modules.")
+}
+
+const cssPath = cssCandidates.find(exists)
+if (!cssPath) fail("Nuxt CSS entry is missing.")
+
+const cssSource = read(cssPath)
+if (!/@import\s+["']tailwindcss["']\s*;?/u.test(cssSource)) {
+  fail("Tailwind CSS import is missing from the CSS entry.")
+}
+if (!/@import\s+["']@nuxt\/ui["']\s*;?/u.test(cssSource)) {
+  fail("@nuxt/ui import is missing from the CSS entry.")
+}
+
+console.log("nuxt-ui verification passed: package, Nuxt module, CSS imports, and local icon package are configured.")
