@@ -158,7 +158,7 @@ Greenfield bootstrap 產生 README 時，通常資訊有限。請使用「可驗
 - 「Backend health endpoint: /api/health」除非 route 存在。
 - 「PostgreSQL service: db:5432」除非 compose 或 config 存在。
 - 「Docker compose validation」除非有 compose file。
-- 固定 port `5173` / `8000`，除非 scripts 或 config 寫明。
+- Host published ports may be dynamically allocated by scaffold scripts; document fixed ports only when scripts or config explicitly fix them.
 
 ## 多語 README 規則
 

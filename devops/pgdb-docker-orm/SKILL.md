@@ -9,6 +9,8 @@ description: 使用 Docker image / Docker Compose 開發 PostgreSQL 資料庫，
 
 PostgreSQL, ORM, migration, and table/schema work is a database add-on. Apply this skill when the user asks for PGDB, Postgres, Docker database service, ORM model, migration, schema, or table work.
 
+When adding or generating PostgreSQL Compose services, allocate an available host-side port before writing `ports:`. Keep the container port and Compose network endpoint fixed at `5432`, so application containers continue to use `db:5432`; only host access uses the allocated published port.
+
 ```opencode-bootstrap-json
 {
   "role": "backend",
@@ -68,7 +70,7 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: app_db
     ports:
-      - "5432:5432"
+      - "<allocated-postgres-host-port>:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -84,7 +86,7 @@ volumes:
 依專案調整預設值：
 
 - 如果專案已指定 PostgreSQL major version，沿用既有版本。
-- 如果主機 `5432` 已被占用，先說明 tradeoff，再考慮改成 `5433:5432`。
+- Host published port must come from the bootstrap port allocator; do not hardcode `5432:5432` or assume `5433:5432`.
 - 共用或正式環境的密碼由 secret 管理或部署環境提供。`postgres/postgres` 適合本機 throwaway 開發環境。
 - 後端也在 Compose 中執行時，若專案支援，替 backend service 加上 `depends_on` health condition。
 
@@ -121,7 +123,7 @@ Docker 指令應從包含 Compose 檔案的專案根目錄執行。
 
 6. 如果 backend 跑在主機上，通常使用 host published port。
    ```text
-   postgresql://postgres:postgres@localhost:5432/app_db
+   postgresql://postgres:postgres@localhost:<allocated-postgres-host-port>/app_db
    ```
 
 ## ORM Migration 流程

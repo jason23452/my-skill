@@ -156,6 +156,12 @@ docker compose build <service>
 
 ### Ports
 
+- Before scaffold or startup writes Compose port mappings, probe the current host and allocate available host-side ports.
+- Keep container ports stable for service contracts: frontend dev server uses its framework port, backend uses `8000`, PostgreSQL uses `5432`, and Compose-internal database URLs keep `db:5432`.
+- Avoid duplicate host ports across services in the same repo and across recently scaffolded repos by reserving allocated ports short-term.
+- Do not stop unrelated host processes to claim a preferred port. If the preferred host port is unavailable, use the next available host-side port and print the selected mapping.
+- Document and verify externally visible URLs with the allocated host port, not the container port.
+
 - 如果 host port 被佔用，先找出佔用者，再由使用者確認改 port 或停止程序。
 - 無關程序維持原狀；使用者明確同意時才處理。
 - 若只是本機衝突，優先修改 host-side port mapping。
@@ -164,7 +170,7 @@ docker compose build <service>
 
 ```yaml
 ports:
-  - "8080:80"
+  - "<allocated-host-port>:8000"
 ```
 
 ### Volumes

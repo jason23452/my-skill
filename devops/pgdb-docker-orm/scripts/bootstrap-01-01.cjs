@@ -1,3 +1,3 @@
 #!/usr/bin/env node
 
-const fs=require('fs');if(fs.existsSync('compose.yaml')||fs.existsSync('compose.yml')||fs.existsSync('docker-compose.yml')||fs.existsSync('docker-compose.yaml'))process.exit(0);const lines=['services:','  db:','    image: postgres:17-alpine','    environment:','      POSTGRES_USER: postgres','      POSTGRES_PASSWORD: postgres','      POSTGRES_DB: app_db','    ports:','      - \"5432:5432\"','    volumes:','      - postgres_data:/var/lib/postgresql/data','    healthcheck:','      test: [\"CMD-SHELL\", \"pg_isready -U postgres -d app_db\"]','      interval: 5s','      timeout: 5s','      retries: 10','','volumes:','  postgres_data:'];fs.writeFileSync('compose.yaml',lines.join('\n')+'\n');
+require("./bootstrap-02-01.cjs")
