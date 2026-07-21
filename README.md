@@ -11,9 +11,10 @@
 - Browser automation skill 只負責 CLI/browser 操作與截圖，不安裝 target project 的 E2E test dependencies。
 - Database skill 只負責 database、ORM、migration、schema/table，不混進一般 backend framework skill。
 - DevOps skill 只在使用者要求 Docker、Compose、image build、container runtime 時使用。
-- 只有會被 Greenfield 初始化實際執行的 scaffold/install skill 才放 `opencode-bootstrap-json`。
+- Greenfield 會執行的 scaffold/install skill 使用 executable `opencode-bootstrap-json`。
 - Add-on bootstrap 需要偵測既有 lockfile，避免把 npm/yarn/bun 專案改成 pnpm。
-- Reference、pattern index、review、planning、docs skills 不放 executable bootstrap metadata。
+- Greenfield 自動分派的 README rule skill 使用 docs-only `opencode-bootstrap-json`，讓 bootstrap 能載入 README 規則。
+- Reference、pattern index、review、planning skills 保持純說明用途。
 
 ## 目前結構
 
@@ -76,7 +77,7 @@ description: 這個 skill 負責什麼，以及何時應該使用。
 ---
 ```
 
-`opencode-bootstrap-json` 放在 skill body 內，且只用於實際需要 Greenfield scaffold/install/verification 的技能。Add-on skill 要用明確的 `category`、`frameworks` 與 `requiresPrimarySkills` 描述依賴關係。
+`opencode-bootstrap-json` 放在 skill body 內。Scaffold/install/verification skill 使用 executable metadata；Greenfield README rule skill 使用 `role:"any"` 與 `category:"readme-docs"` 的 docs-only metadata。Add-on skill 要用明確的 `category`、`frameworks` 與 `requiresPrimarySkills` 描述依賴關係。
 
 目前保留 executable bootstrap metadata 的 production skills：
 
@@ -87,6 +88,10 @@ description: 這個 skill 負責什麼，以及何時應該使用。
 - `playwright-e2e-testing`
 - `ui-kit/nuxt-ui`
 - `ui-kit/coss`
+
+目前保留 docs-only Greenfield metadata 的 production skills：
+
+- `flow/readme-i18n-greenfield`
 
 ## 維護檢查
 

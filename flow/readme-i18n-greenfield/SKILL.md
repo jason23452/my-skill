@@ -222,6 +222,21 @@ Greenfield bootstrap 產生 README 時，通常資訊有限。請使用「可驗
 - 列出任何刻意保留英文的專有名詞。
 - 如果資訊不足導致省略某段，簡短說明，不要腦補。
 
+## OpenCode Greenfield Bootstrap Metadata
+
+```opencode-bootstrap-json
+{
+  "role": "any",
+  "category": "readme-docs",
+  "order": 90,
+  "packageManager": "none",
+  "scaffoldCommand": [],
+  "verificationCommands": []
+}
+```
+
+這段 docs-only metadata 讓 Greenfield bootstrap 可以把 `readme-i18n-greenfield` 當成已指派的 README 規則 skill 載入。它只提供 README 指導，不 scaffold app code、不安裝 dependency、不執行 verification，也不啟動 runtime smoke。
+
 ## Bootstrap Boundary
 
-這個 skill 只負責 README 產出與 i18n preservation。它不 scaffold app code，也不提供 Greenfield executable metadata。只有在使用者要求 README、文件整理或 Greenfield README 時才使用。
+這個 skill 只負責 README 產出與 i18n preservation。Greenfield bootstrap 會透過上方 docs-only metadata 識別它為 README 規則來源。只有在使用者要求 README、文件整理或 Greenfield README 時才使用。
