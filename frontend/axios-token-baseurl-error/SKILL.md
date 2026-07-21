@@ -1,9 +1,9 @@
 ---
 name: axios-token-baseurl-error
-description: "Framework-aware frontend API client skill for Vite-based React SPA, Vite-based Vue SPA, and Nuxt. Use when a frontend project needs axios for Vite, Nuxt $fetch wrappers, an API client, dynamic parameter-based HTTP method calls, exported method helper functions, baseURL configuration, token or Authorization/Bearer headers, request hooks/interceptors, or normalized API error handling. Treat react-spa and vue-spa as Vite SPA aliases; add Next.js support only when the user explicitly requests it."
+description: "Framework-aware frontend API client skill for Vite-based React SPA, Vite-based Vue SPA, and Nuxt. Use when a frontend project needs axios for Vite, Nuxt $fetch wrappers, an API client, dynamic parameter-based HTTP method calls, exported method helper functions, baseURL configuration, token or Authorization/Bearer headers, request hooks/interceptors, or normalized API error handling. Treat react-spa and vue-spa as Vite SPA aliases."
 ---
 
-# Axios Token BaseURL Error
+# Framework API Transport
 
 ## OpenCode Greenfield Bootstrap Metadata
 
@@ -34,21 +34,19 @@ Use this skill to add or repair the frontend HTTP foundation only:
 - normalize transport errors into one predictable app error shape
 - keep endpoint calls inside the feature, page, store, composable, or domain module that owns the business behavior
 
-Use Axios for Vite-based React SPA and Vue SPA projects. Use Nuxt's built-in `$fetch` for Nuxt projects; do not add axios to Nuxt unless the user explicitly asks to standardize Nuxt on axios. Treat `react-spa` and `vue-spa` as Vite SPA aliases. Add Next.js conventions only when the user explicitly asks for Next support.
+Use Axios for Vite-based React SPA and Vue SPA projects. Use Nuxt's built-in `$fetch` for Nuxt projects. Treat `react-spa` and `vue-spa` as Vite SPA aliases.
 
-Do not create a global endpoint registry, generic CRUD layer, service factory, or feature-specific business API wrapper unless the user explicitly asks for that abstraction.
+Keep this skill focused on the transport layer. Place endpoint registries, CRUD helpers, service factories, and business-named API wrappers in the feature or domain module that owns the behavior.
 
 ## Folder-Agnostic Rule
 
-Never force a fixed structure such as `src/shared/api` or `src/features`.
-
-Before editing, inspect the repository and choose the smallest location that matches the project:
+Inspect the repository and choose the smallest API client location that matches the project:
 
 1. Reuse an existing Axios, `$fetch`, http, or request client file if one already exists.
-2. Otherwise reuse an existing `api`, `http`, `lib`, `services`, `utils`, `composables`, or framework-local folder.
-3. If no convention exists, create a minimal API folder under the current source root as bootstrap fallback. Treat that fallback as implementation detail, not an architecture mandate.
+2. Reuse an existing `api`, `http`, `lib`, `services`, `utils`, `composables`, or framework-local folder.
+3. Create a minimal API folder under the current source root as the bootstrap fallback. Treat that fallback as implementation detail for transport files.
 
-When documenting the result, report the chosen folder as "API client location" instead of claiming the project uses a required folder structure.
+When documenting the result, report the chosen folder as "API client location".
 
 ## File Responsibilities
 
@@ -62,7 +60,9 @@ The chosen API client folder should contain only transport-level concerns:
 - `types`: transport error payload and normalized error class/type.
 - `index`: convenience exports for the transport modules.
 
-Endpoint functions belong where the feature already lives. The dynamic method helpers are for transport calls only; they are not a global endpoint registry. Examples:
+The bootstrap script writes generated transport files in the selected API folder. Business-named endpoint wrappers stay in feature or domain modules.
+
+Endpoint functions belong where the feature already lives. The dynamic method helpers handle transport calls. Examples:
 
 - a React Vite SPA hook can call `api.request<Resource[]>({ method: 'GET', url: '/resources', query: { page: 1 } })` from the hook or feature API file
 - a React Vite SPA component, hook, Zustand store, Redux thunk, or TanStack Query function can import `getApi`/`postApi` and pass dynamic arguments
@@ -71,7 +71,7 @@ Endpoint functions belong where the feature already lives. The dynamic method he
 - a store action can call `apiClient` from the store
 - any framework script can import `getApi`, `postApi`, `putApi`, `patchApi`, or `deleteApi` and pass `endpoint`, `query`, `body`, and `config` dynamically
 
-Keep endpoints close to the consumer unless the repository already has a domain API convention.
+Keep endpoints close to the consumer. Follow the repository's existing domain API convention when it has one.
 
 ## Base URL
 
@@ -82,11 +82,11 @@ Prefer the project's existing runtime configuration. Common sources include:
 - an existing app config module
 - fallback `/api` for same-origin proxy/server routes
 
-Do not hard-code production hostnames or secrets into the client.
+Resolve production hostnames and secrets from runtime configuration or environment variables.
 
 ## Token Handling
 
-The transport client should depend on a token provider, not a specific auth implementation.
+The transport client should depend on an auth-source-agnostic token provider.
 
 Use a default provider only as a safe bootstrap fallback:
 
@@ -141,7 +141,7 @@ export function normalizeApiError(error: unknown) {
 
 For Nuxt `$fetch`, normalize the thrown fetch error shape in the same boundary. Prefer `response._data` or `data` as the API payload, and map `status`, `statusCode`, `message`, and `code` into `ApiError`.
 
-UI decisions such as toast, redirect, retry, loading state, or form error mapping should stay outside this skill unless the user asks for them.
+Keep UI decisions such as toast, redirect, retry, loading state, and form error mapping in the hook, composable, store, or page layer.
 
 ## Client Shape
 
@@ -175,9 +175,10 @@ apiClient.interceptors.request.use((config) => {
 })
 ```
 
-For Nuxt projects, wrap `$fetch` instead of axios:
+For Nuxt projects, wrap `$fetch`:
 
 ```ts
+import { $fetch, useRuntimeConfig } from '#imports'
 import { getAccessToken } from './token'
 
 export type ApiFetchConfig = {
@@ -275,11 +276,11 @@ export function updateUser<TResponse = User, TBody = Partial<User>>(
 }
 ```
 
-Do not add named business endpoint methods such as `getUsers()` or `createOrder()` globally unless the user explicitly asks for endpoint wrappers. The scaffolded helper layer must stay framework-agnostic and transport-level.
+Keep named business endpoint methods such as `getUsers()` or `createOrder()` in the owning feature or domain module. Keep the scaffolded helper layer framework-aware and transport-level.
 
 ## React And Vue Vite SPA Usage
 
-For `react-spa`, `react-vite`, `vue-spa`, and `vue-vite`, treat the project as Vite-based. Keep the generated API client in the repository's existing source convention, usually `src/api`, `src/lib/api`, `src/services/api`, or a matching existing folder. Do not introduce server-framework conventions.
+For `react-spa`, `react-vite`, `vue-spa`, and `vue-vite`, treat the project as Vite-based. Keep the generated API client in the repository's existing source convention, usually `src/api`, `src/lib/api`, `src/services/api`, or a matching existing folder.
 
 React hook or query function example:
 
@@ -333,7 +334,7 @@ Use `config` for SPA request cancellation, timeout, credentials, and adapter-spe
 
 ## Nuxt Data Fetching Integration
 
-When this skill runs in a Nuxt project, generate `$fetch`-backed transport files. Do not install axios and do not generate a request-object composable such as `useAxiosData('users', { method, url, query })`.
+When this skill runs in a Nuxt project, generate `$fetch`-backed transport files and use Nuxt's built-in runtime fetch dependency.
 
 For Nuxt, keep business-named API wrappers in the owning API, service, or composable module:
 
@@ -376,7 +377,7 @@ const { data, error, status } = await useAsyncData('users', (_nuxtApp, { signal 
 )
 ```
 
-Provide a stable key for route data. Keep `useAsyncData` visible at the page or composable boundary, and keep the API wrapper shape as `api.get(endpoint, query, body, config)`. This follows Nuxt's official pattern of using `useAsyncData` with `$fetch` for setup data so SSR payload hydration does not refetch the same data on the client.
+Provide a stable key for route data. Keep `useAsyncData` visible at the page or composable boundary, and keep the API wrapper shape as `api.get(endpoint, query, body, config)`. This follows Nuxt's official pattern of using `useAsyncData` with `$fetch` for setup data, SSR payload hydration, and client-side payload reuse.
 
 ## Reporting
 
@@ -390,7 +391,7 @@ After applying this skill, report:
 6. For Nuxt projects, how pages should call `useAsyncData('key', () => apiWrapper(...))`.
 7. Build/lint/typecheck result when available.
 
-Do not report that business endpoints were globally wrapped unless endpoint wrappers were explicitly requested.
+Report transport-level work. Mention business endpoint wrappers when the task changed them.
 
 ## Verification
 

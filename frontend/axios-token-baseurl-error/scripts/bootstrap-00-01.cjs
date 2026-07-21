@@ -20,7 +20,7 @@ function isNuxtProject() {
 }
 
 if (isNuxtProject()) {
-  console.log("axios-token-baseurl-error: Nuxt detected; using built-in $fetch and skipping axios install.")
+  console.log("axios-token-baseurl-error: Nuxt detected; using built-in $fetch.")
   process.exit(0)
 }
 
