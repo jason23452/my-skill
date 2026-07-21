@@ -1,30 +1,32 @@
-# 我的 Skills
+# My Skills
 
-這個資料夾整理目前專案使用的 opencode skills。每個 production skill 都應該有 `SKILL.md`，並在檔案開頭使用 YAML frontmatter 提供至少 `name` 與 `description` metadata，讓 opencode 可以建立 skill index 與判斷觸發時機。
+這個資料夾整理本機使用的 Codex/OpenCode skills。每個 skill 都應該是一個清楚的通用邏輯，只描述自己負責的業務邊界，不把其他業務順手包進來。
 
-## 目錄結構
+## 邊界規則
+
+- Framework skill 只負責 framework scaffold 與該 framework 的基本專案結構。
+- UI kit skill 只負責自己的 UI kit 與直接依賴。例如 `nuxt-ui` 可以包含 `@nuxt/ui`、Tailwind CSS 與 Nuxt UI icon collection。
+- API transport skill 只負責 HTTP client、base URL、token header、error normalization、generic methods 與 thin business wrapper pattern。
+- Testing skill 只負責測試設計、測試檔與測試工具，不自動污染 framework scaffold。
+- Database skill 只負責 database、ORM、migration、schema/table，不混進一般 backend framework skill。
+- DevOps skill 只在使用者要求 Docker、Compose、image build、container runtime 時使用。
+- 只有會被 Greenfield 初始化實際執行的 scaffold/install skill 才放 `opencode-bootstrap-json`。
+- Reference、pattern index、review、planning、docs skills 不放 executable bootstrap metadata。
+
+## 目前結構
 
 ```text
-  my-skill/
+my-skill/
   backend/
     backend-feature-fastapi/
   devops/
     docker-build/
     docker-compose-ops/
     pgdb-docker-orm/
-  docs/
-    readme-i18n-greenfield/
   env/
     opencode-bootstrap-json/
   flow/
-    breakdown-feature-prd/
-    prd/
-    prd-context-to-spec/
-    skill-creator/
-    task-coordination-strategies/
-    to-issues/
-    to-spec/
-    writing-great-skills/
+    ...
   frontend/
     axios-token-baseurl-error/
     nuxt4-creater/
@@ -34,99 +36,66 @@
       coss/
       coss-particles/
       nuxt-ui/
-    .agents/skills/
-      frontend-design/
-      web-design-guidelines/
 ```
 
-## Metadata 規範
+## Backend
 
-每個 `SKILL.md` 開頭都應維持這種基本 metadata：
+- `backend-feature-fastapi`: FastAPI app、feature router、Pydantic schema、service layer 與 router registration。它不包含 DB/ORM/migration。
+
+## Frontend
+
+- `react-vite-feature-based`: React + Vite framework scaffold，包含 `src/app`、`src/features`、`src/shared`、routing、pages、components、hooks、types、assets。
+- `nuxt4-creater`: Nuxt 4 framework scaffold，包含 Nuxt 4 `app/` 架構、section composition、pages、layouts、components、composables、plugins、stores、server routes 與 starter CSS。
+- `axios-token-baseurl-error`: Framework-aware API transport。Vite React/Vue 使用 Axios；Nuxt 使用 `$fetch`。業務 API wrapper 放在 owning feature/domain/module。
+- `playwright-e2e-testing`: Playwright E2E 測試設計、撰寫、執行與除錯。此 skill 不參與 Greenfield framework bootstrap。
+- `ui-kit/nuxt-ui`: Nuxt UI add-on，依賴 Nuxt/Nuxt 4 project，負責 `@nuxt/ui`、Tailwind CSS、Nuxt UI icon collection 與 Nuxt UI config。
+- `ui-kit/coss`: React/Vite coss UI add-on，依賴 React/Vite project，負責 coss/shadcn registry、Base UI、Tailwind v4 與 coss component conventions。
+- `ui-kit/coss-particles`: coss pattern index，只在 coss 已選用或已安裝後用來查找 particles。
+
+## DevOps
+
+- `docker-build`: Dockerfile、image build、BuildKit/cache、multi-stage、`.dockerignore`、build failure troubleshooting。
+- `docker-compose-ops`: Docker Compose services、logs、ports、volumes、networks、healthchecks 與 local stack troubleshooting。
+- `pgdb-docker-orm`: PostgreSQL Docker service、ORM model、migration、schema/table change。它是 database add-on，不屬於一般 FastAPI scaffold。
+
+## Env
+
+- `opencode-bootstrap-json`: 撰寫或檢查 `opencode-bootstrap-json` metadata 的規範 skill。它本身不放 executable bootstrap block。
+
+## Metadata 原則
+
+`SKILL.md` frontmatter 至少要包含：
 
 ```yaml
 ---
 name: skill-name
-description: 這個 skill 做什麼，以及何時應該使用。
+description: 這個 skill 負責什麼，以及何時應該使用。
 ---
 ```
 
-- `name`: 必須和 skill 資料夾名稱一致，方便安裝、索引與引用。
-- `description`: 主要觸發依據；要寫清楚使用情境、關鍵詞與近似說法。
-- `compatibility`、`license`、`source`、`version`、`metadata`、`disable-model-invocation` 是可選欄位，只有有實際用途時才加。
-- `disable-model-invocation: true` 適合只希望手動呼叫、不希望自動觸發的 workflow/reference skill。
-- `opencode-bootstrap-json` 是放在 skill body 內的 fenced block，用來描述 Greenfield scaffold、驗證與 runtime smoke check；只有會影響專案初始化或安裝流程的 skill 需要。
+`opencode-bootstrap-json` 放在 skill body 內，且只用於實際需要 Greenfield scaffold/install/verification 的技能。Add-on skill 要用明確的 `category`、`frameworks` 與 `requiresPrimarySkills` 描述依賴關係。
 
-## 後端
+目前保留 executable bootstrap metadata 的 production skills：
 
-- `backend-feature-fastapi`: 用於本專案 FastAPI backend 開發。涵蓋 feature-based module、router、schemas、service、repository、models、dependencies、SQLAlchemy async 與 Alembic migration 慣例。
-- Metadata: `name`、`description`、`compatibility`；包含 `opencode-bootstrap-json`。
+- `backend-feature-fastapi`
+- `react-vite-feature-based`
+- `nuxt4-creater`
+- `axios-token-baseurl-error`
+- `ui-kit/nuxt-ui`
+- `ui-kit/coss`
 
-## 開發維運
+## 維護檢查
 
-- `docker-build`: 通用 Docker build / Dockerfile / Docker Compose build skill。涵蓋 build context、`.dockerignore`、multi-stage builds、BuildKit cache、image tagging、build failure troubleshooting 與驗證指令。
-- `docker-compose-ops`: 用於 Docker Compose 設定、啟停、logs、port 衝突、healthcheck、volume、network 與 container troubleshooting。
-- `pgdb-docker-orm`: 用於 PostgreSQL Docker image / Docker Compose database service，以及 ORM model、migration、schema/table 開發。
-- Metadata: 以上 devops skills 都有 `name`、`description`；`docker-build` 與 `docker-compose-ops` 有 `compatibility`；三者都包含 `opencode-bootstrap-json`。
+新增或修改 skill 後檢查：
 
-## 文件
-
-- `readme-i18n-greenfield`: 用於建立或改寫中文優先的專業 `README.md`，必要時同步英文 sibling 與語言切換器；整合 create-readme 的 README 結構與 readme-i18n 的 Markdown preservation 規則，特別適合 Greenfield bootstrap 後避免 README 變成流水帳 evidence。
-- Metadata: `name`、`description`；包含 `opencode-bootstrap-json`。
-
-## 環境與 Bootstrap
-
-- `opencode-bootstrap-json`: 用於建立或補齊 `opencode-bootstrap-json` 區塊，描述 Greenfield scaffold、verification commands、runtime smoke commands、health URLs 與 project role routing。
-- Metadata: `name`、`description`；這個 skill 本身是 bootstrap metadata 的撰寫規範，不需要在自身 body 內再放 bootstrap block。
-
-## 流程
-
-- `prd`: 由 `github/awesome-copilot` 匯入，用於產生完整 PRD，包含摘要、使用者故事、驗收條件、技術規格與風險分析。
-- `breakdown-feature-prd`: 由 `github/awesome-copilot` 匯入，用於把 Epic 或高階功能想法拆成 feature-level PRD。
-- `to-spec`: 由 `mattpocock/skills` 匯入；上游已將 `to-prd` 重新命名為 `to-spec`，用於從現有對話與 repo context 合成 spec/PRD，不重新訪談。
-- `prd-context-to-spec`: 本地 SDD flow skill，用於把已定稿 `prd.md` 與已凍結 `project-context.md` 轉成 `spec.md`。
-- `to-issues`: 本地改寫自 `mattpocock/skills` 的 `to-tickets`，用於把 PRD/spec/plan 拆成可並行實作的 vertical-slice issues。
-- `skill-creator`: 由 `anthropics/skills` 匯入，用於建立、測試、benchmark、迭代優化 agent skills；已包含上游 scripts、eval viewer、references。
-- `writing-great-skills`: 由 `mattpocock/skills` 匯入，用於審查與改寫 skill 品質，聚焦可預期觸發、資訊階層、漸進揭露與精簡維護。
-- `task-coordination-strategies`: 用於拆解複雜任務、設計 dependency graph、協調多 agent 工作。
-- Metadata: 以上 flow skills 都有 `name` 與 `description`。`to-spec`、`to-issues`、`writing-great-skills` 使用 `disable-model-invocation: true`，避免 reference/workflow skill 不必要自動觸發；`prd` 有 `license`；`to-issues`、`task-coordination-strategies` 有來源資訊。這類 flow skills 不需要 `opencode-bootstrap-json`。
-
-## 前端
-
-- `react-vite-feature-based`: 用於 React + Vite frontend 的 feature-based 架構開發。
-- `nuxt4-creater`: 用於 Nuxt 4 frontend scaffold、Tailwind CSS v4 與 section composition 架構。
-- `axios-token-baseurl-error`: 用於 axios client、baseURL、token、Authorization header 與 API error normalization。
-- `playwright-e2e-testing`: 用於 Playwright E2E 測試設計、撰寫、執行與除錯。
-- `ui-kit/coss`: React / React Vite 的 UI 套件 skill，用於 coss ui / Base UI 元件整合到 `src/shared/components/ui/`。
-- `ui-kit/coss-particles`: coss UI particles 範例索引，用於尋找可複製的 UI component patterns。
-- `ui-kit/nuxt-ui`: Nuxt / Nuxt 4 的 UI 套件 skill，用於安裝與配置官方 Nuxt UI。
-- Metadata: 以上 frontend skills 都有 `name` 與 `description`。UI 套件 skills 放在 `frontend/ui-kit/`，並在 `opencode-bootstrap-json` 內標記 `category`、`frameworks` 與 `requiresPrimarySkills`；framework scaffold skills 標記 `category:"framework"`。
-
-## Frontend Agent Skills
-
-`frontend/.agents/skills/` 內是前端專用 agent skills：
-
-- `frontend-design`: 用於建立或重塑前端 UI、landing page、dashboard、設計系統與視覺方向。
-- `web-design-guidelines`: 用於審查 UI、HTML/CSS、React/Vue 頁面、accessibility、UX 與 design quality。
-- Metadata: 兩者都有 `name` 與 `description`。`frontend-design` 有 `license`；`web-design-guidelines` 有 `metadata.author`、`metadata.version` 與 `metadata.argument-hint`。這兩個不是 Greenfield scaffold skill，因此不需要 `opencode-bootstrap-json`。
-
-## 使用方式
-
-專案層級安裝：
-
-```text
-.opencode/skills/<skill-name>/SKILL.md
+```bash
+python C:/Users/Bojii/.codex/skills/.system/skill-creator/scripts/quick_validate.py <skill-dir>
 ```
 
-全域安裝：
+有 bundled scripts 時也檢查：
 
-```text
-~/.config/opencode/skills/<skill-name>/SKILL.md
+```bash
+node --check <script>
 ```
 
-新增或更新 skills 後，重啟 opencode 才會載入新的 skill metadata。
-
-## 備註
-
-- 未納入 `backend-feature-fastapi-workspace`，因為它包含 eval/test outputs，不是 production skill。
-- 已從複製的 frontend skills 移除假的 `<system-reminder>` 區塊，避免誤導後續 agent permission 行為。
-- `skills-lock.json` 只記錄部分從外部來源匯入的 skills，不是完整 inventory；完整清單以本 README 與實際 `SKILL.md` 為準。
+新增或更新 skills 後，重啟 OpenCode/Codex 才會載入新的 skill metadata。

@@ -1,4 +1,4 @@
 interface:
   display_name: "Nuxt 4 Creator"
-  short_description: "建立 Tailwind 與 Nuxt 4 section 架構"
-  default_prompt: "Use $nuxt4-creater to create a Nuxt 4 project with Tailwind CSS and section composition architecture."
+  short_description: "建立 Nuxt 4 section 架構"
+  default_prompt: "Use $nuxt4-creater to create a Nuxt 4 project with section composition architecture."

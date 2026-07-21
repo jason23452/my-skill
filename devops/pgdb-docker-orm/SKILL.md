@@ -5,39 +5,9 @@ description: 使用 Docker image / Docker Compose 開發 PostgreSQL 資料庫，
 
 # PGDB Docker ORM 開發
 
-## OpenCode Greenfield Bootstrap Metadata
+## Bootstrap Boundary
 
-```opencode-bootstrap-json
-{
-  "role": "backend",
-  "order": 20,
-  "packageManager": "docker",
-  "scaffoldCommand": [
-    "if test -f .opencode/skills/pgdb-docker-orm/scripts/bootstrap-01-01.cjs; then node .opencode/skills/pgdb-docker-orm/scripts/bootstrap-01-01.cjs; else node ${OPENCODE_PROJECT_SKILLS_PRESEEDED_DIR:-/app/.opencode/skills}/pgdb-docker-orm/scripts/bootstrap-01-01.cjs; fi"
-  ],
-  "verificationCommands": [
-    "docker compose config"
-  ],
-  "runtimeSmokeCommand": "docker compose up -d db",
-  "runtimeSmokeHealthUrl": ""
-}
-```
-
-```opencode-bootstrap-json
-{
-  "role": "backend",
-  "order": 25,
-  "packageManager": "docker",
-  "scaffoldCommand": [
-    "if test -f .opencode/skills/pgdb-docker-orm/scripts/bootstrap-02-01.cjs; then node .opencode/skills/pgdb-docker-orm/scripts/bootstrap-02-01.cjs; else node ${OPENCODE_PROJECT_SKILLS_PRESEEDED_DIR:-/app/.opencode/skills}/pgdb-docker-orm/scripts/bootstrap-02-01.cjs; fi"
-  ],
-  "verificationCommands": [
-    "docker compose config"
-  ],
-  "runtimeSmokeCommand": "docker compose up -d db",
-  "runtimeSmokeHealthUrl": ""
-}
-```
+PostgreSQL, ORM, migration, and table/schema work is a database add-on. Do not run it as part of a generic backend scaffold. Apply this skill only when the user asks for PGDB, Postgres, Docker database service, ORM model, migration, schema, or table work.
 
 如果 Compose 檔已存在，不要直接跳過 PostgreSQL bootstrap；應在保留既有 service 的前提下補上 `db` service、healthcheck 與 `postgres_data` volume，並讓 backend 使用 `postgresql+asyncpg://postgres:postgres@db:5432/app_db`。
 

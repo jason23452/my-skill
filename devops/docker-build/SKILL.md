@@ -2,34 +2,13 @@
 name: docker-build
 description: >-
   當使用者要建立、改善、除錯或執行 Docker build、Dockerfile、docker compose build、container image tagging、BuildKit/cache optimization、multi-stage builds、.dockerignore、image size reduction、platform builds 或 CI container build steps 時，使用這個 skill。這是通用 Docker build skill，適用 backend、frontend、monorepo 與各類 service 專案；即使使用者只說 "docker build"、"build image"、"containerize this"、"fix Dockerfile"、"docker compose build"、"映像檔"、"容器化"、"Docker 建置"、"修 Dockerfile" 或 "建 image"，也應優先使用。
-compatibility: Docker CLI, Docker BuildKit/buildx, Docker Compose, Linux container images, common Node/Python/Go/Java build flows.
 ---
 
 # Docker Build
 
-## OpenCode Greenfield Bootstrap Metadata
+## Bootstrap Boundary
 
-```opencode-bootstrap-json
-{
-  "role": "any",
-  "order": 80,
-  "scaffoldCommand": [
-    "if test -f .opencode/skills/docker-build/scripts/bootstrap-01-01.cjs; then node .opencode/skills/docker-build/scripts/bootstrap-01-01.cjs; else node ${OPENCODE_PROJECT_SKILLS_PRESEEDED_DIR:-/app/.opencode/skills}/docker-build/scripts/bootstrap-01-01.cjs; fi"
-  ],
-  "verificationCommands": []
-}
-```
-
-```opencode-bootstrap-json
-{
-  "role": "any",
-  "order": 85,
-  "scaffoldCommand": [
-    "if test -f .opencode/skills/docker-build/scripts/bootstrap-02-01.cjs; then node .opencode/skills/docker-build/scripts/bootstrap-02-01.cjs; else node ${OPENCODE_PROJECT_SKILLS_PRESEEDED_DIR:-/app/.opencode/skills}/docker-build/scripts/bootstrap-02-01.cjs; fi"
-  ],
-  "verificationCommands": []
-}
-```
+Dockerfile and image build setup is a DevOps add-on. Do not run it as part of a generic framework scaffold. Apply this skill only when the user asks for Docker, container images, Dockerfile work, Compose build, or CI container build behavior.
 
 使用這個 skill 讓 Docker image build 更可靠、可重現、體積更小，也更容易除錯。Docker build 工作不要只看單一指令；要同時檢查 source layout、build context、dependency cache、runtime image、安全性與驗證方式。
 

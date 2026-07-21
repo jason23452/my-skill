@@ -10,9 +10,16 @@ const slash = String.fromCharCode(47)
 const colon = String.fromCharCode(58)
 
 const REQUIRED_RUNTIME_DEPENDENCIES = [
+  "@base-ui/react",
   "class-variance-authority",
   "clsx",
+  "lucide-react",
   "tailwind-merge",
+]
+
+const REQUIRED_DEV_DEPENDENCIES = [
+  "@tailwindcss/vite",
+  "tailwindcss",
 ]
 
 const DEFAULT_UI_COMPONENTS = [
@@ -139,12 +146,12 @@ function pnpmEnv() {
   return env
 }
 
-function ensureRuntimeDependencies() {
-  const missing = REQUIRED_RUNTIME_DEPENDENCIES.filter((name) => !hasDependency(name))
+function installDependencies(names, dev) {
+  const missing = names.filter((name) => !hasDependency(name))
   if (!missing.length) return
 
-  logStatus(`coss installing missing runtime dependencies: ${missing.join(" ")}`)
-  const result = cp.spawnSync("pnpm", ["add", ...missing], {
+  logStatus(`coss installing missing ${dev ? "dev " : ""}dependencies: ${missing.join(" ")}`)
+  const result = cp.spawnSync("pnpm", ["add", ...(dev ? ["-D"] : []), ...missing], {
     stdio: "inherit",
     env: pnpmEnv(),
     shell: process.platform === "win32",
@@ -152,6 +159,72 @@ function ensureRuntimeDependencies() {
 
   if (result.error) throw result.error
   if (result.status !== 0) throw new Error(`pnpm add ${missing.join(" ")} exited with code ${result.status || 1}`)
+}
+
+function ensureRuntimeDependencies() {
+  installDependencies(REQUIRED_RUNTIME_DEPENDENCIES, false)
+}
+
+function ensureDevDependencies() {
+  installDependencies(REQUIRED_DEV_DEPENDENCIES, true)
+}
+
+function ensureTailwindCssEntry() {
+  const candidates = ["src/app/global.css", "src/index.css", "src/global.css", "app/assets/css/main.css"]
+  const cssFile = candidates.find((file) => fs.existsSync(file)) || "src/index.css"
+  fs.mkdirSync(path.dirname(cssFile), { recursive: true })
+
+  const importLine = '@import "tailwindcss";'
+  const existing = fs.existsSync(cssFile) ? fs.readFileSync(cssFile, "utf8") : ""
+  if (existing.includes('@import "tailwindcss"') || existing.includes("@import 'tailwindcss'")) return cssFile
+
+  fs.writeFileSync(cssFile, `${importLine}\n${existing ? `\n${existing}` : ""}`)
+  return cssFile
+}
+
+function ensureCssImported(cssFile) {
+  const mainFiles = ["src/main.tsx", "src/main.jsx", "src/main.ts", "src/main.js"]
+  const mainFile = mainFiles.find((file) => fs.existsSync(file))
+  if (!mainFile) return
+
+  const content = fs.readFileSync(mainFile, "utf8")
+  if (/import\s+["'][^"']*(index|global|main)\.css["'];?/u.test(content)) return
+
+  const relative = normalizePath(path.relative(path.dirname(mainFile), cssFile))
+  const importPath = relative.startsWith(".") ? relative : `./${relative}`
+  fs.writeFileSync(mainFile, `import "${importPath}";\n${content}`)
+}
+
+function ensureViteTailwindPlugin() {
+  const file = ["vite.config.ts", "vite.config.js", "vite.config.mts", "vite.config.mjs"].find((name) => fs.existsSync(name))
+  if (!file) return
+
+  let content = fs.readFileSync(file, "utf8")
+  if (!content.includes("@tailwindcss/vite")) {
+    const importLine = 'import tailwindcss from "@tailwindcss/vite";\n'
+    if (/import\s+\{?\s*defineConfig/u.test(content)) {
+      content = content.replace(/(import\s+\{?\s*defineConfig[\s\S]*?from\s+["']vite["'];?\n)/u, `$1${importLine}`)
+    } else {
+      content = `${importLine}${content}`
+    }
+  }
+
+  if (!content.includes("tailwindcss()")) {
+    if (/plugins\s*:\s*\[/u.test(content)) {
+      content = content.replace(/plugins\s*:\s*\[/u, "plugins: [tailwindcss(), ")
+    } else {
+      content = content.replace(/defineConfig\s*\(\s*\{/u, "defineConfig({\n  plugins: [tailwindcss()],")
+    }
+  }
+
+  fs.writeFileSync(file, content)
+}
+
+function ensureTailwindSetup() {
+  ensureDevDependencies()
+  const cssFile = ensureTailwindCssEntry()
+  ensureCssImported(cssFile)
+  ensureViteTailwindPlugin()
 }
 
 function ensureTsconfigAlias(file) {
@@ -362,7 +435,6 @@ function installCossUi() {
 
   const env = pnpmEnv()
   const specs = installSpecs(requested)
-  const timeout = Number(process.env.COSS_SHADCN_TIMEOUT_MS || 1800000)
 
   return new Promise((resolve, reject) => {
     logStatus(`coss shadcn install starting: ${specs.join(" ")}`)
@@ -374,13 +446,11 @@ function installCossUi() {
 
     let lastOutputAt = Date.now()
     let done = false
-    let timedOut = false
 
     const finish = (error) => {
       if (done) return
       done = true
       clearInterval(heartbeat)
-      clearTimeout(timer)
       if (error) reject(error)
       else resolve()
     }
@@ -397,13 +467,6 @@ function installCossUi() {
     }, Number(process.env.COSS_SHADCN_HEARTBEAT_MS || 10000))
     if (heartbeat.unref) heartbeat.unref()
 
-    const timer = setTimeout(() => {
-      timedOut = true
-      logStatus(`coss shadcn timeout after ${timeout}ms; terminating CLI and checking generated artifacts`)
-      child.kill("SIGTERM")
-    }, timeout)
-    if (timer.unref) timer.unref()
-
     child.on("close", (code) => {
       repairMisplacedAliasArtifacts()
       writeUiIndex()
@@ -414,8 +477,7 @@ function installCossUi() {
         return
       }
       if (code === 0 || cossArtifactsReady(requested)) finish()
-      else if (timedOut && cossArtifactFilesReady(requested)) finish()
-      else finish(new Error(`coss shadcn ${timedOut ? `timeout after ${timeout}ms` : `exited with code ${code || 1}`}`))
+      else finish(new Error(`coss shadcn exited with code ${code || 1}`))
     })
     child.on("error", finish)
   })
@@ -423,6 +485,7 @@ function installCossUi() {
 
 async function main() {
   ensureProjectAliases()
+  ensureTailwindSetup()
   ensureComponentsConfig()
   repairMisplacedAliasArtifacts()
   await installCossUi()

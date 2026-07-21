@@ -222,18 +222,6 @@ Greenfield bootstrap 產生 README 時，通常資訊有限。請使用「可驗
 - 列出任何刻意保留英文的專有名詞。
 - 如果資訊不足導致省略某段，簡短說明，不要腦補。
 
-## Greenfield Bootstrap Metadata
+## Bootstrap Boundary
 
-這個 skill 本身不 scaffold app code，因此不提供可執行 scaffold command。它可作為 `any` role 的 README/publish 指導 skill。
-
-```opencode-bootstrap-json
-{
-  "role": "any",
-  "order": 90,
-  "packageManager": "",
-  "scaffoldCommand": [],
-  "verificationCommands": [],
-  "runtimeSmokeCommand": "",
-  "runtimeSmokeHealthUrl": ""
-}
-```
+這個 skill 只負責 README 產出與 i18n preservation。它不 scaffold app code，也不提供 Greenfield executable metadata。只有在使用者要求 README、文件整理或 Greenfield README 時才使用。

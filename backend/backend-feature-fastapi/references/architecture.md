@@ -1,77 +1,48 @@
-# 後端架構快照
+# FastAPI Feature Architecture
 
-這個專案使用 feature-based FastAPI 後端，位置通常在 `backend/`。
+這份參考只描述 FastAPI HTTP feature 的結構。
 
-## 技術棧
+## 根入口
 
-- Python `>=3.12`
-- 依賴與執行環境管理：`uv`
-- Web framework：`FastAPI`
-- ASGI server：`uvicorn`
-- ORM：`SQLAlchemy 2.x async`
-- Postgres driver：`asyncpg`
-- Migration：`Alembic`
-- 設定管理：`pydantic-settings`
+- `app/main.py` 建立 `FastAPI` app。
+- middleware 在 `app/main.py` 集中設定。
+- `app/main.py` include `app/features/router.py`，不要逐一 include 每個 feature。
 
-## 入口點
+## Feature Aggregator
 
-- `backend/app/main.py`：ASGI 入口，使用 `uvicorn app.main:app` 啟動，負責建立 `FastAPI`、設定 CORS、title/debug/lifespan，並用 `settings.api_prefix` 掛載 `api_router`。
-- `backend/app/features/router.py`：匯入 feature packages，並掛載每個 feature router。
+`app/features/router.py` 是所有 feature router 的集中註冊點：
 
-## 共用基礎設施
+```python
+from fastapi import APIRouter
 
-- `backend/app/core/config.py`：`Settings` class、`.env` 載入、cached `settings` singleton。
-- `backend/app/db/base.py`：SQLAlchemy declarative `Base`。
-- `backend/app/db/session.py`：async engine、`async_sessionmaker`，以及 `get_db_session` dependency。
-- `backend/migrations/env.py`：Alembic async migration 設定。它必須 import model modules，讓 `Base.metadata` 包含所有資料表。
+from app.features.health import router as health_router
 
-## 既有 Feature 模式
+router = APIRouter()
+router.include_router(health_router)
+```
 
-### `health`
+## Feature Module
 
-最小、不使用資料庫的 feature：
+每個 feature 使用獨立目錄：
 
-- `__init__.py` 匯出 `router`。
-- `router.py` 定義 class-based router，使用 `APIRouter(prefix="/health", tags=["health"])`。
-- `schemas.py` 定義 response DTOs。
-- `service.py` 放簡單 business logic。
+```text
+app/features/<feature>/
+  __init__.py
+  router.py
+  schemas.py
+  service.py
+```
 
-工具型、不需要 persistence 的 endpoints 可以沿用這個模式。
+## 分層責任
 
-### `users`
+- `router.py`: HTTP method、path、status code、response model、query/path/body validation。
+- `schemas.py`: Pydantic request/response DTO。
+- `service.py`: feature business rules、API exception、資料轉換。
+- `__init__.py`: export `router`，讓 aggregator 使用一致 import。
 
-使用資料庫的 feature：
-
-- `models.py`：使用 `Mapped` 與 `mapped_column` 的 SQLAlchemy model。
-- `schemas.py`：create/read Pydantic schemas；read schema 使用 `ConfigDict(from_attributes=True)`。
-- `repository.py`：async SQLAlchemy queries，並在 mutation 時 commit/refresh。
-- `service.py`：business logic 與 API errors，例如 email 重複 conflict。
-- `dependencies.py`：從 `get_db_session` 建立 `UserService(UserRepository(session))`。
-- `router.py`：class-based router，使用 `add_api_route`、response models、status codes 與 injected service。
-- `__init__.py`：匯出 `router`。
-
-一般 CRUD 風格 feature 可以沿用這個模式。
-
-## 必須保留的慣例
-
-- 保持 `app/main.py` 不直接 import 個別 feature。
-- 新 feature 要註冊在 `app/features/router.py`。
-- route prefix 保持 feature-local；API versioning 由 `settings.api_prefix` 統一處理。
-- CORS 預設允許所有來源與 methods：`allow_origins=["*"]`、`allow_methods=["*"]`、`allow_headers=["*"]`。
-- 資料庫存取放在 repositories，不要放在 routers 或 services。
-- business rules 放在 services，不要放在 repositories。
-- 使用 async repository methods 與 `AsyncSession`。
-- repository 建立新 model 後要 commit 並 refresh。
-- schema 變更要新增 Alembic migrations。
-- feature 對外 export 保持簡單：`from app.features.<feature>.router import router` 與 `__all__ = ["router"]`。
-
-## 常用指令
-
-從 `backend/` 執行：
+## 驗證
 
 ```bash
-uv sync
-uv run uvicorn app.main:app --reload
-uv run alembic upgrade head
 uv run python -m compileall app
+uv run uvicorn app.main:app --reload
 ```

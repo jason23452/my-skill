@@ -1,6 +1,6 @@
-# Feature 範本
+# FastAPI Feature Template
 
-建立 database-backed feature 時，以這份範本作為起點。請一致替換 `<feature>`、`<singular>` 與 `<Thing>`。
+把 `<feature>`、`<Thing>`、`<thing>` 替換成實際業務名稱。
 
 ## `__init__.py`
 
@@ -10,35 +10,10 @@ from app.features.<feature>.router import router
 __all__ = ["router"]
 ```
 
-## `models.py`
-
-```python
-from datetime import datetime
-
-from sqlalchemy import DateTime, String, func
-from sqlalchemy.orm import Mapped, mapped_column
-
-from app.db.base import Base
-
-
-class <Thing>(Base):
-    __tablename__ = "<feature>"
-
-    id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(String(120), nullable=False)
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
-        server_default=func.now(),
-        nullable=False,
-    )
-```
-
 ## `schemas.py`
 
 ```python
-from datetime import datetime
-
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel
 
 
 class <Thing>Create(BaseModel):
@@ -48,115 +23,66 @@ class <Thing>Create(BaseModel):
 class <Thing>Read(BaseModel):
     id: int
     name: str
-    created_at: datetime
-
-    model_config = ConfigDict(from_attributes=True)
-```
-
-## `repository.py`
-
-```python
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from app.features.<feature>.models import <Thing>
-from app.features.<feature>.schemas import <Thing>Create
-
-
-class <Thing>Repository:
-    def __init__(self, session: AsyncSession) -> None:
-        self._session = session
-
-    async def list(self, limit: int, offset: int) -> list[<Thing>]:
-        statement = select(<Thing>).order_by(<Thing>.id).limit(limit).offset(offset)
-        result = await self._session.scalars(statement)
-        return list(result.all())
-
-    async def create(self, payload: <Thing>Create) -> <Thing>:
-        item = <Thing>(**payload.model_dump())
-        self._session.add(item)
-        await self._session.commit()
-        await self._session.refresh(item)
-        return item
 ```
 
 ## `service.py`
 
 ```python
-from app.features.<feature>.models import <Thing>
-from app.features.<feature>.repository import <Thing>Repository
-from app.features.<feature>.schemas import <Thing>Create
+from fastapi import HTTPException, status
+
+from app.features.<feature>.schemas import <Thing>Create, <Thing>Read
 
 
 class <Thing>Service:
-    def __init__(self, repository: <Thing>Repository) -> None:
-        self._repository = repository
+    def __init__(self) -> None:
+        self._items: list[<Thing>Read] = []
 
-    async def list_<feature>(self, limit: int, offset: int) -> list[<Thing>]:
-        return await self._repository.list(limit=limit, offset=offset)
+    async def list_<feature>(self) -> list[<Thing>Read]:
+        return self._items
 
-    async def create_<singular>(self, payload: <Thing>Create) -> <Thing>:
-        return await self._repository.create(payload)
-```
+    async def create_<thing>(self, payload: <Thing>Create) -> <Thing>Read:
+        item = <Thing>Read(id=len(self._items) + 1, name=payload.name)
+        self._items.append(item)
+        return item
 
-## `dependencies.py`
-
-```python
-from typing import Annotated
-
-from fastapi import Depends
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from app.db.session import get_db_session
-from app.features.<feature>.repository import <Thing>Repository
-from app.features.<feature>.service import <Thing>Service
-
-
-def get_<singular>_service(
-    session: Annotated[AsyncSession, Depends(get_db_session)],
-) -> <Thing>Service:
-    return <Thing>Service(<Thing>Repository(session))
+    async def get_<thing>(self, item_id: int) -> <Thing>Read:
+        for item in self._items:
+            if item.id == item_id:
+                return item
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="<Thing> not found")
 ```
 
 ## `router.py`
 
 ```python
-from typing import Annotated
+from fastapi import APIRouter, status
 
-from fastapi import APIRouter, Depends, Query, status
-
-from app.features.<feature>.dependencies import get_<singular>_service
-from app.features.<feature>.models import <Thing>
 from app.features.<feature>.schemas import <Thing>Create, <Thing>Read
 from app.features.<feature>.service import <Thing>Service
 
 
 class <Thing>Router:
-    def __init__(self) -> None:
+    def __init__(self, service: <Thing>Service | None = None) -> None:
+        self.service = service or <Thing>Service()
         self.router = APIRouter(prefix="/<feature>", tags=["<feature>"])
         self.router.add_api_route("", self.list_<feature>, methods=["GET"], response_model=list[<Thing>Read])
         self.router.add_api_route(
             "",
-            self.create_<singular>,
+            self.create_<thing>,
             methods=["POST"],
             response_model=<Thing>Read,
             status_code=status.HTTP_201_CREATED,
         )
+        self.router.add_api_route("/{item_id}", self.get_<thing>, methods=["GET"], response_model=<Thing>Read)
 
-    async def list_<feature>(
-        self,
-        service: Annotated[<Thing>Service, Depends(get_<singular>_service)],
-        limit: int = Query(default=100, ge=1, le=100),
-        offset: int = Query(default=0, ge=0),
-    ) -> list[<Thing>]:
-        return await service.list_<feature>(limit=limit, offset=offset)
+    async def list_<feature>(self) -> list[<Thing>Read]:
+        return await self.service.list_<feature>()
 
-    async def create_<singular>(
-        self,
-        payload: <Thing>Create,
-        service: Annotated[<Thing>Service, Depends(get_<singular>_service)],
-    ) -> <Thing>:
-        return await service.create_<singular>(payload)
+    async def create_<thing>(self, payload: <Thing>Create) -> <Thing>Read:
+        return await self.service.create_<thing>(payload)
+
+    async def get_<thing>(self, item_id: int) -> <Thing>Read:
+        return await self.service.get_<thing>(item_id)
 
 
 router = <Thing>Router().router
@@ -164,15 +90,10 @@ router = <Thing>Router().router
 
 ## 註冊 Feature
 
-在 `app/features/router.py`：
+在 `app/features/router.py` 加入：
 
 ```python
 from app.features.<feature> import router as <feature>_router
 
-
-self.router.include_router(<feature>_router)
+router.include_router(<feature>_router)
 ```
-
-## Migration 提醒
-
-新增 `models.py` 後，在 `migrations/env.py` import model，並在 `migrations/versions/` 建立 migration，或使用 Alembic autogenerate 後再人工檢查。

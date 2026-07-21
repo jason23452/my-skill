@@ -1,7 +1,8 @@
 ---
 name: writing-great-skills
 description: 高品質 skill 撰寫與改寫參考，聚焦 predictable triggering、information hierarchy、progressive disclosure、pruning 與降低 no-op 指令。
-disable-model-invocation: true
+metadata:
+  disable-model-invocation: "true"
 ---
 
 # Writing Great Skills

@@ -1,8 +1,9 @@
 ---
 name: to-issues
 description: Break a plan, spec, PRD, or conversation into independently-grabbable tracer-bullet issues. Use this skill when turning planning artifacts into vertical-slice tasks or issue tracker work items.
-disable-model-invocation: true
-source: https://github.com/mattpocock/skills/tree/main/skills/engineering/to-tickets
+metadata:
+  disable-model-invocation: "true"
+  source: "https://github.com/mattpocock/skills/tree/main/skills/engineering/to-tickets"
 ---
 
 # To Issues

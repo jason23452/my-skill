@@ -10,7 +10,7 @@ description: "Framework-aware frontend API client skill for Vite-based React SPA
 ```opencode-bootstrap-json
 {
   "role": "frontend",
-  "category": "frontend-addon",
+  "category": "api-client",
   "frameworks": ["frontend", "vite", "vite-spa", "react-spa", "react-vite", "vue-spa", "vue-vite", "nuxt", "nuxt4"],
   "order": 20,
   "packageManager": "pnpm",

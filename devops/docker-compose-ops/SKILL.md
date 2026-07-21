@@ -2,37 +2,13 @@
 name: docker-compose-ops
 description: >-
   當使用者要建立、檢查、啟動、停止、排錯、修復或泛化 Docker Compose 設定時，使用這個 skill。適用 docker-compose.yml、compose.yaml、service 啟動、container logs、port 衝突、環境變數、volumes、networks、healthchecks、資料庫容器、前後端 stack，或 "docker compose up" 失敗。使用者只要提到 "compose"、"docker-compose"、"啟動容器"、"啟動前後端"、"用 Docker 跑專案"、"修 docker-compose.yml"、"容器起不來"、"port 被佔用"，或預期有 docker-compose.yml 但檔案不存在且需要找出正確 Compose 流程時，都應優先使用。
-compatibility: Docker CLI、Docker Compose v2、compose.yaml/docker-compose.yml、常見本機開發 stack、backend/frontend/database services。
 ---
 
 # Docker Compose Ops
 
-## OpenCode Greenfield Bootstrap Metadata
+## Bootstrap Boundary
 
-```opencode-bootstrap-json
-{
-  "role": "any",
-  "order": 90,
-  "scaffoldCommand": [
-    "if test -f .opencode/skills/docker-compose-ops/scripts/bootstrap-01-01.cjs; then node .opencode/skills/docker-compose-ops/scripts/bootstrap-01-01.cjs; else node ${OPENCODE_PROJECT_SKILLS_PRESEEDED_DIR:-/app/.opencode/skills}/docker-compose-ops/scripts/bootstrap-01-01.cjs; fi"
-  ],
-  "verificationCommands": []
-}
-```
-
-```opencode-bootstrap-json
-{
-  "role": "any",
-  "order": 95,
-  "packageManager": "docker",
-  "scaffoldCommand": [
-    "if test -f .opencode/skills/docker-compose-ops/scripts/bootstrap-02-01.cjs; then node .opencode/skills/docker-compose-ops/scripts/bootstrap-02-01.cjs; else node ${OPENCODE_PROJECT_SKILLS_PRESEEDED_DIR:-/app/.opencode/skills}/docker-compose-ops/scripts/bootstrap-02-01.cjs; fi"
-  ],
-  "verificationCommands": [
-    "docker compose config"
-  ]
-}
-```
+Docker Compose setup is a DevOps add-on. Do not run it as part of a generic framework scaffold. Apply this skill only when the user asks for Compose services, container orchestration, local stack wiring, logs, ports, volumes, networks, or healthchecks.
 
 多 repo Greenfield 時，project-level compose 必須把 frontend、backend、db 放在同一個 stack 中；repo-local compose 只能作為 fallback。前端透過 `/api` proxy 呼叫後端，backend 在 Compose network 內使用 `db:5432`，不要使用 `localhost` 連 database。
 

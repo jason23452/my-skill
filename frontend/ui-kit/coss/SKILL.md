@@ -12,7 +12,7 @@ metadata:
 
 This OpenCode-only metadata installs coss UI registry artifacts during Greenfield bootstrap. The coss agent skills are expected to come from the global/preseeded skills manager, not from runtime bootstrap. The rest of this file remains the official coss skill guidance and references.
 
-Bootstrap follows the official coss install path: run the shadcn CLI and let it finish because the CLI creates files and installs dependencies. Do not terminate the CLI just because component files appear on disk; dependency installation can happen after artifact generation. If the CLI times out after artifacts were generated, verify/fallback install runtime dependencies such as `class-variance-authority`, `clsx`, and `tailwind-merge` before treating bootstrap as successful.
+Bootstrap follows the official coss install path: run the shadcn CLI and let it finish because the CLI creates files and installs dependencies. The bootstrap script reports the CLI exit code and then verifies generated artifacts plus runtime dependencies such as `class-variance-authority`, `clsx`, and `tailwind-merge`.
 
 Registry specs such as `@coss/ui`, `@coss/colors-neutral`, `@coss/style`, `coss/ui`, and `coss/colors-neutral` are remote shadcn registry identifiers, not workspace files. Never call Read/Glob/ls on those strings. If such a read already failed with file-not-found, ignore that read error and diagnose the actual CLI process, `package.json`, lockfile, and generated UI files instead.
 
@@ -26,13 +26,15 @@ Registry specs such as `@coss/ui`, `@coss/colors-neutral`, `@coss/style`, `coss/
   "order": 30,
   "packageManager": "pnpm",
   "scaffoldCommand": [
-    "COSS_SHADCN_TIMEOUT_MS=${COSS_SHADCN_TIMEOUT_MS:-1800000}; export COSS_SHADCN_TIMEOUT_MS; if test -f .opencode/skills/coss/scripts/coss-ui-bootstrap.cjs; then node .opencode/skills/coss/scripts/coss-ui-bootstrap.cjs; else node ${OPENCODE_PROJECT_SKILLS_PRESEEDED_DIR:-/app/.opencode/skills}/coss/scripts/coss-ui-bootstrap.cjs; fi"
+    "if test -f .opencode/skills/coss/scripts/coss-ui-bootstrap.cjs; then node .opencode/skills/coss/scripts/coss-ui-bootstrap.cjs; else node ${OPENCODE_PROJECT_SKILLS_PRESEEDED_DIR:-/app/.opencode/skills}/coss/scripts/coss-ui-bootstrap.cjs; fi"
   ],
   "verificationCommands": []
 }
 ```
 
 coss ui is a component library built on Base UI with a shadcn-like developer experience plus a large particle catalog.
+
+The coss skill owns its direct React/Vite UI dependencies: Tailwind CSS v4, `@tailwindcss/vite`, `@base-ui/react`, `lucide-react`, `class-variance-authority`, `clsx`, and `tailwind-merge`.
 
 ## What this skill is for
 

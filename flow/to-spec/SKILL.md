@@ -1,7 +1,8 @@
 ---
 name: to-spec
 description: 將目前對話與 repo context 合成 spec/PRD 並發布到專案 issue tracker；不重新訪談，只整理已經討論清楚的內容。
-disable-model-invocation: true
+metadata:
+  disable-model-invocation: "true"
 ---
 
 # To Spec
