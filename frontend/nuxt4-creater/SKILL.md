@@ -131,6 +131,8 @@ Nuxt 4 scaffold 的架構語意是：
 
 `server/` 保留在專案根目錄。明確區分 `app/content/` 與根目錄 `content/`：前者是 Vue content section components，後者是 Nuxt Content module 的資料來源。
 
+`server/api/` 只在 Nuxt 需要承擔 BFF、SSR-only secret、proxy、token exchange、webhook 或健康檢查時使用。若專案已有獨立後端，業務 API 由前端 API transport 呼叫該後端，維持 endpoint wrappers 在前端 app 端的 owning module；Nuxt server API 不作為預設業務後端層。
+
 ## Section Composition 架構
 
 此 skill 的通用頁面架構是三層組裝：
