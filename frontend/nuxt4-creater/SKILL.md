@@ -1,6 +1,6 @@
 ---
 name: nuxt4-creater
-description: Nuxt 4 通用專案建立、啟動、驗證與維護。首次建立新專案時 scaffold Nuxt app 與 section composition 架構：共用 components 組成 page-specific content sections，多個 content sections 組成 route pages。當需要建立或初始化 Nuxt 4 專案、建立 app/server/shared 目錄架構、加入 pages、app/content、components、composables、plugins、stores、server routes，或處理路由、SEO/meta、runtime config、Nuxt plugin warnings、模組與部署前驗證時使用。
+description: Nuxt 4 通用專案建立、啟動、驗證與維護。首次建立新專案時 scaffold Nuxt app 與 section composition 架構：共用 components 組成 page-specific content sections，多個 content sections 組成 route pages。當需要建立或初始化 Nuxt 4 專案、建立 app/server/shared 目錄架構、加入 pages、app/content、components、composables、plugins、store、server routes，或處理路由、SEO/meta、runtime config、Nuxt plugin warnings、模組與部署前驗證時使用。
 ---
 
 # Nuxt 4 通用建立與維護
@@ -105,7 +105,7 @@ node <skill-dir>/scripts/bootstrap-02-section-architecture.cjs
 - `app/components/seo/SeoJsonLd.vue`
 - `app/constants/site.ts`
 - `server/api/health.get.ts`
-- `app/composables/`、`app/plugins/`、`app/stores/`、`app/types/`、`app/utils/`
+- `app/composables/`、`app/plugins/`、`app/store/`、`app/types/`、`app/utils/`
 - `server/api/`、`server/routes/`、`server/utils/`
 - `shared/types/`、`shared/utils/`
 

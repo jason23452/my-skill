@@ -1,4 +1,4 @@
 interface:
   display_name: "Pinia"
   short_description: "Vue-only Pinia state setup for Nuxt and Vue SPA Vite projects."
-  default_prompt: "Use $pinia to add or maintain Pinia stores in a Nuxt or Vue SPA Vite project."
+  default_prompt: "Use $pinia to add or maintain Pinia store modules in a Nuxt or Vue SPA Vite project."

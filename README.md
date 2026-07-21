@@ -48,7 +48,7 @@ my-skill/
 ## Frontend
 
 - `react-vite-feature-based`: React + Vite framework scaffold，包含 `src/app`、`src/features`、`src/shared`、routing、pages、components、hooks、types、assets。
-- `nuxt4-creater`: Nuxt 4 framework scaffold，包含 Nuxt 4 `app/` 架構、section composition、pages、layouts、components、composables、plugins、stores、server routes 與 starter CSS。
+- `nuxt4-creater`: Nuxt 4 framework scaffold，包含 Nuxt 4 `app/` 架構、section composition、pages、layouts、components、composables、plugins、store、server routes 與 starter CSS。
 - `axios-token-baseurl-error`: Framework-aware API transport。Vite React/Vue 使用 Axios；Nuxt 使用 `$fetch`。業務 API wrapper 放在 owning feature/domain/module。
 - `playwright-e2e-testing`: 通用 Playwright testing add-on，支援 React、Vue、Nuxt、Next.js、SvelteKit、Astro、Angular、Vite、static frontend 等瀏覽器專案。只有在選用或要求 E2E testing 時執行，不屬於任何 framework scaffold。
 - `ui-kit/nuxt-ui`: Nuxt UI add-on，依賴 Nuxt/Nuxt 4 project，負責 `@nuxt/ui`、Tailwind CSS、Nuxt UI icon collection 與 Nuxt UI config。

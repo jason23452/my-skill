@@ -151,9 +151,27 @@ function findNuxtConfigPath() {
   return nuxtConfigCandidates.find(exists) || "nuxt.config.ts"
 }
 
-function ensureNuxtStoresDir() {
-  const existing = [path.join("app", "stores"), "stores", path.join("src", "stores")].find(exists)
-  const storeDir = existing || (exists("app") ? path.join("app", "stores") : "stores")
+function firstExisting(candidates) {
+  return candidates.find(exists)
+}
+
+function featureStoreDirs() {
+  const featureRoot = path.join("src", "features")
+  if (!exists(featureRoot)) return []
+
+  return fs.readdirSync(abs(featureRoot), { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => path.join(featureRoot, entry.name, "store"))
+}
+
+function ensureNuxtStoreDir() {
+  const storeDir = firstExisting([
+    path.join("app", "store"),
+    path.join("src", "shared", "store"),
+    ...featureStoreDirs(),
+    path.join("src", "store"),
+    "store",
+  ]) || (exists("app") ? path.join("app", "store") : "store")
 
   ensureDir(storeDir)
   const keepFile = path.join(storeDir, ".gitkeep")
@@ -166,7 +184,7 @@ function configureNuxt() {
   const configPath = findNuxtConfigPath()
   const current = exists(configPath) ? read(configPath) : "export default defineNuxtConfig({\n})\n"
   const next = ensureArrayValue(current, "modules", "@pinia/nuxt")
-  const storeDir = ensureNuxtStoresDir()
+  const storeDir = ensureNuxtStoreDir()
 
   if (next !== current || !exists(configPath)) write(configPath, next)
   console.log(`pinia: configured Nuxt Pinia module; store directory: ${storeDir}.`)
@@ -219,7 +237,12 @@ function configureVueVite() {
   const current = read(mainPath)
   const withImport = insertPiniaImport(current)
   const next = ensurePiniaRegistration(withImport)
-  const storeDir = path.join("src", "stores")
+  const storeDir = firstExisting([
+    path.join("src", "shared", "store"),
+    ...featureStoreDirs(),
+    path.join("src", "store"),
+    "store",
+  ]) || path.join("src", "store")
 
   write(mainPath, next.endsWith("\n") ? next : `${next}\n`)
   ensureDir(storeDir)

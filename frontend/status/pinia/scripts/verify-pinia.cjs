@@ -12,6 +12,17 @@ const viteMainCandidates = [
   path.join("main.ts"),
   path.join("main.js"),
 ]
+const nuxtStoreDirCandidates = [
+  path.join("app", "store"),
+  path.join("src", "shared", "store"),
+  path.join("src", "store"),
+  "store",
+]
+const vueViteStoreDirCandidates = [
+  path.join("src", "shared", "store"),
+  path.join("src", "store"),
+  "store",
+]
 
 function abs(filePath) {
   return path.join(cwd, filePath)
@@ -50,6 +61,19 @@ function fail(message) {
   process.exit(1)
 }
 
+function firstExisting(candidates) {
+  return candidates.find(exists)
+}
+
+function featureStoreDirs() {
+  const featureRoot = path.join("src", "features")
+  if (!exists(featureRoot)) return []
+
+  return fs.readdirSync(abs(featureRoot), { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => path.join(featureRoot, entry.name, "store"))
+}
+
 function detectTarget(manifest) {
   const hasNuxtConfig = nuxtConfigCandidates.some(exists)
   const hasNuxt = hasNuxtConfig || hasDependency(manifest, "nuxt")
@@ -74,7 +98,10 @@ function verifyNuxt(manifest) {
     fail("@pinia/nuxt is missing from nuxt.config modules.")
   }
 
-  console.log("pinia verification passed: Nuxt dependencies and @pinia/nuxt module are configured.")
+  const storeDir = firstExisting([...nuxtStoreDirCandidates, ...featureStoreDirs()])
+  if (!storeDir) fail("store directory is missing. Expected app/store, src/shared/store, src/features/<feature>/store, src/store, or store.")
+
+  console.log(`pinia verification passed: Nuxt dependencies, @pinia/nuxt module, and store directory ${storeDir} are configured.`)
 }
 
 function verifyVueVite(manifest) {
@@ -91,7 +118,10 @@ function verifyVueVite(manifest) {
     fail("Pinia is not registered with app.use(...) in the Vue app entry.")
   }
 
-  console.log(`pinia verification passed: Vue Vite dependency and app entry ${mainPath} are configured.`)
+  const storeDir = firstExisting([...vueViteStoreDirCandidates, ...featureStoreDirs()])
+  if (!storeDir) fail("store directory is missing. Expected src/shared/store, src/features/<feature>/store, src/store, or store.")
+
+  console.log(`pinia verification passed: Vue Vite dependency, app entry ${mainPath}, and store directory ${storeDir} are configured.`)
 }
 
 function main() {

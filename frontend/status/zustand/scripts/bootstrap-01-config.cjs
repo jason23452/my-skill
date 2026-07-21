@@ -32,6 +32,8 @@ const pagesAppCandidates = [
   path.join("pages", "_app.ts"),
   path.join("pages", "_app.js"),
 ]
+const appStoreFileNames = ["app-store.ts", "app-store.js", "app-store.tsx", "app-store.jsx"]
+const storeFilePattern = /^[a-z0-9][a-z0-9-]*-store\.(ts|js|tsx|jsx)$/u
 
 function abs(filePath) {
   return path.join(cwd, filePath)
@@ -278,14 +280,15 @@ export function useAppStore<T>(selector: (store: AppStore) => T): T {
 }
 
 function findExistingStore(storeDir) {
-  const candidates = [
-    path.join(storeDir, "app-store.ts"),
-    path.join(storeDir, "app-store.js"),
-    path.join(storeDir, "app-store.tsx"),
-    path.join(storeDir, "app-store.jsx"),
-  ]
+  const candidates = appStoreFileNames.map((fileName) => path.join(storeDir, fileName))
+  const appStorePath = candidates.find(exists)
+  if (appStorePath) return appStorePath
 
-  return candidates.find(exists)
+  if (!exists(storeDir)) return ""
+  return fs.readdirSync(abs(storeDir), { withFileTypes: true })
+    .filter((entry) => entry.isFile() && storeFilePattern.test(entry.name))
+    .map((entry) => path.join(storeDir, entry.name))
+    .find(exists) || ""
 }
 
 function isReactFeatureBasedLayout() {
@@ -294,23 +297,59 @@ function isReactFeatureBasedLayout() {
     exists(path.join("src", "shared"))
 }
 
+function featureStoreDirs() {
+  const featureRoot = path.join("src", "features")
+  if (!exists(featureRoot)) return []
+
+  return fs.readdirSync(abs(featureRoot), { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .flatMap((entry) => [
+      path.join(featureRoot, entry.name, "store"),
+    ])
+}
+
+function reactViteStoreDirCandidates() {
+  return [
+    path.join("src", "app", "store"),
+    path.join("app", "store"),
+    path.join("src", "shared", "store"),
+    ...featureStoreDirs(),
+    path.join("src", "store"),
+    "store",
+  ]
+}
+
+function generatedAppStoreDirCandidates() {
+  return [
+    path.join("src", "app", "store"),
+    path.join("app", "store"),
+    path.join("src", "store"),
+    "store",
+  ]
+}
+
+function findExistingStorePath(storeDirs) {
+  for (const storeDir of storeDirs) {
+    const storePath = findExistingStore(storeDir)
+    if (storePath) return storePath
+  }
+  return ""
+}
+
 function selectReactViteStoreDir(mainPath) {
-  const existingStoreDir = [
-    path.join("src", "app", "stores"),
-    path.join("src", "stores"),
-    "stores",
-  ].find((storeDir) => exists(storeDir))
+  const existingStoreDir = generatedAppStoreDirCandidates().find((storeDir) => exists(storeDir))
 
   if (existingStoreDir) return existingStoreDir
-  if (isReactFeatureBasedLayout()) return path.join("src", "app", "stores")
-  return exists("src") || mainPath.startsWith("src") ? path.join("src", "stores") : "stores"
+  if (isReactFeatureBasedLayout()) return path.join("src", "app", "store")
+  return exists("src") || mainPath.startsWith("src") ? path.join("src", "store") : "store"
 }
 
 function configureReactVite() {
   const mainPath = reactEntryCandidates.find(exists) || ""
   const isTs = usesTypeScript(mainPath)
-  const storeDir = selectReactViteStoreDir(mainPath)
-  const storePath = findExistingStore(storeDir) || path.join(storeDir, `app-store${extensionFor("module", isTs)}`)
+  const existingStorePath = findExistingStorePath(reactViteStoreDirCandidates())
+  const storeDir = existingStorePath ? path.dirname(existingStorePath) : selectReactViteStoreDir(mainPath)
+  const storePath = existingStorePath || path.join(storeDir, `app-store${extensionFor("module", isTs)}`)
 
   ensureDir(storeDir)
   if (!exists(storePath)) write(storePath, createReactViteStoreSource(isTs))
@@ -406,9 +445,16 @@ function configureNext() {
   const isTs = usesTypeScript(entryPath)
   const usesSrcRoot = entryPath.startsWith("src") || (!entryPath && exists("src"))
   const rootPrefix = usesSrcRoot ? "src" : ""
-  const storeDir = rootPrefix ? path.join(rootPrefix, "stores") : "stores"
+  const existingStorePath = findExistingStorePath(reactViteStoreDirCandidates())
+  const storeDir = existingStorePath
+    ? path.dirname(existingStorePath)
+    : existingLayoutPath
+      ? path.join(path.dirname(existingLayoutPath), "store")
+      : rootPrefix
+        ? path.join(rootPrefix, "store")
+        : "store"
   const providerDir = rootPrefix ? path.join(rootPrefix, "providers") : "providers"
-  const storePath = findExistingStore(storeDir) || path.join(storeDir, `app-store${extensionFor("module", isTs)}`)
+  const storePath = existingStorePath || path.join(storeDir, `app-store${extensionFor("module", isTs)}`)
   const providerPath = path.join(providerDir, `app-store-provider${extensionFor("component", isTs)}`)
 
   ensureDir(storeDir)

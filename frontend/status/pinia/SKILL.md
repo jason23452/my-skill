@@ -1,6 +1,6 @@
 ---
 name: pinia
-description: Vue-only Pinia state management skill for Nuxt 3/4 and Vue SPA Vite projects. Use when adding, configuring, bootstrapping, or refactoring Pinia stores, @pinia/nuxt modules, createPinia app registration, typed stores, storeToRefs usage, SSR-safe Nuxt state, store actions, getters, persistence boundaries, or migration from ad hoc Vue state to Pinia. Do not use for React, Next.js, Svelte, Angular, or non-Vue state libraries.
+description: Vue-only Pinia state management skill for Nuxt 3/4 and Vue SPA Vite projects. Use when adding, configuring, bootstrapping, or refactoring Pinia store modules, @pinia/nuxt modules, createPinia app registration, typed store files, storeToRefs usage, SSR-safe Nuxt state, store actions, getters, persistence boundaries, or migration from ad hoc Vue state to Pinia. Do not use for React, Next.js, Svelte, Angular, or non-Vue state libraries.
 ---
 
 # Pinia
@@ -41,7 +41,7 @@ This skill is a frontend state add-on. Select it only after the primary frontend
 1. Inspect `package.json`, lockfiles, framework config, and the app entry before editing.
 2. Detect the target as Nuxt or Vue SPA Vite. If detection is ambiguous, keep reading project files until the Vue framework is confirmed.
 3. Install and register Pinia with the project's existing package manager.
-4. Place stores in the smallest existing Vue state convention in the repo.
+4. Place store files in the smallest existing Vue state convention in the repo.
 5. Run `scripts/verify-pinia.cjs`, then the repo's available `typecheck`, `lint`, `test`, or `build` commands.
 
 ## Target Detection
@@ -67,7 +67,7 @@ If no lockfile exists, prefer `pnpm` for greenfield work.
 
 Install `pinia` and `@pinia/nuxt`. Add `@pinia/nuxt` to `nuxt.config.*` modules. Do not create a manual `createPinia()` plugin in Nuxt; Nuxt should own Pinia SSR setup through the module.
 
-Use `app/stores/` when the project has the Nuxt 4 `app/` directory. Use `stores/` when the project follows the older Nuxt root convention. Preserve an existing store directory if one already exists.
+Use `app/store/` when the project has the Nuxt 4 `app/` directory. Use `store/` when the project follows the older Nuxt root convention. In feature-based Vue/Nuxt repos, use `src/features/<feature-name>/store/` for feature-owned state and `src/shared/store/` for domain-neutral shared state.
 
 Nuxt store example:
 
@@ -116,7 +116,7 @@ app.use(createPinia())
 app.mount('#app')
 ```
 
-Use `src/stores/` by default, or a feature-local store folder when the existing project already keeps state beside feature code.
+Use `src/store/` by default. In feature-based Vue Vite repos, use `src/features/<feature-name>/store/` for feature-owned state and `src/shared/store/` for domain-neutral shared state.
 
 Vue Vite store example:
 
@@ -142,7 +142,13 @@ Use Pinia for state that crosses component, route, or feature boundaries. Keep l
 
 Name store files by domain, not by widget: `auth.ts`, `session.ts`, `cart.ts`, `profile.ts`. Export `useXxxStore` from each file and use a stable `defineStore('xxx', ...)` id.
 
-Prefer setup stores for new Vue 3 code unless the repo already uses option stores consistently. Return all reactive state from setup stores so Pinia can track state, devtools, SSR, and plugins correctly.
+For feature-based projects, choose the store path from the ownership rule before writing code:
+
+- App-level or legacy state -> `app/store/<domain>.ts`, `src/store/<domain>.ts`, or `store/<domain>.ts`
+- Single-feature state -> `src/features/<feature-name>/store/<domain>.ts`
+- Domain-neutral reusable primitive -> `src/shared/store/<domain>.ts`
+
+Prefer setup-style store definitions for new Vue 3 code unless the repo already uses option-style store definitions consistently. Return all reactive state from setup-style definitions so Pinia can track state, devtools, SSR, and plugins correctly.
 
 Keep getters pure. Put asynchronous work and side effects in actions. Keep API transport details in the repo's API/composable/service layer when such a layer exists, and call it from store actions.
 
@@ -151,7 +157,7 @@ Use `storeToRefs()` when destructuring state or getters in components. Actions c
 ```vue
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-import { useSessionStore } from '@/stores/session'
+import { useSessionStore } from '@/store/session'
 
 const session = useSessionStore()
 const { accessToken, isAuthenticated } = storeToRefs(session)

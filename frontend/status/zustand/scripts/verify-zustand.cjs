@@ -32,29 +32,21 @@ const pagesAppCandidates = [
   path.join("pages", "_app.ts"),
   path.join("pages", "_app.js"),
 ]
-const reactViteStoreCandidates = [
-  path.join("src", "app", "stores", "app-store.ts"),
-  path.join("src", "app", "stores", "app-store.js"),
-  path.join("src", "app", "stores", "app-store.tsx"),
-  path.join("src", "app", "stores", "app-store.jsx"),
-  path.join("src", "stores", "app-store.ts"),
-  path.join("src", "stores", "app-store.js"),
-  path.join("src", "stores", "app-store.tsx"),
-  path.join("src", "stores", "app-store.jsx"),
-  path.join("stores", "app-store.ts"),
-  path.join("stores", "app-store.js"),
-  path.join("stores", "app-store.tsx"),
-  path.join("stores", "app-store.jsx"),
+const appStoreFileNames = ["app-store.ts", "app-store.js", "app-store.tsx", "app-store.jsx"]
+const storeFilePattern = /^[a-z0-9][a-z0-9-]*-store\.(ts|js|tsx|jsx)$/u
+const reactViteStaticStoreDirs = [
+  path.join("src", "app", "store"),
+  path.join("app", "store"),
+  path.join("src", "shared", "store"),
+  path.join("src", "store"),
+  "store",
 ]
-const nextStoreCandidates = [
-  path.join("src", "stores", "app-store.ts"),
-  path.join("src", "stores", "app-store.js"),
-  path.join("src", "stores", "app-store.tsx"),
-  path.join("src", "stores", "app-store.jsx"),
-  path.join("stores", "app-store.ts"),
-  path.join("stores", "app-store.js"),
-  path.join("stores", "app-store.tsx"),
-  path.join("stores", "app-store.jsx"),
+const nextStaticStoreDirs = [
+  path.join("src", "app", "store"),
+  path.join("app", "store"),
+  path.join("src", "shared", "store"),
+  path.join("src", "store"),
+  "store",
 ]
 const providerCandidates = [
   path.join("src", "providers", "app-store-provider.tsx"),
@@ -120,11 +112,55 @@ function firstExisting(candidates) {
   return candidates.find(exists)
 }
 
+function storeFileCandidates(storeDirs) {
+  const candidates = []
+  for (const storeDir of storeDirs) {
+    candidates.push(...appStoreFileNames.map((fileName) => path.join(storeDir, fileName)))
+
+    if (!exists(storeDir)) continue
+
+    candidates.push(
+      ...fs.readdirSync(abs(storeDir), { withFileTypes: true })
+        .filter((entry) => entry.isFile() && storeFilePattern.test(entry.name))
+        .map((entry) => path.join(storeDir, entry.name)),
+    )
+  }
+
+  return [...new Set(candidates)]
+}
+
+function featureStoreDirs() {
+  const featureRoot = path.join("src", "features")
+  if (!exists(featureRoot)) return []
+
+  return fs.readdirSync(abs(featureRoot), { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .flatMap((entry) => [
+      path.join(featureRoot, entry.name, "store"),
+    ])
+}
+
+function reactViteStoreCandidates() {
+  return storeFileCandidates([
+    ...reactViteStaticStoreDirs,
+    ...featureStoreDirs(),
+  ])
+}
+
+function nextStoreCandidates() {
+  return storeFileCandidates([
+    ...nextStaticStoreDirs,
+    ...featureStoreDirs(),
+  ])
+}
+
 function verifyReactVite(manifest) {
   if (!hasDependency(manifest, "zustand")) fail("zustand is missing from package dependencies.")
 
-  const storePath = firstExisting(reactViteStoreCandidates)
-  if (!storePath) fail("app-store file is missing from src/app/stores, src/stores, or stores.")
+  const storePath = firstExisting(reactViteStoreCandidates())
+  if (!storePath) {
+    fail("store file is missing from app/store, src/app/store, src/shared/store, src/features/<feature>/store, src/store, or store.")
+  }
 
   const source = read(storePath)
   if (!/from\s*["']zustand["']/u.test(source) || !/\bcreate\s*</u.test(source) && !/\bcreate\s*\(/u.test(source)) {
@@ -137,8 +173,10 @@ function verifyReactVite(manifest) {
 function verifyNext(manifest) {
   if (!hasDependency(manifest, "zustand")) fail("zustand is missing from package dependencies.")
 
-  const storePath = firstExisting(nextStoreCandidates)
-  if (!storePath) fail("app-store file is missing from src/stores or stores.")
+  const storePath = firstExisting(nextStoreCandidates())
+  if (!storePath) {
+    fail("store file is missing from app/store, src/app/store, src/shared/store, src/features/<feature>/store, src/store, or store.")
+  }
 
   const storeSource = read(storePath)
   if (!/from\s*["']zustand\/vanilla["']/u.test(storeSource) || !/\bcreateStore\s*</u.test(storeSource) && !/\bcreateStore\s*\(/u.test(storeSource)) {

@@ -57,7 +57,7 @@ The chosen API client folder should contain only transport-level concerns:
 - `token`: a replaceable token provider; safe for browser-only token storage and SSR environments.
 - `errors`: Axios or `$fetch` error detection and app-level error normalization.
 - `methods`: dynamic parameter-based generic HTTP methods for `request`, `response`, `get`, `post`, `put`, `patch`, and `delete`.
-- `helpers`: exported method helper functions for framework scripts, hooks, composables, stores, or feature modules.
+- `helpers`: exported method helper functions for framework scripts, hooks, composables, store modules, or feature modules.
 - `types`: transport error payload and normalized error class/type.
 - `index`: convenience exports for the transport modules.
 
@@ -108,7 +108,7 @@ export function getAccessToken() {
 }
 ```
 
-When the project has auth state, cookies, session providers, Pinia/Zustand stores, or framework runtime auth, wire `setAccessTokenProvider` to that source.
+When the project has auth state, cookies, session providers, Pinia/Zustand store modules, or framework runtime auth, wire `setAccessTokenProvider` to that source.
 
 ## Error Handling
 
@@ -300,7 +300,7 @@ Use the repository's import alias for the generated transport location:
 import { api, type ApiRequestConfig, type QueryParams } from '~/utils/api'
 ```
 
-Call business wrappers from pages, hooks, composables, stores, and query functions:
+Call business wrappers from pages, hooks, composables, store modules, and query functions:
 
 ```ts
 const users = await getUser<User[]>('/users', { page: 1 })

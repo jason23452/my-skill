@@ -439,7 +439,7 @@ function ensureDirectories() {
     "app/middleware",
     "app/pages",
     "app/plugins",
-    "app/stores",
+    "app/store",
     "app/types",
     "app/utils",
     "public",

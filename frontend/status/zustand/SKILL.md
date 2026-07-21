@@ -1,6 +1,6 @@
 ---
 name: zustand
-description: React-only Zustand state management skill for React SPA Vite and Next.js projects. Use when adding, configuring, bootstrapping, or refactoring Zustand stores, typed selectors, vanilla stores, client providers, persistence boundaries, or migration from ad hoc React state to Zustand. Do not use for Vue, Nuxt, Svelte, Angular, Remix, React Native, or non-React state libraries.
+description: React-only Zustand state management skill for React SPA Vite and Next.js projects. Use when adding, configuring, bootstrapping, or refactoring Zustand store modules, typed selectors, vanilla store factories, client providers, persistence boundaries, or migration from ad hoc React state to Zustand. Do not use for Vue, Nuxt, Svelte, Angular, Remix, React Native, or non-React state libraries.
 ---
 
 # Zustand
@@ -41,7 +41,7 @@ This skill is a frontend state add-on. Select it only after the primary frontend
 1. Inspect `package.json`, lockfiles, framework config, and app entry files before editing.
 2. Detect the target as React SPA Vite or Next.js. If detection is ambiguous, keep reading project files until React plus the supported target is confirmed.
 3. Install `zustand` with the project's existing package manager.
-4. Add stores in the smallest existing state convention in the repo.
+4. Add store modules in the smallest existing state convention in the repo.
 5. For Next.js, use a client provider and per-request vanilla store when server rendering, App Router, or React Server Components are present.
 6. Run `scripts/verify-zustand.cjs`, then the repo's available `typecheck`, `lint`, `test`, or `build` commands.
 
@@ -66,18 +66,18 @@ If no lockfile exists, prefer `pnpm` for greenfield work.
 
 ## React SPA Vite Integration
 
-Install `zustand`. Zustand does not need a root provider in a plain React SPA; create hook stores and import selectors where state is consumed.
+Install `zustand`. Zustand does not need a root provider in a plain React SPA; create hook-based store modules and import selectors where state is consumed.
 
-Use the repo's existing store convention when one exists. For a plain React Vite project without a convention, use `src/stores/`. For the `react-vite-feature-based` scaffold, prefer the placement rules below.
+Use the repo's existing singular `store/` convention when one exists. For a plain React Vite project without a convention, use `src/store/`. For the `react-vite-feature-based` scaffold, prefer the placement rules below.
 
 ### React Vite Feature-Based Placement
 
-When the project follows the `react-vite-feature-based` layout with `src/app`, `src/features`, and `src/shared`, place Zustand stores by ownership:
+When the project follows the `react-vite-feature-based` layout with `src/app`, `src/features`, and `src/shared`, place Zustand store files by ownership:
 
-- `src/app/stores/`: app-wide state owned by the app shell, such as session view state, theme preference, command palette state, global drawers, route-independent selection, or other state consumed across multiple features. Use this as the bootstrap default for a starter app store.
-- `src/features/<feature-name>/stores/`: state owned by one feature, such as cart state inside `features/cart`, profile-edit draft state inside `features/profile`, or filters for one feature's page set. Feature components, hooks, and router pages should import from their own feature store.
-- `src/shared/stores/`: rare, domain-neutral shared state primitives used by multiple features when the state is not owned by the app shell or one feature. Do not put feature business state here only because two features need it; first consider whether one feature should expose a hook or action boundary.
-- `src/stores/`: legacy or existing-project fallback. Do not create this in a fresh `react-vite-feature-based` scaffold unless the repo already uses it.
+- `src/app/store/` or root-level `app/store/`: app-wide state owned by the app shell, such as session view state, theme preference, command palette state, global drawers, route-independent selection, or other state consumed across multiple features. Use this as the bootstrap default for a starter app store.
+- `src/features/<feature-name>/store/`: state owned by one feature, such as cart state inside `features/cart`, profile-edit draft state inside `features/profile`, or filters for one feature's page set. Feature components, hooks, and router pages should import from their own feature store.
+- `src/shared/store/`: rare, domain-neutral shared state primitives used by multiple features when the state is not owned by the app shell or one feature. Do not put feature business state here only because two features need it; first consider whether one feature should expose a hook or action boundary.
+- `src/store/` or `store/`: legacy or existing-project fallback. Do not create these in a fresh `react-vite-feature-based` scaffold unless the repo already uses them.
 
 Keep feature boundaries one-way: `src/app` can compose features, features can use `src/shared`, and `src/shared` must not import from `src/features`.
 
@@ -114,7 +114,7 @@ const setAccessToken = useSessionStore((state) => state.setAccessToken)
 
 ## Next.js Integration
 
-Use Zustand only from client components. Do not read or write Zustand stores in React Server Components.
+Use Zustand only from client components. Do not read or write Zustand state in React Server Components.
 
 For Next.js projects that server-render, use a vanilla store factory plus a client provider so each request receives a fresh store instance. Do not define a mutable store as a shared module-level singleton for server-rendered Next.js state.
 
@@ -161,8 +161,8 @@ Client provider example:
 import { createContext, useContext, useRef } from 'react'
 import type { ReactNode } from 'react'
 import { useStore } from 'zustand'
-import { createSessionStore } from '@/stores/session-store'
-import type { SessionStore } from '@/stores/session-store'
+import { createSessionStore } from '@/store/session-store'
+import type { SessionStore } from '@/store/session-store'
 
 type SessionStoreApi = ReturnType<typeof createSessionStore>
 
@@ -201,13 +201,13 @@ Wrap App Router `children` in the provider from `app/layout.*` or `src/app/layou
 
 Use Zustand for state that crosses component, route, or feature boundaries. Keep local UI state in the component when it is not shared.
 
-Name store files by domain, not by widget: `auth-store.ts`, `session-store.ts`, `cart-store.ts`, `profile-store.ts`. Export `useXxxStore` from React SPA stores and `createXxxStore` plus a provider hook for Next.js stores.
+Name store files by domain, not by widget: `auth-store.ts`, `session-store.ts`, `cart-store.ts`, `profile-store.ts`. Export `useXxxStore` from React SPA store files and `createXxxStore` plus a provider hook for Next.js store files.
 
 For React Vite feature-based projects, choose the store path from the ownership rule before writing code:
 
-- Cross-feature app shell state -> `src/app/stores/<domain>-store.ts`
-- Single-feature state -> `src/features/<feature-name>/stores/<domain>-store.ts`
-- Domain-neutral reusable primitive -> `src/shared/stores/<domain>-store.ts`
+- Cross-feature app shell state -> `src/app/store/<domain>-store.ts`
+- Single-feature state -> `src/features/<feature-name>/store/<domain>-store.ts`
+- Domain-neutral reusable primitive -> `src/shared/store/<domain>-store.ts`
 
 Keep selectors small and stable. Do not destructure the whole store in components unless the component truly needs every field.
 
