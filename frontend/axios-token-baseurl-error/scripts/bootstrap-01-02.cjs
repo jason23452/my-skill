@@ -87,16 +87,9 @@ function chooseApiDir() {
   return "api"
 }
 
-function moduleImportFrom(fromDir, targetDir) {
-  let relativePath = toPosix(path.relative(fromDir, targetDir))
-  if (!relativePath.startsWith(".")) relativePath = `./${relativePath}`
-  return relativePath
-}
-
 const apiDir = chooseApiDir()
 const ext = usesTypeScript() ? "ts" : "js"
-const nuxtComposablesDir = path.join("app", "composables")
-const nuxtApiImportPath = moduleImportFrom(nuxtComposablesDir, apiDir)
+const isNuxt = isNuxtProject()
 
 const typeModule = ext === "ts"
   ? `export type ApiErrorPayload = { message?: string; code?: string; details?: unknown }
@@ -154,7 +147,7 @@ export function getAccessToken() {
 }
 `
 
-const errorsModule = ext === "ts"
+let errorsModule = ext === "ts"
   ? `import axios from 'axios'
 import { ApiError, type ApiErrorPayload } from './types'
 
@@ -204,13 +197,13 @@ export function normalizeApiError(error) {
 }
 `
 
-const clientModule = ext === "ts"
+let clientModule = ext === "ts"
   ? `import axios, { AxiosHeaders } from 'axios'
 import { getAccessToken } from './token'
 
 function resolveApiBaseUrl() {
   const env = (import.meta as ImportMeta & { env?: Record<string, string | undefined> }).env
-  return env?.VITE_API_BASE_URL || env?.NUXT_PUBLIC_API_BASE || '/api'
+  return env?.VITE_API_BASE_URL || '/api'
 }
 
 export const apiClient = axios.create({
@@ -236,7 +229,7 @@ import { getAccessToken } from './token'
 
 function resolveApiBaseUrl() {
   const env = import.meta.env || {}
-  return env.VITE_API_BASE_URL || env.NUXT_PUBLIC_API_BASE || '/api'
+  return env.VITE_API_BASE_URL || '/api'
 }
 
 export const apiClient = axios.create({
@@ -258,7 +251,7 @@ apiClient.interceptors.request.use((config) => {
 })
 `
 
-const methodsModule = ext === "ts"
+let methodsModule = ext === "ts"
   ? `import type { AxiosRequestConfig, AxiosResponse, Method } from 'axios'
 import { apiClient } from './client'
 import { normalizeApiError } from './errors'
@@ -267,28 +260,28 @@ export type QueryValue = string | number | boolean | null | undefined
 export type QueryParams = Record<string, QueryValue | QueryValue[]>
 export type HeaderValue = string | number | boolean | null | undefined
 export type HeaderParams = Record<string, HeaderValue>
+export type HttpMethod = Method
+export type ApiRequestConfig = AxiosRequestConfig
 
 export type ApiRequestOptions<TBody = unknown> = {
-  method: Method
+  method: HttpMethod
   url: string
   query?: QueryParams
   params?: QueryParams
   body?: TBody
   data?: TBody
   headers?: HeaderParams
-  config?: AxiosRequestConfig
+  config?: ApiRequestConfig
 }
-
-export type ApiMethodOptions<TBody = unknown> = Omit<ApiRequestOptions<TBody>, 'method' | 'url'>
 
 function hasOwn(object: object, key: PropertyKey) {
   return Object.prototype.hasOwnProperty.call(object, key)
 }
 
 function mergeHeaders(
-  configHeaders: AxiosRequestConfig['headers'],
+  configHeaders: ApiRequestConfig['headers'],
   headers?: HeaderParams,
-): AxiosRequestConfig['headers'] {
+): ApiRequestConfig['headers'] {
   const output: Record<string, string> = {
     ...((configHeaders && typeof configHeaders === 'object') ? configHeaders as Record<string, string> : {}),
   }
@@ -304,7 +297,7 @@ function mergeHeaders(
   return output
 }
 
-function buildRequestConfig<TBody>(options: ApiRequestOptions<TBody>): AxiosRequestConfig {
+function buildRequestConfig<TBody>(options: ApiRequestOptions<TBody>): ApiRequestConfig {
   const config = options.config || {}
   const data = hasOwn(options, 'body')
     ? options.body
@@ -339,18 +332,36 @@ export async function apiRequest<TResponse = unknown, TBody = unknown>(
   return response.data
 }
 
-function requestWithMethod(method: Method) {
+export type ApiMethod = <TResponse = unknown, TBody = unknown>(
+  endpoint: string,
+  query?: QueryParams,
+  body?: TBody,
+  config?: ApiRequestConfig,
+) => Promise<TResponse>
+
+export type ApiResponseMethod = <TResponse = unknown, TBody = unknown>(
+  endpoint: string,
+  query?: QueryParams,
+  body?: TBody,
+  config?: ApiRequestConfig,
+) => Promise<AxiosResponse<TResponse>>
+
+function requestWithMethod(method: HttpMethod): ApiMethod {
   return <TResponse = unknown, TBody = unknown>(
-    url: string,
-    options: ApiMethodOptions<TBody> = {},
-  ) => apiRequest<TResponse, TBody>({ ...options, method, url })
+    endpoint: string,
+    query?: QueryParams,
+    body?: TBody,
+    config?: ApiRequestConfig,
+  ) => apiRequest<TResponse, TBody>({ method, url: endpoint, query, body, config })
 }
 
-function responseWithMethod(method: Method) {
+function responseWithMethod(method: HttpMethod): ApiResponseMethod {
   return <TResponse = unknown, TBody = unknown>(
-    url: string,
-    options: ApiMethodOptions<TBody> = {},
-  ) => apiResponse<TResponse, TBody>({ ...options, method, url })
+    endpoint: string,
+    query?: QueryParams,
+    body?: TBody,
+    config?: ApiRequestConfig,
+  ) => apiResponse<TResponse, TBody>({ method, url: endpoint, query, body, config })
 }
 
 export const api = {
@@ -423,11 +434,11 @@ export async function apiRequest(options) {
 }
 
 function requestWithMethod(method) {
-  return (url, options = {}) => apiRequest({ ...options, method, url })
+  return (endpoint, query, body, config) => apiRequest({ method, url: endpoint, query, body, config })
 }
 
 function responseWithMethod(method) {
-  return (url, options = {}) => apiResponse({ ...options, method, url })
+  return (endpoint, query, body, config) => apiResponse({ method, url: endpoint, query, body, config })
 }
 
 export const api = {
@@ -446,177 +457,651 @@ export const api = {
 }
 `
 
-const helpersModule = ext === "ts"
-  ? `import type { AxiosRequestConfig, Method } from 'axios'
-import { api, type HeaderParams, type QueryParams } from './methods'
+let helpersModule = ext === "ts"
+  ? `import type { ApiRequestConfig, HttpMethod, QueryParams } from './methods'
+import { api } from './methods'
 
 export type ApiFunction<TResponse = unknown, TBody = unknown> = (
   endpoint: string,
-  body?: TBody,
   query?: QueryParams,
-  config?: AxiosRequestConfig,
-  headers?: HeaderParams,
+  body?: TBody,
+  config?: ApiRequestConfig,
 ) => Promise<TResponse>
 
 export function callApi<TResponse = unknown, TBody = unknown>(
-  method: Method,
+  method: HttpMethod,
   endpoint: string,
-  body?: TBody,
   query?: QueryParams,
-  config?: AxiosRequestConfig,
-  headers?: HeaderParams,
+  body?: TBody,
+  config?: ApiRequestConfig,
 ) {
   return api.request<TResponse, TBody>({
     method,
     url: endpoint,
-    body,
     query,
+    body,
     config,
-    headers,
   })
 }
 
-export function createApiFunction(method: Method) {
+export function createApiFunction(method: HttpMethod) {
   return <TResponse = unknown, TBody = unknown>(
     endpoint: string,
-    body?: TBody,
     query?: QueryParams,
-    config?: AxiosRequestConfig,
-    headers?: HeaderParams,
-  ) => callApi<TResponse, TBody>(method, endpoint, body, query, config, headers)
+    body?: TBody,
+    config?: ApiRequestConfig,
+  ) => callApi<TResponse, TBody>(method, endpoint, query, body, config)
 }
 
 export function getApi<TResponse = unknown, TBody = unknown>(
   endpoint: string,
-  body?: TBody,
   query?: QueryParams,
-  config?: AxiosRequestConfig,
-  headers?: HeaderParams,
+  body?: TBody,
+  config?: ApiRequestConfig,
 ) {
-  return callApi<TResponse, TBody>('GET', endpoint, body, query, config, headers)
+  return api.get<TResponse, TBody>(endpoint, query, body, config)
 }
 
 export function postApi<TResponse = unknown, TBody = unknown>(
   endpoint: string,
-  body?: TBody,
   query?: QueryParams,
-  config?: AxiosRequestConfig,
-  headers?: HeaderParams,
+  body?: TBody,
+  config?: ApiRequestConfig,
 ) {
-  return callApi<TResponse, TBody>('POST', endpoint, body, query, config, headers)
+  return api.post<TResponse, TBody>(endpoint, query, body, config)
 }
 
 export function putApi<TResponse = unknown, TBody = unknown>(
   endpoint: string,
-  body?: TBody,
   query?: QueryParams,
-  config?: AxiosRequestConfig,
-  headers?: HeaderParams,
+  body?: TBody,
+  config?: ApiRequestConfig,
 ) {
-  return callApi<TResponse, TBody>('PUT', endpoint, body, query, config, headers)
+  return api.put<TResponse, TBody>(endpoint, query, body, config)
 }
 
 export function patchApi<TResponse = unknown, TBody = unknown>(
   endpoint: string,
-  body?: TBody,
   query?: QueryParams,
-  config?: AxiosRequestConfig,
-  headers?: HeaderParams,
+  body?: TBody,
+  config?: ApiRequestConfig,
 ) {
-  return callApi<TResponse, TBody>('PATCH', endpoint, body, query, config, headers)
+  return api.patch<TResponse, TBody>(endpoint, query, body, config)
 }
 
 export function deleteApi<TResponse = unknown, TBody = unknown>(
   endpoint: string,
-  body?: TBody,
   query?: QueryParams,
-  config?: AxiosRequestConfig,
-  headers?: HeaderParams,
+  body?: TBody,
+  config?: ApiRequestConfig,
 ) {
-  return callApi<TResponse, TBody>('DELETE', endpoint, body, query, config, headers)
+  return api.delete<TResponse, TBody>(endpoint, query, body, config)
 }
 `
   : `import { api } from './methods'
 
-export function callApi(method, endpoint, body, query, config, headers) {
+export function callApi(method, endpoint, query, body, config) {
   return api.request({
     method,
     url: endpoint,
-    body,
     query,
+    body,
     config,
-    headers,
   })
 }
 
 export function createApiFunction(method) {
-  return (endpoint, body, query, config, headers) => callApi(method, endpoint, body, query, config, headers)
+  return (endpoint, query, body, config) => callApi(method, endpoint, query, body, config)
 }
 
-export function getApi(endpoint, body, query, config, headers) {
-  return callApi('GET', endpoint, body, query, config, headers)
+export function getApi(endpoint, query, body, config) {
+  return api.get(endpoint, query, body, config)
 }
 
-export function postApi(endpoint, body, query, config, headers) {
-  return callApi('POST', endpoint, body, query, config, headers)
+export function postApi(endpoint, query, body, config) {
+  return api.post(endpoint, query, body, config)
 }
 
-export function putApi(endpoint, body, query, config, headers) {
-  return callApi('PUT', endpoint, body, query, config, headers)
+export function putApi(endpoint, query, body, config) {
+  return api.put(endpoint, query, body, config)
 }
 
-export function patchApi(endpoint, body, query, config, headers) {
-  return callApi('PATCH', endpoint, body, query, config, headers)
+export function patchApi(endpoint, query, body, config) {
+  return api.patch(endpoint, query, body, config)
 }
 
-export function deleteApi(endpoint, body, query, config, headers) {
-  return callApi('DELETE', endpoint, body, query, config, headers)
+export function deleteApi(endpoint, query, body, config) {
+  return api.delete(endpoint, query, body, config)
 }
 `
 
-const nuxtAxiosDataModule = ext === "ts"
-  ? `import { useAsyncData } from '#imports'
-import type { ApiRequestOptions } from '${nuxtApiImportPath}'
-import { apiRequest } from '${nuxtApiImportPath}'
+const nuxtFetchErrorsModule = ext === "ts"
+  ? `import { ApiError, type ApiErrorPayload } from './types'
 
-type AxiosDataRequest<TBody = unknown> = ApiRequestOptions<TBody> | (() => ApiRequestOptions<TBody>)
-type UseAxiosDataOptions<TResponse> = Parameters<typeof useAsyncData<TResponse>>[2]
+function isObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null
+}
 
-export function useAxiosData<TResponse = unknown, TBody = unknown>(
-  key: string,
-  request: AxiosDataRequest<TBody>,
-  options?: UseAxiosDataOptions<TResponse>,
+function getPayloadMessage(payload: unknown, fallback: string) {
+  return isObject(payload) && typeof payload.message === 'string' ? payload.message : fallback
+}
+
+function getPayloadCode(payload: unknown) {
+  return isObject(payload) && typeof payload.code === 'string' ? payload.code : 'UNKNOWN_ERROR'
+}
+
+export function normalizeApiError(error: unknown) {
+  if (error instanceof ApiError) return error
+
+  if (isObject(error)) {
+    const response = isObject(error.response) ? error.response : undefined
+    const payload = (response?._data ?? response?.data ?? error.data) as ApiErrorPayload | undefined
+    const statusValue = response?.status ?? error.statusCode ?? error.status
+    const status = typeof statusValue === 'number' ? statusValue : Number(statusValue || 0)
+    const fallbackMessage = typeof error.message === 'string' ? error.message : 'Request failed.'
+
+    return new ApiError({
+      message: getPayloadMessage(payload, fallbackMessage),
+      status,
+      code: getPayloadCode(payload),
+      details: payload ?? error,
+    })
+  }
+
+  return new ApiError({
+    message: 'Request failed.',
+    details: error,
+  })
+}
+`
+  : `import { ApiError } from './types'
+
+function isObject(value) {
+  return typeof value === 'object' && value !== null
+}
+
+function getPayloadMessage(payload, fallback) {
+  return isObject(payload) && typeof payload.message === 'string' ? payload.message : fallback
+}
+
+function getPayloadCode(payload) {
+  return isObject(payload) && typeof payload.code === 'string' ? payload.code : 'UNKNOWN_ERROR'
+}
+
+export function normalizeApiError(error) {
+  if (error instanceof ApiError) return error
+
+  if (isObject(error)) {
+    const response = isObject(error.response) ? error.response : undefined
+    const payload = response?._data ?? response?.data ?? error.data
+    const statusValue = response?.status ?? error.statusCode ?? error.status
+    const status = typeof statusValue === 'number' ? statusValue : Number(statusValue || 0)
+    const fallbackMessage = typeof error.message === 'string' ? error.message : 'Request failed.'
+
+    return new ApiError({
+      message: getPayloadMessage(payload, fallbackMessage),
+      status,
+      code: getPayloadCode(payload),
+      details: payload ?? error,
+    })
+  }
+
+  return new ApiError({
+    message: 'Request failed.',
+    details: error,
+  })
+}
+`
+
+const nuxtFetchClientModule = ext === "ts"
+  ? `import { getAccessToken } from './token'
+
+export type ApiFetchConfig = {
+  headers?: HeadersInit
+  signal?: AbortSignal
+  timeout?: number
+  credentials?: RequestCredentials
+  retry?: number | false
+  baseURL?: string
+  [key: string]: unknown
+}
+
+export type ApiFetchResponse<TResponse = unknown> = {
+  _data?: TResponse
+  status: number
+  statusText?: string
+  headers: Headers
+}
+
+type NuxtFetchOptions = NonNullable<Parameters<typeof $fetch>[1]>
+
+function getConfigValue(config: Record<string, unknown>, keys: string[]) {
+  for (const key of keys) {
+    const value = config[key]
+    if (typeof value === 'string' && value.length > 0) return value
+  }
+
+  return ''
+}
+
+export function resolveApiBaseUrl() {
+  const runtimeConfig = useRuntimeConfig()
+  const publicConfig = runtimeConfig.public as Record<string, unknown>
+
+  return getConfigValue(publicConfig, [
+    'apiBase',
+    'apiBaseUrl',
+    'apiBaseURL',
+    'apiUrl',
+    'apiURL',
+  ]) || '/api'
+}
+
+function mergeHeaders(input?: HeadersInit) {
+  const headers = new Headers(input)
+  const accessToken = getAccessToken()
+
+  if (!headers.has('Accept')) headers.set('Accept', 'application/json')
+  if (accessToken) headers.set('Authorization', \`Bearer \${accessToken}\`)
+
+  return headers
+}
+
+function withApiDefaults(config: ApiFetchConfig = {}): NuxtFetchOptions {
+  const baseURL = typeof config.baseURL === 'string' ? config.baseURL : resolveApiBaseUrl()
+
+  return {
+    ...config,
+    baseURL,
+    headers: mergeHeaders(config.headers),
+  } as NuxtFetchOptions
+}
+
+export function apiClient<TResponse = unknown>(
+  endpoint: string,
+  config: ApiFetchConfig = {},
+): Promise<TResponse> {
+  return $fetch<TResponse>(endpoint, withApiDefaults(config))
+}
+
+export function apiClientRaw<TResponse = unknown>(
+  endpoint: string,
+  config: ApiFetchConfig = {},
+): Promise<ApiFetchResponse<TResponse>> {
+  return $fetch.raw<TResponse>(endpoint, withApiDefaults(config)) as Promise<ApiFetchResponse<TResponse>>
+}
+`
+  : `import { getAccessToken } from './token'
+
+function getConfigValue(config, keys) {
+  for (const key of keys) {
+    const value = config[key]
+    if (typeof value === 'string' && value.length > 0) return value
+  }
+
+  return ''
+}
+
+export function resolveApiBaseUrl() {
+  const runtimeConfig = useRuntimeConfig()
+  const publicConfig = runtimeConfig.public || {}
+
+  return getConfigValue(publicConfig, [
+    'apiBase',
+    'apiBaseUrl',
+    'apiBaseURL',
+    'apiUrl',
+    'apiURL',
+  ]) || '/api'
+}
+
+function mergeHeaders(input) {
+  const headers = new Headers(input)
+  const accessToken = getAccessToken()
+
+  if (!headers.has('Accept')) headers.set('Accept', 'application/json')
+  if (accessToken) headers.set('Authorization', \`Bearer \${accessToken}\`)
+
+  return headers
+}
+
+function withApiDefaults(config = {}) {
+  const baseURL = typeof config.baseURL === 'string' ? config.baseURL : resolveApiBaseUrl()
+
+  return {
+    ...config,
+    baseURL,
+    headers: mergeHeaders(config.headers),
+  }
+}
+
+export function apiClient(endpoint, config = {}) {
+  return $fetch(endpoint, withApiDefaults(config))
+}
+
+export function apiClientRaw(endpoint, config = {}) {
+  return $fetch.raw(endpoint, withApiDefaults(config))
+}
+`
+
+const nuxtFetchMethodsModule = ext === "ts"
+  ? `import { apiClient, apiClientRaw, type ApiFetchConfig, type ApiFetchResponse } from './client'
+import { normalizeApiError } from './errors'
+
+export type QueryValue = string | number | boolean | null | undefined
+export type QueryParams = Record<string, QueryValue | QueryValue[]>
+export type HeaderValue = string | number | boolean | null | undefined
+export type HeaderParams = Record<string, HeaderValue>
+export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
+export type ApiRequestConfig = ApiFetchConfig
+
+export type ApiRequestOptions<TBody = unknown> = {
+  method: HttpMethod
+  url: string
+  query?: QueryParams
+  params?: QueryParams
+  body?: TBody
+  data?: TBody
+  headers?: HeaderParams | HeadersInit
+  config?: ApiRequestConfig
+}
+
+function hasOwn(object: object, key: PropertyKey) {
+  return Object.prototype.hasOwnProperty.call(object, key)
+}
+
+function applyHeader(headers: Headers, name: string, value: HeaderValue) {
+  if (value === null || value === undefined) {
+    headers.delete(name)
+  } else {
+    headers.set(name, String(value))
+  }
+}
+
+function mergeHeaders(
+  configHeaders?: HeadersInit,
+  headers?: HeaderParams | HeadersInit,
+): Headers {
+  const output = new Headers(configHeaders)
+
+  if (!headers) return output
+
+  if (headers instanceof Headers || Array.isArray(headers)) {
+    new Headers(headers).forEach((value, name) => output.set(name, value))
+    return output
+  }
+
+  for (const [name, value] of Object.entries(headers as HeaderParams)) {
+    applyHeader(output, name, value)
+  }
+
+  return output
+}
+
+function buildRequestConfig<TBody>(options: ApiRequestOptions<TBody>): ApiRequestConfig {
+  const config = options.config || {}
+  const data = hasOwn(options, 'body')
+    ? options.body
+    : hasOwn(options, 'data')
+      ? options.data
+      : (config.body ?? config.data) as TBody | undefined
+  const query = options.query || options.params || (config.query ?? config.params) as QueryParams | undefined
+
+  return {
+    ...config,
+    method: options.method,
+    query,
+    body: data,
+    headers: mergeHeaders(config.headers, options.headers),
+  }
+}
+
+export async function apiResponse<TResponse = unknown, TBody = unknown>(
+  options: ApiRequestOptions<TBody>,
+): Promise<ApiFetchResponse<TResponse>> {
+  try {
+    return await apiClientRaw<TResponse>(options.url, buildRequestConfig(options))
+  } catch (error) {
+    throw normalizeApiError(error)
+  }
+}
+
+export async function apiRequest<TResponse = unknown, TBody = unknown>(
+  options: ApiRequestOptions<TBody>,
+): Promise<TResponse> {
+  try {
+    return await apiClient<TResponse>(options.url, buildRequestConfig(options))
+  } catch (error) {
+    throw normalizeApiError(error)
+  }
+}
+
+export type ApiMethod = <TResponse = unknown, TBody = unknown>(
+  endpoint: string,
+  query?: QueryParams,
+  body?: TBody,
+  config?: ApiRequestConfig,
+) => Promise<TResponse>
+
+export type ApiResponseMethod = <TResponse = unknown, TBody = unknown>(
+  endpoint: string,
+  query?: QueryParams,
+  body?: TBody,
+  config?: ApiRequestConfig,
+) => Promise<ApiFetchResponse<TResponse>>
+
+function requestWithMethod(method: HttpMethod): ApiMethod {
+  return <TResponse = unknown, TBody = unknown>(
+    endpoint: string,
+    query?: QueryParams,
+    body?: TBody,
+    config?: ApiRequestConfig,
+  ) => apiRequest<TResponse, TBody>({ method, url: endpoint, query, body, config })
+}
+
+function responseWithMethod(method: HttpMethod): ApiResponseMethod {
+  return <TResponse = unknown, TBody = unknown>(
+    endpoint: string,
+    query?: QueryParams,
+    body?: TBody,
+    config?: ApiRequestConfig,
+  ) => apiResponse<TResponse, TBody>({ method, url: endpoint, query, body, config })
+}
+
+export const api = {
+  request: apiRequest,
+  response: apiResponse,
+  get: requestWithMethod('GET'),
+  post: requestWithMethod('POST'),
+  put: requestWithMethod('PUT'),
+  patch: requestWithMethod('PATCH'),
+  delete: requestWithMethod('DELETE'),
+  getResponse: responseWithMethod('GET'),
+  postResponse: responseWithMethod('POST'),
+  putResponse: responseWithMethod('PUT'),
+  patchResponse: responseWithMethod('PATCH'),
+  deleteResponse: responseWithMethod('DELETE'),
+}
+`
+  : `import { apiClient, apiClientRaw } from './client'
+import { normalizeApiError } from './errors'
+
+function hasOwn(object, key) {
+  return Object.prototype.hasOwnProperty.call(object, key)
+}
+
+function applyHeader(headers, name, value) {
+  if (value === null || value === undefined) {
+    headers.delete(name)
+  } else {
+    headers.set(name, String(value))
+  }
+}
+
+function mergeHeaders(configHeaders, headers) {
+  const output = new Headers(configHeaders)
+
+  if (!headers) return output
+
+  if (headers instanceof Headers || Array.isArray(headers)) {
+    new Headers(headers).forEach((value, name) => output.set(name, value))
+    return output
+  }
+
+  for (const [name, value] of Object.entries(headers)) {
+    applyHeader(output, name, value)
+  }
+
+  return output
+}
+
+function buildRequestConfig(options) {
+  const config = options.config || {}
+  const data = hasOwn(options, 'body')
+    ? options.body
+    : hasOwn(options, 'data')
+      ? options.data
+      : config.body ?? config.data
+  const query = options.query || options.params || config.query || config.params
+
+  return {
+    ...config,
+    method: options.method,
+    query,
+    body: data,
+    headers: mergeHeaders(config.headers, options.headers),
+  }
+}
+
+export async function apiResponse(options) {
+  try {
+    return await apiClientRaw(options.url, buildRequestConfig(options))
+  } catch (error) {
+    throw normalizeApiError(error)
+  }
+}
+
+export async function apiRequest(options) {
+  try {
+    return await apiClient(options.url, buildRequestConfig(options))
+  } catch (error) {
+    throw normalizeApiError(error)
+  }
+}
+
+function requestWithMethod(method) {
+  return (endpoint, query, body, config) => apiRequest({ method, url: endpoint, query, body, config })
+}
+
+function responseWithMethod(method) {
+  return (endpoint, query, body, config) => apiResponse({ method, url: endpoint, query, body, config })
+}
+
+export const api = {
+  request: apiRequest,
+  response: apiResponse,
+  get: requestWithMethod('GET'),
+  post: requestWithMethod('POST'),
+  put: requestWithMethod('PUT'),
+  patch: requestWithMethod('PATCH'),
+  delete: requestWithMethod('DELETE'),
+  getResponse: responseWithMethod('GET'),
+  postResponse: responseWithMethod('POST'),
+  putResponse: responseWithMethod('PUT'),
+  patchResponse: responseWithMethod('PATCH'),
+  deleteResponse: responseWithMethod('DELETE'),
+}
+`
+
+const nuxtFetchHelpersModule = ext === "ts"
+  ? `import type { ApiRequestConfig, HttpMethod, QueryParams } from './methods'
+import { api } from './methods'
+
+export type ApiFunction<TResponse = unknown, TBody = unknown> = (
+  endpoint: string,
+  query?: QueryParams,
+  body?: TBody,
+  config?: ApiRequestConfig,
+) => Promise<TResponse>
+
+export function callApi<TResponse = unknown, TBody = unknown>(
+  method: HttpMethod,
+  endpoint: string,
+  query?: QueryParams,
+  body?: TBody,
+  config?: ApiRequestConfig,
 ) {
-  return useAsyncData<TResponse>(key, (_nuxtApp, { signal }) => {
-    const resolved = typeof request === 'function' ? request() : request
+  return api.request<TResponse, TBody>({
+    method,
+    url: endpoint,
+    query,
+    body,
+    config,
+  })
+}
 
-    return apiRequest<TResponse, TBody>({
-      ...resolved,
-      config: {
-        ...resolved.config,
-        signal,
-      },
-    })
-  }, options)
+export function createApiFunction(method: HttpMethod) {
+  return <TResponse = unknown, TBody = unknown>(
+    endpoint: string,
+    query?: QueryParams,
+    body?: TBody,
+    config?: ApiRequestConfig,
+  ) => callApi<TResponse, TBody>(method, endpoint, query, body, config)
+}
+
+export function getApi<TResponse = unknown, TBody = unknown>(
+  endpoint: string,
+  query?: QueryParams,
+  body?: TBody,
+  config?: ApiRequestConfig,
+) {
+  return api.get<TResponse, TBody>(endpoint, query, body, config)
+}
+
+export function postApi<TResponse = unknown, TBody = unknown>(
+  endpoint: string,
+  query?: QueryParams,
+  body?: TBody,
+  config?: ApiRequestConfig,
+) {
+  return api.post<TResponse, TBody>(endpoint, query, body, config)
+}
+
+export function putApi<TResponse = unknown, TBody = unknown>(
+  endpoint: string,
+  query?: QueryParams,
+  body?: TBody,
+  config?: ApiRequestConfig,
+) {
+  return api.put<TResponse, TBody>(endpoint, query, body, config)
+}
+
+export function patchApi<TResponse = unknown, TBody = unknown>(
+  endpoint: string,
+  query?: QueryParams,
+  body?: TBody,
+  config?: ApiRequestConfig,
+) {
+  return api.patch<TResponse, TBody>(endpoint, query, body, config)
+}
+
+export function deleteApi<TResponse = unknown, TBody = unknown>(
+  endpoint: string,
+  query?: QueryParams,
+  body?: TBody,
+  config?: ApiRequestConfig,
+) {
+  return api.delete<TResponse, TBody>(endpoint, query, body, config)
 }
 `
-  : `import { useAsyncData } from '#imports'
-import { apiRequest } from '${nuxtApiImportPath}'
+  : helpersModule
 
-export function useAxiosData(key, request, options) {
-  return useAsyncData(key, (_nuxtApp, { signal }) => {
-    const resolved = typeof request === 'function' ? request() : request
-
-    return apiRequest({
-      ...resolved,
-      config: {
-        ...resolved.config,
-        signal,
-      },
-    })
-  }, options)
+if (isNuxt) {
+  errorsModule = nuxtFetchErrorsModule
+  clientModule = nuxtFetchClientModule
+  methodsModule = nuxtFetchMethodsModule
+  helpersModule = nuxtFetchHelpersModule
 }
-`
 
 const indexModule = `export * from './client'
 export * from './token'
@@ -633,9 +1118,5 @@ writeIfMissing(path.join(apiDir, `client.${ext}`), clientModule)
 writeIfMissing(path.join(apiDir, `methods.${ext}`), methodsModule)
 writeIfMissing(path.join(apiDir, `helpers.${ext}`), helpersModule)
 writeIfMissing(path.join(apiDir, `index.${ext}`), indexModule)
-
-if (isNuxtProject()) {
-  writeIfMissing(path.join(nuxtComposablesDir, `useAxiosData.${ext}`), nuxtAxiosDataModule)
-}
 
 console.log(`axios-token-baseurl-error: API client location ${toPosix(apiDir)}`)

@@ -1,6 +1,6 @@
 ---
 name: axios-token-baseurl-error
-description: "Framework-agnostic frontend Axios/API client skill for Vite-based React SPA, Vite-based Vue SPA, and optional Nuxt Axios integration. Use when a frontend project needs axios, an API client, dynamic parameter-based HTTP method calls, exported method helper functions, baseURL configuration, token or Authorization/Bearer headers, request interceptors, or normalized API error handling. Treat react-spa and vue-spa as Vite SPA aliases; add Next.js support only when the user explicitly requests it."
+description: "Framework-aware frontend API client skill for Vite-based React SPA, Vite-based Vue SPA, and Nuxt. Use when a frontend project needs axios for Vite, Nuxt $fetch wrappers, an API client, dynamic parameter-based HTTP method calls, exported method helper functions, baseURL configuration, token or Authorization/Bearer headers, request hooks/interceptors, or normalized API error handling. Treat react-spa and vue-spa as Vite SPA aliases; add Next.js support only when the user explicitly requests it."
 ---
 
 # Axios Token BaseURL Error
@@ -15,7 +15,7 @@ description: "Framework-agnostic frontend Axios/API client skill for Vite-based 
   "order": 20,
   "packageManager": "pnpm",
   "scaffoldCommand": [
-    "pnpm add axios",
+    "if test -f .opencode/skills/axios-token-baseurl-error/scripts/bootstrap-00-01.cjs; then node .opencode/skills/axios-token-baseurl-error/scripts/bootstrap-00-01.cjs; else node ${OPENCODE_PROJECT_SKILLS_PRESEEDED_DIR:-/app/.opencode/skills}/axios-token-baseurl-error/scripts/bootstrap-00-01.cjs; fi",
     "if test -f .opencode/skills/axios-token-baseurl-error/scripts/bootstrap-01-02.cjs; then node .opencode/skills/axios-token-baseurl-error/scripts/bootstrap-01-02.cjs; else node ${OPENCODE_PROJECT_SKILLS_PRESEEDED_DIR:-/app/.opencode/skills}/axios-token-baseurl-error/scripts/bootstrap-01-02.cjs; fi"
   ],
   "verificationCommands": []
@@ -26,15 +26,15 @@ description: "Framework-agnostic frontend Axios/API client skill for Vite-based 
 
 Use this skill to add or repair the frontend HTTP foundation only:
 
-- create or update one shared Axios client
+- create or update one shared API transport client
 - expose dynamic parameter-based HTTP methods such as `api.request({ method, url, query, body })`
-- expose exported method helper functions such as `getApi(endpoint, body, query, config, headers)`
+- expose exported method helper functions such as `getApi(endpoint, query, body, config)`
 - configure `baseURL`
 - attach a token through `Authorization: Bearer <token>`
-- normalize Axios errors into one predictable app error shape
+- normalize transport errors into one predictable app error shape
 - keep endpoint calls inside the feature, page, store, composable, or domain module that owns the business behavior
 
-When this Axios skill is selected, custom API wrappers created by this skill must stay Axios-backed across Vite-based React SPA, Vite-based Vue SPA, and optional Nuxt Axios integration. Treat `react-spa` and `vue-spa` as Vite SPA aliases. Do not switch this skill's transport to native `fetch`, `$fetch`, `ofetch`, or another client unless the user explicitly changes the project standard. Nuxt projects that do not select this skill should keep using Nuxt's official data fetching helpers from their framework scaffold. Add Next.js conventions only when the user explicitly asks for Next support.
+Use Axios for Vite-based React SPA and Vue SPA projects. Use Nuxt's built-in `$fetch` for Nuxt projects; do not add axios to Nuxt unless the user explicitly asks to standardize Nuxt on axios. Treat `react-spa` and `vue-spa` as Vite SPA aliases. Add Next.js conventions only when the user explicitly asks for Next support.
 
 Do not create a global endpoint registry, generic CRUD layer, service factory, or feature-specific business API wrapper unless the user explicitly asks for that abstraction.
 
@@ -44,7 +44,7 @@ Never force a fixed structure such as `src/shared/api` or `src/features`.
 
 Before editing, inspect the repository and choose the smallest location that matches the project:
 
-1. Reuse an existing Axios/http/request client file if one already exists.
+1. Reuse an existing Axios, `$fetch`, http, or request client file if one already exists.
 2. Otherwise reuse an existing `api`, `http`, `lib`, `services`, `utils`, `composables`, or framework-local folder.
 3. If no convention exists, create a minimal API folder under the current source root as bootstrap fallback. Treat that fallback as implementation detail, not an architecture mandate.
 
@@ -54,12 +54,11 @@ When documenting the result, report the chosen folder as "API client location" i
 
 The chosen API client folder should contain only transport-level concerns:
 
-- `client`: Axios instance, base URL, default JSON headers, request interceptor.
+- `client`: Axios instance for Vite projects, or `$fetch` wrapper for Nuxt projects; base URL, default JSON headers, and token hook.
 - `token`: a replaceable token provider; safe for browser-only token storage and SSR environments.
-- `errors`: Axios error detection and app-level error normalization.
+- `errors`: Axios or `$fetch` error detection and app-level error normalization.
 - `methods`: dynamic parameter-based generic HTTP methods for `request`, `response`, `get`, `post`, `put`, `patch`, and `delete`.
 - `helpers`: exported method helper functions for framework scripts, hooks, composables, stores, or feature modules.
-- `useAxiosData`: Nuxt-only composable generated when a Nuxt project is detected; wraps Axios helper calls with `useAsyncData`.
 - `types`: transport error payload and normalized error class/type.
 - `index`: convenience exports for the transport modules.
 
@@ -68,9 +67,9 @@ Endpoint functions belong where the feature already lives. The dynamic method he
 - a React Vite SPA hook can call `api.request<Resource[]>({ method: 'GET', url: '/resources', query: { page: 1 } })` from the hook or feature API file
 - a React Vite SPA component, hook, Zustand store, Redux thunk, or TanStack Query function can import `getApi`/`postApi` and pass dynamic arguments
 - a Vue Vite SPA component, composable, or Pinia action can import `getApi`/`postApi` and pass dynamic arguments
-- a Nuxt composable can call Axios-backed helpers directly for event-driven calls, or use `useAxiosData`/`useAsyncData` for SSR-aware setup or route data
+- a Nuxt page or composable can call business-named API wrappers directly inside `useAsyncData`
 - a store action can call `apiClient` from the store
-- any framework script can import `getApi`, `postApi`, `putApi`, `patchApi`, or `deleteApi` and pass `endpoint`, `body`, `query`, `config`, and `headers` dynamically
+- any framework script can import `getApi`, `postApi`, `putApi`, `patchApi`, or `deleteApi` and pass `endpoint`, `query`, `body`, and `config` dynamically
 
 Keep endpoints close to the consumer unless the repository already has a domain API convention.
 
@@ -79,7 +78,7 @@ Keep endpoints close to the consumer unless the repository already has a domain 
 Prefer the project's existing runtime configuration. Common sources include:
 
 - Vite env values such as `VITE_API_BASE_URL`
-- Nuxt public runtime/env values such as `NUXT_PUBLIC_API_BASE`
+- Nuxt public runtime config values such as `runtimeConfig.public.apiBase`
 - an existing app config module
 - fallback `/api` for same-origin proxy/server routes
 
@@ -87,7 +86,7 @@ Do not hard-code production hostnames or secrets into the client.
 
 ## Token Handling
 
-The Axios client should depend on a token provider, not a specific auth implementation.
+The transport client should depend on a token provider, not a specific auth implementation.
 
 Use a default provider only as a safe bootstrap fallback:
 
@@ -140,11 +139,13 @@ export function normalizeApiError(error: unknown) {
 }
 ```
 
+For Nuxt `$fetch`, normalize the thrown fetch error shape in the same boundary. Prefer `response._data` or `data` as the API payload, and map `status`, `statusCode`, `message`, and `code` into `ApiError`.
+
 UI decisions such as toast, redirect, retry, loading state, or form error mapping should stay outside this skill unless the user asks for them.
 
-## Axios Client Shape
+## Client Shape
 
-Keep the client small and composable:
+For Vite React/Vue projects, keep the Axios client small and composable:
 
 ```ts
 import axios, { AxiosHeaders } from 'axios'
@@ -152,7 +153,7 @@ import { getAccessToken } from './token'
 
 function resolveApiBaseUrl() {
   const env = (import.meta as ImportMeta & { env?: Record<string, string | undefined> }).env
-  return env?.VITE_API_BASE_URL || env?.NUXT_PUBLIC_API_BASE || '/api'
+  return env?.VITE_API_BASE_URL || '/api'
 }
 
 export const apiClient = axios.create({
@@ -174,6 +175,46 @@ apiClient.interceptors.request.use((config) => {
 })
 ```
 
+For Nuxt projects, wrap `$fetch` instead of axios:
+
+```ts
+import { getAccessToken } from './token'
+
+export type ApiFetchConfig = {
+  headers?: HeadersInit
+  signal?: AbortSignal
+  timeout?: number
+  credentials?: RequestCredentials
+  baseURL?: string
+  [key: string]: unknown
+}
+
+export function resolveApiBaseUrl() {
+  const runtimeConfig = useRuntimeConfig()
+  const publicConfig = runtimeConfig.public as Record<string, unknown>
+
+  return String(publicConfig.apiBase || publicConfig.apiBaseUrl || '/api')
+}
+
+function withApiDefaults(config: ApiFetchConfig = {}) {
+  const headers = new Headers(config.headers)
+  const accessToken = getAccessToken()
+
+  if (!headers.has('Accept')) headers.set('Accept', 'application/json')
+  if (accessToken) headers.set('Authorization', `Bearer ${accessToken}`)
+
+  return {
+    ...config,
+    baseURL: config.baseURL || resolveApiBaseUrl(),
+    headers,
+  }
+}
+
+export function apiClient<TResponse = unknown>(endpoint: string, config: ApiFetchConfig = {}) {
+  return $fetch<TResponse>(endpoint, withApiDefaults(config))
+}
+```
+
 ## Dynamic Method Shape
 
 Provide two transport-level call shapes.
@@ -190,49 +231,47 @@ const users = await api.request<User[]>({
   headers: { 'X-Request-Source': 'dashboard' },
 })
 
-const created = await api.post<User>('/users', {
-  body: { name: 'Ada' },
+const created = await api.post<User, { name: string }>('/users', undefined, {
+  name: 'Ada',
 })
 ```
 
-Use `api.response<T>({ method, url, ... })` or `api.getResponse<T>(url, options)` when callers need the full Axios response. Use `config` for per-request Axios options such as `signal`, `timeout`, or `withCredentials`.
+Use `api.get<TResponse, TBody>(endpoint, query, body, config)` and the matching `post`, `put`, `patch`, and `delete` methods when call sites should pass arguments positionally. Use `api.response<T>({ method, url, ... })` or `api.getResponse<TResponse, TBody>(endpoint, query, body, config)` when callers need the full transport response. Use `config` for per-request options such as `signal`, `timeout`, `withCredentials`, `credentials`, or `headers`.
 
 Use exported method helpers when a framework script, hook, composable, store, or feature API file should import a function and pass dynamic arguments:
 
 ```ts
 import { getApi, putApi } from './helpers'
 
-const users = await getApi<User[]>('/users', undefined, { page: 1 }, { signal }, {
-  'X-Request-Source': 'dashboard',
+const users = await getApi<User[]>('/users', { page: 1 }, undefined, {
+  signal,
+  headers: { 'X-Request-Source': 'dashboard' },
 })
 
-const updated = await putApi<User, Partial<User>>('/users/1', { name: 'Ada' })
+const updated = await putApi<User, Partial<User>>('/users/1', undefined, { name: 'Ada' })
 ```
 
 If a feature wants business-named wrappers, define them in the owning feature module and keep the arguments dynamic:
 
 ```ts
-import type { AxiosRequestConfig } from 'axios'
-import { getApi, putApi, type HeaderParams, type QueryParams } from '@/api'
+import { api, type ApiRequestConfig, type QueryParams } from '@/api'
 
-export function GetUser<TResponse = User>(
+export function getUser<TResponse = User>(
   endpoint: string,
-  body?: unknown,
   query?: QueryParams,
-  config?: AxiosRequestConfig,
-  headers?: HeaderParams,
+  body?: unknown,
+  config?: ApiRequestConfig,
 ) {
-  return getApi<TResponse>(endpoint, body, query, config, headers)
+  return api.get<TResponse, unknown>(endpoint, query, body, config)
 }
 
-export function UpdateUser<TResponse = User, TBody = Partial<User>>(
+export function updateUser<TResponse = User, TBody = Partial<User>>(
   endpoint: string,
-  body?: TBody,
   query?: QueryParams,
-  config?: AxiosRequestConfig,
-  headers?: HeaderParams,
+  body?: TBody,
+  config?: ApiRequestConfig,
 ) {
-  return putApi<TResponse, TBody>(endpoint, body, query, config, headers)
+  return api.put<TResponse, TBody>(endpoint, query, body, config)
 }
 ```
 
@@ -245,54 +284,48 @@ For `react-spa`, `react-vite`, `vue-spa`, and `vue-vite`, treat the project as V
 React hook or query function example:
 
 ```ts
-import type { AxiosRequestConfig } from 'axios'
-import { getApi, postApi, type HeaderParams, type QueryParams } from '@/api'
+import { api, type ApiRequestConfig, type QueryParams } from '@/api'
 
-export function GetUser<TResponse = User>(
+export function getUser<TResponse = User>(
   endpoint: string,
-  body?: unknown,
   query?: QueryParams,
-  config?: AxiosRequestConfig,
-  headers?: HeaderParams,
+  body?: unknown,
+  config?: ApiRequestConfig,
 ) {
-  return getApi<TResponse>(endpoint, body, query, config, headers)
+  return api.get<TResponse, unknown>(endpoint, query, body, config)
 }
 
-export function CreateUser<TResponse = User, TBody = Partial<User>>(
+export function createUser<TResponse = User, TBody = Partial<User>>(
   endpoint: string,
-  body?: TBody,
   query?: QueryParams,
-  config?: AxiosRequestConfig,
-  headers?: HeaderParams,
+  body?: TBody,
+  config?: ApiRequestConfig,
 ) {
-  return postApi<TResponse, TBody>(endpoint, body, query, config, headers)
+  return api.post<TResponse, TBody>(endpoint, query, body, config)
 }
 ```
 
 Vue composable or Pinia action example:
 
 ```ts
-import type { AxiosRequestConfig } from 'axios'
-import { getApi, putApi, type HeaderParams, type QueryParams } from '@/api'
+import { api, type ApiRequestConfig, type QueryParams } from '@/api'
 
 export function useUsersApi() {
-  const GetUser = <TResponse = User>(
+  const getUser = <TResponse = User>(
     endpoint: string,
+    query?: QueryParams,
     body?: unknown,
-    query?: QueryParams,
-    config?: AxiosRequestConfig,
-    headers?: HeaderParams,
-  ) => getApi<TResponse>(endpoint, body, query, config, headers)
+    config?: ApiRequestConfig,
+  ) => api.get<TResponse, unknown>(endpoint, query, body, config)
 
-  const UpdateUser = <TResponse = User, TBody = Partial<User>>(
+  const updateUser = <TResponse = User, TBody = Partial<User>>(
     endpoint: string,
-    body?: TBody,
     query?: QueryParams,
-    config?: AxiosRequestConfig,
-    headers?: HeaderParams,
-  ) => putApi<TResponse, TBody>(endpoint, body, query, config, headers)
+    body?: TBody,
+    config?: ApiRequestConfig,
+  ) => api.put<TResponse, TBody>(endpoint, query, body, config)
 
-  return { GetUser, UpdateUser }
+  return { getUser, updateUser }
 }
 ```
 
@@ -300,27 +333,50 @@ Use `config` for SPA request cancellation, timeout, credentials, and adapter-spe
 
 ## Nuxt Data Fetching Integration
 
-When this skill runs in a Nuxt project, generate `app/composables/useAxiosData.ts` or `.js`. This composable mirrors Nuxt's official `useAsyncData` pattern while keeping Axios as the transport.
+When this skill runs in a Nuxt project, generate `$fetch`-backed transport files. Do not install axios and do not generate a request-object composable such as `useAxiosData('users', { method, url, query })`.
 
-Use direct Axios helpers for event-driven calls:
+For Nuxt, keep business-named API wrappers in the owning API, service, or composable module:
+
+```ts
+import { api, type ApiRequestConfig, type QueryParams } from '~/utils/api'
+
+export function getUser<TResponse = User>(
+  endpoint: string,
+  query?: QueryParams,
+  body?: unknown,
+  config?: ApiRequestConfig,
+) {
+  return api.get<TResponse, unknown>(endpoint, query, body, config)
+}
+```
+
+Use direct `$fetch`-backed helpers for event-driven calls:
 
 ```ts
 import { postApi } from '~/utils/api'
 
-await postApi('/users', { name: 'Ada' })
+await postApi('/users', undefined, { name: 'Ada' })
 ```
 
-Use `useAxiosData` for SSR-aware setup or route data:
+Use Nuxt's `useAsyncData` directly for page initialization or SSR-aware route data:
 
 ```ts
-const { data, error, status } = await useAxiosData<User[]>('users', {
-  method: 'GET',
-  url: '/users',
-  query: { page: 1 }
-})
+const query = { page: 1 }
+
+const { data, error, status, refresh } = await useAsyncData('users', () =>
+  getUser<User[]>('/users', query)
+)
 ```
 
-Provide a stable key for route data. Pass per-request cancellation through `config.signal`; the generated `useAxiosData` injects Nuxt's `useAsyncData` signal into Axios config.
+When request cancellation matters, pass Nuxt's signal through the normal `config` argument:
+
+```ts
+const { data, error, status } = await useAsyncData('users', (_nuxtApp, { signal }) =>
+  getUser<User[]>('/users', { page: 1 }, undefined, { signal })
+)
+```
+
+Provide a stable key for route data. Keep `useAsyncData` visible at the page or composable boundary, and keep the API wrapper shape as `api.get(endpoint, query, body, config)`. This follows Nuxt's official pattern of using `useAsyncData` with `$fetch` for setup data so SSR payload hydration does not refetch the same data on the client.
 
 ## Reporting
 
@@ -331,7 +387,7 @@ After applying this skill, report:
 3. How the token provider can be replaced by the app's auth source.
 4. How errors are normalized.
 5. How to use the dynamic parameter-based HTTP methods and exported method helper functions.
-6. For Nuxt projects, whether `useAxiosData` was generated and how setup data should call it.
+6. For Nuxt projects, how pages should call `useAsyncData('key', () => apiWrapper(...))`.
 7. Build/lint/typecheck result when available.
 
 Do not report that business endpoints were globally wrapped unless endpoint wrappers were explicitly requested.
