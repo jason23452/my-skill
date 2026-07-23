@@ -1,0 +1,4 @@
+interface:
+  display_name: "Backend ORM Migrations"
+  short_description: "Define backend ORM and migration contracts."
+  default_prompt: "Use backend-orm-migrations to choose and implement the backend ORM/migration framework, paths, commands, and verification for this repo."

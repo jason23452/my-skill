@@ -31,7 +31,7 @@ description: "建立與維護 FastAPI 後端專案架構、feature 模組、rout
 Runtime smoke in OpenCode Project Flow must use `scripts/runtime-smoke-sandbox.cjs`.
 Do not run `uv run uvicorn` directly from `/workspace` for smoke checks; Docker bind mounts can make runtime readiness unreliable. Keep `/health` as the liveness endpoint.
 
-這個 skill 負責 FastAPI 後端的 HTTP feature 結構與應用程式組裝。資料庫、ORM、migration、Docker database service 等資料持久層需求由 `pgdb-docker-orm` skill 負責。
+這個 skill 負責 FastAPI 後端的 HTTP feature 結構與應用程式組裝。Backend ORM/migration framework、model path、migration path、migration commands 與 persistence task contract 由 `backend-orm-migrations` skill 負責；PostgreSQL Docker/Compose service、volume、port、DB health 與資料安全操作由 `pgdb-docker-orm` skill 負責。
 
 ## 使用時機
 

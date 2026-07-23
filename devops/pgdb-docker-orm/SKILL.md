@@ -1,6 +1,6 @@
 ---
 name: pgdb-docker-orm
-description: 使用 Docker image / Docker Compose 開發 PostgreSQL 資料庫，並用後端 ORM migration 進行 table/schema 開發。使用者提到 pgdb、Postgres、PostgreSQL、Docker database image、docker compose db service、ORM model、migration、Alembic、SQLAlchemy、Prisma、TypeORM、Django migration、建 table、資料表設計、schema change、後端資料庫欄位新增或修改時，都應使用這個 skill；即使使用者只說「pgdb」、「docker image pg」、「建 table」、「開資料庫」或「ORM」也要觸發。
+description: 使用 Docker image / Docker Compose 開發 PostgreSQL 資料庫，管理 db service、host port、volume、healthcheck、DATABASE_URL 與資料安全操作。使用者提到 pgdb、Postgres、PostgreSQL、Docker database image、docker compose db service、DB volume、DATABASE_URL、資料庫 healthcheck、建 table、schema change 或 migration safety 時使用；backend ORM/migration framework、model path、migration path、migration commands 與 persistence task contract 應同時使用 backend-orm-migrations。
 ---
 
 # PGDB Docker ORM 開發
@@ -30,7 +30,7 @@ When adding or generating PostgreSQL Compose services, allocate an available hos
 
 如果 Compose 檔已存在，在保留既有 service 的前提下補上 `db` service、healthcheck 與 `postgres_data` volume，並讓 backend 使用 `postgresql+asyncpg://postgres:postgres@db:5432/app_db`。
 
-使用這個 skill 協助使用者用 Docker 建立與維護本機 PostgreSQL 開發資料庫，同時讓後端資料表變更透過 ORM 與 migration 系統管理。
+使用這個 skill 協助使用者用 Docker 建立與維護本機 PostgreSQL 開發資料庫。後端資料表變更仍應透過 ORM 與 migration 系統管理；具體 ORM/migration framework、路徑、命令與 task handoff contract 由 `backend-orm-migrations` 決定。
 
 ## 核心原則
 
@@ -53,7 +53,7 @@ When adding or generating PostgreSQL Compose services, allocate an available hos
 - 既有 `.env`、`.env.example`、settings module 與 `DATABASE_URL` 命名。
 - 是否已有測試或 seed script 可驗證資料庫連線。
 
-Stack evidence incomplete 時，先根據 manifest、framework config 與既有 migration 檔推定最匹配的 ORM；缺少必要決策時輸出 `requiredInput`，由 flow/find-skills question gate 收斂。
+Stack evidence incomplete 時，先根據 manifest、framework config 與既有 migration 檔推定最匹配的資料庫/Compose 連線方式；ORM/migration framework 缺少必要決策時交由 `backend-orm-migrations` 輸出 `requiredInput`，由 flow/find-skills question gate 收斂。
 
 ## 建立本機 PostgreSQL Service
 
@@ -127,6 +127,8 @@ Docker 指令應從包含 Compose 檔案的專案根目錄執行。
    ```
 
 ## ORM Migration 流程
+
+本節只描述如何安全執行已選定的 ORM migration。選擇 ORM/migration framework、建立 exact backend paths、以及產生 task.md persistence contract 時，先使用 `backend-orm-migrations`。
 
 開發 table 時，先修改 ORM model，再產生 migration。套用前要 review migration，確認沒有意外 drop 或破壞性操作。
 
