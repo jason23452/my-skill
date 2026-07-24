@@ -5,6 +5,23 @@ description: "Define and implement backend ORM and migration contracts for backe
 
 # Backend ORM Migrations
 
+## OpenCode Greenfield Bootstrap Metadata
+
+This is a backend persistence add-on. It is docs-only until a framework-specific bootstrap script is added; use it to load ORM, migration, schema, and task handoff contracts when persistence work is selected or requested.
+
+```opencode-bootstrap-json
+{
+  "role": "backend",
+  "category": "database",
+  "database": "orm-migrations",
+  "frameworks": ["backend", "fastapi", "django", "node", "typescript"],
+  "order": 50,
+  "packageManager": "none",
+  "scaffoldCommand": [],
+  "verificationCommands": []
+}
+```
+
 ## Responsibility Boundary
 
 Use this skill only for backend service repos. Frontend/admin UI repos consume API contracts and must not own ORM, migration, table, or database session work.

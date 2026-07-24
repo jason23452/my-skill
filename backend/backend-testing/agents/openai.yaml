@@ -1,0 +1,4 @@
+interface:
+  display_name: "Backend Testing"
+  short_description: "Add practical backend test coverage."
+  default_prompt: "Use $backend-testing to add or improve backend unit, integration, API, and coverage tests for this service."
