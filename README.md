@@ -54,6 +54,7 @@ my-skill/
 - `ui-kit/nuxt-ui`: Nuxt UI add-on，依賴 Nuxt/Nuxt 4 project，負責 `@nuxt/ui`、Tailwind CSS、Nuxt UI icon collection 與 Nuxt UI config。
 - `ui-kit/coss`: React/Vite coss UI add-on，依賴 React/Vite project，負責 coss/shadcn registry、Base UI、Tailwind v4 與 coss component conventions。
 - `flow/playwright`: Playwright CLI/browser automation，不負責建立專案 E2E 測試；測試檔與 `@playwright/test` 由 `playwright-e2e-testing` 負責。
+- `flow/xmind-document-ingest`: 將 `.xmind` / XMind mind map 解析成可供 requirements、IA、User Story、PRD 流程使用的文字 context。
 - `ui-kit/coss-particles`: coss pattern index，只在 coss 已選用或已安裝後用來查找 particles。
 
 ## DevOps
