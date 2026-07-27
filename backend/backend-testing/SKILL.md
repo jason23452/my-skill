@@ -15,12 +15,19 @@ This is a backend testing add-on. It is docs-only until a framework-specific boo
   "category": "testing",
   "testing": "backend",
   "frameworks": ["backend", "api", "fastapi", "starlette", "django", "node", "typescript"],
+  "requiresPrimarySkills": ["backend-feature-fastapi"],
   "order": 45,
   "packageManager": "none",
   "scaffoldCommand": [],
-  "verificationCommands": []
+  "verificationCommands": [
+    "if test -f .opencode/skills/backend-testing/scripts/verify-docs-only.cjs; then node .opencode/skills/backend-testing/scripts/verify-docs-only.cjs; else node ${OPENCODE_PROJECT_SKILLS_PRESEEDED_DIR:-/app/.opencode/skills}/backend-testing/scripts/verify-docs-only.cjs; fi"
+  ],
+  "runtimeSmokeCommand": "",
+  "runtimeSmokeHealthUrl": ""
 }
 ```
+
+The verification command is intentionally non-mutating. It marks the skill as a selectable Greenfield companion add-on while the skill body provides the backend testing contract and implementation guidance.
 
 ## Responsibility Boundary
 

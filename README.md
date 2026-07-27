@@ -4,6 +4,8 @@
 
 ## 邊界規則
 
+- 本 repo 已用 `/init` 產生中文 `AGENTS.md`；後續修改 skills 時先遵循 `AGENTS.md`，再同步更新本 README。
+- 本輪同步流程只涵蓋 `backend/`、`frontend/`、`devops/`、`env/`。`flow/` 是流程、規劃、review、reference 類 skills，除非明確要求，不混入 scaffold/add-on 同步。
 - Framework skill 只負責 framework scaffold 與該 framework 的基本專案結構。
 - UI kit skill 只負責自己的 UI kit 與直接依賴。例如 `nuxt-ui` 可以包含 `@nuxt/ui`、Tailwind CSS 與 Nuxt UI icon collection。
 - API transport skill 只負責 HTTP client、base URL、token header、error normalization、generic methods 與 thin business wrapper pattern。
@@ -22,6 +24,8 @@
 my-skill/
   backend/
     backend-feature-fastapi/
+    backend-orm-migrations/
+    backend-testing/
   devops/
     docker-build/
     docker-compose-ops/
@@ -35,6 +39,9 @@ my-skill/
     nuxt4-creater/
     playwright-e2e-testing/
     react-vite-feature-based/
+    status/
+      pinia/
+      zustand/
     ui-kit/
       coss/
       coss-particles/
@@ -44,6 +51,8 @@ my-skill/
 ## Backend
 
 - `backend-feature-fastapi`: FastAPI project architecture、app factory、core config/middleware、feature router、Pydantic schema、service layer 與 router registration。它不包含 DB/ORM/migration。
+- `backend-orm-migrations`: backend persistence add-on，負責 ORM、migration、model/schema、DB/session 路徑與 migration verification contract。
+- `backend-testing`: backend testing add-on，搭配 `backend-feature-fastapi` 使用，負責 pytest/API/integration/database fixture/mock/coverage/CI test contract；它不修改 framework scaffold。
 
 ## Frontend
 
@@ -51,11 +60,18 @@ my-skill/
 - `nuxt4-creater`: Nuxt 4 framework scaffold，包含 Nuxt 4 `app/` 架構、section composition、pages、layouts、components、composables、plugins、store、server routes 與 starter CSS。
 - `axios-token-baseurl-error`: Framework-aware API transport。Vite React/Vue 使用 Axios；Nuxt 使用 `$fetch`。業務 API wrapper 放在 owning feature/domain/module。
 - `playwright-e2e-testing`: 通用 Playwright testing add-on，支援 React、Vue、Nuxt、Next.js、SvelteKit、Astro、Angular、Vite、static frontend 等瀏覽器專案。只有在選用或要求 E2E testing 時執行，不屬於任何 framework scaffold。
+- `status/pinia`: Vue/Nuxt state add-on，搭配 Vue/Nuxt framework skill 使用，負責 Pinia 狀態管理規則與 bootstrap metadata。
+- `status/zustand`: React/Next state add-on，搭配 React/Next framework skill 使用，負責 Zustand 狀態管理規則與 bootstrap metadata。
 - `ui-kit/nuxt-ui`: Nuxt UI add-on，依賴 Nuxt/Nuxt 4 project，負責 `@nuxt/ui`、Tailwind CSS、Nuxt UI icon collection 與 Nuxt UI config。
 - `ui-kit/coss`: React/Vite coss UI add-on，依賴 React/Vite project，負責 coss/shadcn registry、Base UI、Tailwind v4 與 coss component conventions。
+- `ui-kit/coss-particles`: coss pattern index，只在 coss 已選用或已安裝後用來查找 particles。
+
+## Flow
+
+`flow/` skills 是流程、規劃、review、reference 或 browser automation 類技能，不納入本輪 backend/frontend/devops/env scaffold/add-on 同步。例外只有使用者明確要求修改特定 flow skill 時才處理。
+
 - `flow/playwright`: Playwright CLI/browser automation，不負責建立專案 E2E 測試；測試檔與 `@playwright/test` 由 `playwright-e2e-testing` 負責。
 - `flow/xmind-document-ingest`: 將 `.xmind` / XMind mind map 解析成可供 requirements、IA、User Story、PRD 流程使用的文字 context。
-- `ui-kit/coss-particles`: coss pattern index，只在 coss 已選用或已安裝後用來查找 particles。
 
 ## DevOps
 
@@ -78,15 +94,18 @@ description: 這個 skill 負責什麼，以及何時應該使用。
 ---
 ```
 
-`opencode-bootstrap-json` 放在 skill body 內。Scaffold/install/verification skill 使用 executable metadata；Greenfield README rule skill 使用 `role:"any"` 與 `category:"readme-docs"` 的 docs-only metadata。Add-on skill 要用明確的 `category`、`frameworks` 與 `requiresPrimarySkills` 描述依賴關係。
+`opencode-bootstrap-json` 放在 skill body 內。Scaffold/install/verification skill 使用 executable metadata；Greenfield README rule skill 使用 `role:"any"` 與 `category:"readme-docs"` 的 docs-only metadata。Add-on skill 要用明確的 `category`、`frameworks` 與 `requiresPrimarySkills` 描述依賴關係。Docs-only add-on 若需要出現在 Greenfield Project Flow 選項，仍要提供無副作用的 `verificationCommands` launcher，並在 skill body 說明它只標記選用與載入 contract，不做 scaffold。
 
 目前保留 executable bootstrap metadata 的 production skills：
 
 - `backend-feature-fastapi`
+- `backend-testing`
 - `react-vite-feature-based`
 - `nuxt4-creater`
 - `axios-token-baseurl-error`
 - `playwright-e2e-testing`
+- `status/pinia`
+- `status/zustand`
 - `ui-kit/nuxt-ui`
 - `ui-kit/coss`
 
@@ -99,7 +118,7 @@ description: 這個 skill 負責什麼，以及何時應該使用。
 新增或修改 skill 後檢查：
 
 ```bash
-python C:/Users/Bojii/.codex/skills/.system/skill-creator/scripts/quick_validate.py <skill-dir>
+python C:/Users/Bojii/.config/opencode/skills/skill-creator/scripts/quick_validate.py <skill-dir>
 ```
 
 有 bundled scripts 時也檢查：
