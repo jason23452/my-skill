@@ -135,11 +135,19 @@ shared/components/layout/AppShell.tsx
 
 This app-level rule does not replace the feature component layer. It only covers components that are genuinely shared by all routes or all routed pages.
 
-Persistent app chrome belongs in `shared/components/layout/`, not in a feature router. Examples include app sidebars, top bars, context panels, page frames, and global modal hosts that remain mounted while route content changes. Name promoted components by their app-level responsibility, for example `AppSidebar`, `AppTopbar`, `AppContextPanel`, or `AppFilePreviewDialog`, instead of retaining feature-specific names such as `WorkspaceTopbar`.
+Persistent app chrome belongs in `shared/components/layout/`, not in a feature router. Examples include app sidebars, top bars, bottom composers/action bars, context or inspector panels, page frames, and global modal hosts that remain mounted while route content changes. Name promoted components by their app-level responsibility, for example `AppSidebar`, `AppTopbar`, `AppComposer`, `AppInspector`, or `AppPreviewDialog`, instead of retaining a feature-specific name.
 
-For routes that share the same app chrome, mount the chrome once in `src/app/AppRouter.tsx` and switch only the feature route's main content. For example, `/` and `/workspace/[name]` can share `AppShell`, `AppSidebar`, `AppTopbar`, and `AppContextPanel`, while the routed main area switches between `HomeRoute` and `WorkspaceProjectRoute`.
+For routes that share the same app chrome, mount the chrome once in `src/app/AppRouter.tsx` and switch only the feature route's main content. `AppShell` may expose named slots such as `sidebar`, `topNav`, `aside`, `composer`, `modalHost`, or `children`; pass shared layout components into those slots from `AppRouter.tsx`.
 
-Keep shared layout components configurable with props, config arrays, slots, or component maps. Do not make shared layout components import feature mock data, feature route state, or feature-specific components just to assemble themselves. Pass app-level data and callbacks from `AppRouter.tsx` or a shared app store instead.
+Keep shared layout components configurable with props, config arrays, slots, or component maps. Do not make shared layout components import feature mock data, feature route state, feature route entries, or feature-specific product components just to assemble themselves. Pass app-level data, labels, empty-state copy, and callbacks from `AppRouter.tsx`, a shared app store, or another app-level boundary instead.
+
+Use this generality check before moving code into `shared/`:
+
+- It can be reused without importing from `features/<feature-name>/`.
+- It does not hardcode one feature route, one product flow, one project path, or one mock dataset.
+- It accepts feature-specific text, data, navigation targets, and callbacks through props, slots, config, or context.
+- It remains useful if the feature name changes.
+- It can be tested or rendered with minimal fake data from outside the original feature.
 
 ## UI Kit Composition
 
@@ -246,7 +254,7 @@ Use feature assets for images, media, and static files used by one feature only.
 Use `shared/` for cross-feature building blocks:
 
 - `shared/components/ui/`: small high-reuse UI components, UI kit wrappers, variants, defaults, and dynamic primitive composition.
-- `shared/components/layout/`: larger shared layout components assembled from `shared/components/ui/`, such as app shell, app sidebar, app top nav, context panel, global preview dialog, and page frame.
+- `shared/components/layout/`: larger shared layout components assembled from `shared/components/ui/`, such as app shell, app sidebar, app top nav, bottom composer/action bar, context or inspector panel, global preview dialog, and page frame.
 - `shared/hooks/`: cross-feature hooks.
 - `shared/types/`: cross-feature types.
 - `shared/assets/`: cross-feature assets.
@@ -321,7 +329,7 @@ When adding or refactoring UI:
 - Hook files use `useXxx.ts`.
 - Route files are named `index.tsx`.
 - Prefer route component exports with descriptive `PascalCase` names ending with `Route`, for example `WorkspaceRoute` or `WorkspaceNameRoute`, unless the selected router library requires a different export convention.
-- Rename components when promoting them out of a feature. Use app/shared names such as `AppSidebar` or `AppTopbar` for persistent layout chrome, not the original feature name.
+- Rename components when promoting them out of a feature. Use app/shared names such as `AppSidebar`, `AppTopbar`, or `AppComposer` for persistent layout chrome, not the original feature name.
 
 ## Shared Promotion Rule
 
