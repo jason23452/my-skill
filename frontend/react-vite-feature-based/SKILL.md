@@ -135,6 +135,12 @@ shared/components/layout/AppShell.tsx
 
 This app-level rule does not replace the feature component layer. It only covers components that are genuinely shared by all routes or all routed pages.
 
+Persistent app chrome belongs in `shared/components/layout/`, not in a feature router. Examples include app sidebars, top bars, context panels, page frames, and global modal hosts that remain mounted while route content changes. Name promoted components by their app-level responsibility, for example `AppSidebar`, `AppTopbar`, `AppContextPanel`, or `AppFilePreviewDialog`, instead of retaining feature-specific names such as `WorkspaceTopbar`.
+
+For routes that share the same app chrome, mount the chrome once in `src/app/AppRouter.tsx` and switch only the feature route's main content. For example, `/` and `/workspace/[name]` can share `AppShell`, `AppSidebar`, `AppTopbar`, and `AppContextPanel`, while the routed main area switches between `HomeRoute` and `WorkspaceProjectRoute`.
+
+Keep shared layout components configurable with props, config arrays, slots, or component maps. Do not make shared layout components import feature mock data, feature route state, or feature-specific components just to assemble themselves. Pass app-level data and callbacks from `AppRouter.tsx` or a shared app store instead.
+
 ## UI Kit Composition
 
 When a project uses a UI package, compose that package through `shared/components/` by default:
@@ -173,6 +179,7 @@ Use `src/app/` for application-level composition:
 - Always map the root path `/` to `@/features/home/router`.
 - Keep cross-feature route registration here.
 - Keep app-wide wrappers here, such as app shell, global navigation, providers, auth gates, suspense/error boundaries, toast hosts, and global modal hosts.
+- Keep persistent app chrome here so route changes replace only the routed main content.
 - Do not import `features/<feature-name>/components/` directly into `AppRouter.tsx`; feature components must be assembled inside that feature's router entry first.
 - Do not place feature-specific UI implementation here.
 
@@ -239,7 +246,7 @@ Use feature assets for images, media, and static files used by one feature only.
 Use `shared/` for cross-feature building blocks:
 
 - `shared/components/ui/`: small high-reuse UI components, UI kit wrappers, variants, defaults, and dynamic primitive composition.
-- `shared/components/layout/`: larger shared layout components assembled from `shared/components/ui/`, such as app shell, sidebar, top nav, and page frame.
+- `shared/components/layout/`: larger shared layout components assembled from `shared/components/ui/`, such as app shell, app sidebar, app top nav, context panel, global preview dialog, and page frame.
 - `shared/hooks/`: cross-feature hooks.
 - `shared/types/`: cross-feature types.
 - `shared/assets/`: cross-feature assets.
@@ -314,6 +321,7 @@ When adding or refactoring UI:
 - Hook files use `useXxx.ts`.
 - Route files are named `index.tsx`.
 - Prefer route component exports with descriptive `PascalCase` names ending with `Route`, for example `WorkspaceRoute` or `WorkspaceNameRoute`, unless the selected router library requires a different export convention.
+- Rename components when promoting them out of a feature. Use app/shared names such as `AppSidebar` or `AppTopbar` for persistent layout chrome, not the original feature name.
 
 ## Shared Promotion Rule
 
