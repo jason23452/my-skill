@@ -73,7 +73,7 @@ src/
 
 ## Composition Rule
 
-Build UI in three layers, in this order:
+Build feature UI in three layers, in this order:
 
 1. `shared/components/` contains global reusable components.
 2. `features/<feature-name>/components/` composes shared components into feature-specific components.
@@ -81,7 +81,7 @@ Build UI in three layers, in this order:
 
 Do not skip the feature component layer. A route/page file should not become the place where global components are assembled directly into product UI. Put that product UI into feature components first, then compose those feature components in the route.
 
-Correct flow:
+Feature UI flow:
 
 ```text
 shared/components/Button.tsx
@@ -90,6 +90,18 @@ shared/components/Button.tsx
   -> src/app/AppRouter.tsx
 ```
 
+App-level route wrapper flow:
+
+```text
+shared/components/AppShell.tsx
+  -> src/app/AppRouter.tsx
+  -> features/<feature-name>/router/<FeaturePage>.tsx
+```
+
+If a component is used by every route or wraps the entire route tree, compose it in `src/app/AppRouter.tsx`. Examples include app shell, root layout, global navigation, global footer, auth boundary, provider boundary, suspense boundary, error boundary, toast host, and global modal host.
+
+This app-level rule does not replace the feature component layer. It only covers components that are genuinely shared by all routes or all routed pages.
+
 ## Directory Responsibilities
 
 ### `src/app/`
@@ -97,8 +109,10 @@ shared/components/Button.tsx
 Use `src/app/` for application-level composition:
 
 - `AppRouter.tsx` wires application routes to feature route/page components.
+- Compose components that every route needs in `AppRouter.tsx`.
 - Keep cross-feature route registration here.
-- Do not place feature UI implementation here.
+- Keep app-wide wrappers here, such as app shell, global navigation, providers, auth gates, suspense/error boundaries, toast hosts, and global modal hosts.
+- Do not place feature-specific UI implementation here.
 
 ### `features/<feature-name>/router/`
 
@@ -207,9 +221,10 @@ When adding or refactoring UI:
 1. Identify whether the code is global, feature-specific, or route-specific.
 2. Put global reusable UI in `shared/components/`.
 3. Put feature product UI in `features/<feature-name>/components/`.
-4. Put only route/page orchestration in `features/<feature-name>/router/`.
-5. Register app-level routing in `src/app/AppRouter.tsx`.
-6. Update imports to use the `@` alias for cross-folder imports.
+4. Put route/page orchestration in `features/<feature-name>/router/`.
+5. Compose components used by every route in `src/app/AppRouter.tsx`.
+6. Register app-level routing in `src/app/AppRouter.tsx`.
+7. Update imports to use the `@` alias for cross-folder imports.
 
 ## Naming
 
