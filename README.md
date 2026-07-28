@@ -13,7 +13,7 @@
 - Browser automation skill 只負責 CLI/browser 操作與截圖，不安裝 target project 的 E2E test dependencies。
 - Database skill 只負責 database、ORM、migration、schema/table，不混進一般 backend framework skill。
 - DevOps skill 只在使用者要求 Docker、Compose、image build、container runtime 時使用。
-- Greenfield 會執行的 scaffold/install skill 使用 executable `opencode-bootstrap-json`。
+- Greenfield 會執行的 scaffold/install skill 使用 executable `opencode-bootstrap-json`；可選 docs-only add-on 使用無副作用 verification launcher，讓 `find-skills` 能列為 companion 但不 scaffold app code。
 - Add-on bootstrap 需要偵測既有 lockfile，避免把 npm/yarn/bun 專案改成 pnpm。
 - Greenfield 自動分派的 README rule skill 使用 docs-only `opencode-bootstrap-json`，讓 bootstrap 能載入 README 規則。
 - Reference、pattern index、review、planning skills 保持純說明用途。
@@ -51,8 +51,8 @@ my-skill/
 ## Backend
 
 - `backend-feature-fastapi`: FastAPI project architecture、app factory、core config/middleware、feature router、Pydantic schema、service layer 與 router registration。它不包含 DB/ORM/migration。
-- `backend-orm-migrations`: backend persistence add-on，負責 ORM、migration、model/schema、DB/session 路徑與 migration verification contract。
-- `backend-testing`: backend testing add-on，搭配 `backend-feature-fastapi` 使用，負責 pytest/API/integration/database fixture/mock/coverage/CI test contract；它不修改 framework scaffold。
+- `backend-orm-migrations`: backend persistence contract add-on，搭配 `backend-feature-fastapi` 使用，負責 ORM、migration、model/schema、DB/session 路徑與 migration verification contract；目前只提供無副作用 verification launcher，不修改 framework scaffold。
+- `backend-testing`: backend testing contract add-on，搭配 `backend-feature-fastapi` 使用，負責 pytest/API/integration/database fixture/mock/coverage/CI test contract；目前只提供無副作用 verification launcher，不修改 framework scaffold。
 
 ## Frontend
 
@@ -94,11 +94,12 @@ description: 這個 skill 負責什麼，以及何時應該使用。
 ---
 ```
 
-`opencode-bootstrap-json` 放在 skill body 內。Scaffold/install/verification skill 使用 executable metadata；Greenfield README rule skill 使用 `role:"any"` 與 `category:"readme-docs"` 的 docs-only metadata。Add-on skill 要用明確的 `category`、`frameworks` 與 `requiresPrimarySkills` 描述依賴關係。Docs-only add-on 若需要出現在 Greenfield Project Flow 選項，仍要提供無副作用的 `verificationCommands` launcher，並在 skill body 說明它只標記選用與載入 contract，不做 scaffold。
+`opencode-bootstrap-json` 放在 skill body 內。Scaffold/install/verification skill 使用 executable metadata；Greenfield README rule skill 使用 `role:"any"` 與 `category:"readme-docs"` 的 docs-only metadata。Add-on skill 要用明確的 `category`、`frameworks` 與 `requiresPrimarySkills` / `requiresUiKitSkills` 描述依賴關係。Docs-only add-on 若需要出現在 Brownfield/Greenfield Project Flow `find-skills` 選項，必須提供無副作用的 `verificationCommands` launcher，並在 skill body 說明它只標記選用與載入 contract，不做 scaffold、不安裝套件、不修改 target repo。若需相容 Brownfield 既有 preseeded/Docker inventory filter，可在 `frameworks` 加 `docker-preseeded-discovery` marker，並明確說明它不是 Docker runtime 責任。只有 README rule 這類自動分派文件規則可保留空 `verificationCommands`。
 
-目前保留 executable bootstrap metadata 的 production skills：
+目前保留 executable 或 non-mutating verification bootstrap metadata 的 production skills：
 
 - `backend-feature-fastapi`
+- `backend-orm-migrations`
 - `backend-testing`
 - `react-vite-feature-based`
 - `nuxt4-creater`
@@ -109,7 +110,7 @@ description: 這個 skill 負責什麼，以及何時應該使用。
 - `ui-kit/nuxt-ui`
 - `ui-kit/coss`
 
-目前保留 docs-only Greenfield metadata 的 production skills：
+目前保留空 verification docs-only Greenfield metadata 的 production skills：
 
 - `flow/readme-i18n-greenfield`
 

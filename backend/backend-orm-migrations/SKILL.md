@@ -7,20 +7,27 @@ description: "Define and implement backend ORM and migration contracts for backe
 
 ## OpenCode Greenfield Bootstrap Metadata
 
-This is a backend persistence add-on. It is docs-only until a framework-specific bootstrap script is added; use it to load ORM, migration, schema, and task handoff contracts when persistence work is selected or requested.
+This is a selectable backend persistence contract add-on. It does not scaffold app code until a framework-specific bootstrap script is added; its verification launcher is intentionally non-mutating so Greenfield `find-skills` can offer it as a companion add-on while this skill body provides the ORM, migration, schema, and task handoff contract. The `docker-preseeded-discovery` framework marker only keeps compatibility with Brownfield's current preseeded/Docker skill inventory filter; it is not a Docker runtime responsibility.
 
 ```opencode-bootstrap-json
 {
   "role": "backend",
   "category": "database",
   "database": "orm-migrations",
-  "frameworks": ["backend", "fastapi", "django", "node", "typescript"],
+  "frameworks": ["backend", "fastapi", "django", "node", "typescript", "docker-preseeded-discovery"],
+  "requiresPrimarySkills": ["backend-feature-fastapi"],
   "order": 50,
-  "packageManager": "none",
+  "packageManager": "node",
   "scaffoldCommand": [],
-  "verificationCommands": []
+  "verificationCommands": [
+    "if test -f .opencode/skills/backend-orm-migrations/scripts/verify-docs-only.cjs; then node .opencode/skills/backend-orm-migrations/scripts/verify-docs-only.cjs; else node ${OPENCODE_PROJECT_SKILLS_PRESEEDED_DIR:-/app/.opencode/skills}/backend-orm-migrations/scripts/verify-docs-only.cjs; fi"
+  ],
+  "runtimeSmokeCommand": "",
+  "runtimeSmokeHealthUrl": ""
 }
 ```
+
+The verification command only prints the selected contract status. It does not create files, install packages, run migrations, or modify the target repo.
 
 ## Responsibility Boundary
 

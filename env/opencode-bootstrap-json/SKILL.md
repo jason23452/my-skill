@@ -16,7 +16,9 @@ description: 建立或檢查 opencode-bootstrap-json metadata。當使用者要�
 - Testing add-on 使用 `category:"testing"` 與跨框架 `frameworks`，並在使用者選用或要求 testing 時執行。
 - `role:"any"` 適合真正跨 repo 的流程與 docs-only README rule skill，例如 `readme-i18n-greenfield` 搭配 `category:"readme-docs"`。
 - Add-on skill 要用明確 `category`、`frameworks`、`requiresPrimarySkills` 或 `requiresUiKitSkills` 表達依賴。
-- Docs-only metadata 可以使用空的 `scaffoldCommand` 與 `verificationCommands`，讓 Greenfield `assignedSkills` 能載入純文件規則。
+- Docs-only README rule metadata 可以使用空的 `scaffoldCommand` 與 `verificationCommands`，讓 Greenfield `assignedSkills` 能載入純文件規則。
+- Selectable docs-only add-on metadata must keep `scaffoldCommand: []` but provide a non-mutating bundled `verificationCommands` launcher, so Brownfield/Greenfield `find-skills` can offer it without writing files, installing packages, or changing runtime code.
+- 如果 selectable docs-only add-on 需要相容 Brownfield 既有 preseeded/Docker inventory filter，可在 `frameworks` 加 `docker-preseeded-discovery` marker，並在 skill body 明確說明這不是 Docker runtime 責任。
 - 可執行 bootstrap skill 保持可執行的 `scaffoldCommand`，並用 bundled script launcher 承載多步驟邏輯。
 - Framework scaffold skill owns expensive project-wide verification such as `pnpm build`, `npm run build`, `yarn build`, `bun run build`, `uv run python -m compileall`, or equivalent framework compile checks.
 - Add-on skill verification should check the add-on's own integration state only. UI kit verification checks dependency/config/CSS/icon wiring; testing verification checks test discovery/config; Docker/Compose verification checks file/config presence.
@@ -140,11 +142,31 @@ description: 建立或檢查 opencode-bootstrap-json metadata。當使用者要�
 }
 ```
 
+**Selectable docs-only backend add-on:**
+
+```jsonc
+{
+  "role": "backend",
+  "category": "testing",
+  "frameworks": ["backend", "fastapi", "django", "node", "docker-preseeded-discovery"],
+  "requiresPrimarySkills": ["backend-feature-fastapi"],
+  "order": 45,
+  "packageManager": "node",
+  "scaffoldCommand": [],
+  "verificationCommands": [
+    "if test -f .opencode/skills/<skill-name>/scripts/verify-docs-only.cjs; then node .opencode/skills/<skill-name>/scripts/verify-docs-only.cjs; else node ${OPENCODE_PROJECT_SKILLS_PRESEEDED_DIR:-/app/.opencode/skills}/<skill-name>/scripts/verify-docs-only.cjs; fi"
+  ],
+  "runtimeSmokeCommand": "",
+  "runtimeSmokeHealthUrl": ""
+}
+```
+
 ## 檢查清單
 
 - 這個 metadata 是否只做該 skill 的業務？
 - Framework scaffold 是否只包含 framework 與基本結構？
 - add-on 是否有清楚的 `category` 與 dependency fields？
+- selectable docs-only add-on 是否有無副作用 verification launcher，而不是空 `verificationCommands`？
 - `scaffoldCommand` 是否只包含穩定短指令或 bundled script launcher？
 - runtime smoke command 是否有對應 health URL，且 target app 真的會啟動在 `$PORT`？
 - verification commands 是否是專案已具備或 scaffold 後確定存在的指令？

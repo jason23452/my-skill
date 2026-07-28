@@ -7,17 +7,17 @@ description: "Design, add, and improve backend test coverage for service repos. 
 
 ## OpenCode Greenfield Bootstrap Metadata
 
-This is a backend testing add-on. It is docs-only until a framework-specific bootstrap script is added; use it to load backend test strategy, fixture, coverage, and verification rules when testing is selected or requested.
+This is a selectable backend testing contract add-on. It does not scaffold app code until a framework-specific bootstrap script is added; its verification launcher is intentionally non-mutating so Greenfield `find-skills` can offer it as a companion add-on while this skill body provides backend test strategy, fixture, coverage, and verification rules. The `docker-preseeded-discovery` framework marker only keeps compatibility with Brownfield's current preseeded/Docker skill inventory filter; it is not a Docker runtime responsibility.
 
 ```opencode-bootstrap-json
 {
   "role": "backend",
   "category": "testing",
   "testing": "backend",
-  "frameworks": ["backend", "api", "fastapi", "starlette", "django", "node", "typescript"],
+  "frameworks": ["backend", "api", "fastapi", "starlette", "django", "node", "typescript", "docker-preseeded-discovery"],
   "requiresPrimarySkills": ["backend-feature-fastapi"],
   "order": 45,
-  "packageManager": "none",
+  "packageManager": "node",
   "scaffoldCommand": [],
   "verificationCommands": [
     "if test -f .opencode/skills/backend-testing/scripts/verify-docs-only.cjs; then node .opencode/skills/backend-testing/scripts/verify-docs-only.cjs; else node ${OPENCODE_PROJECT_SKILLS_PRESEEDED_DIR:-/app/.opencode/skills}/backend-testing/scripts/verify-docs-only.cjs; fi"
