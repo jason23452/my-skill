@@ -32,29 +32,25 @@ description: React + Vite feature-based frontend scaffold and maintenance skill.
 Runtime smoke in OpenCode Project Flow must use `scripts/runtime-smoke-sandbox.cjs`.
 Do not run Vite dev directly from `/workspace` for smoke checks; Docker bind mounts can make dev-server readiness unreliable. The bootstrap script creates `public/__opencode_health.txt` so liveness does not depend on app rendering.
 
-以通用 React/Vite feature-based 架構進行建立與維護。既有專案優先跟隨當地慣例；新專案使用此 skill 的預設 `src/app`、`src/features`、`src/shared` 分層。
-
 ## Package Manager
 
-依 lockfile 使用既有 package manager；每次只採用一個由 lockfile 決定的 package manager：
+Detect the package manager from the lockfile and keep using it:
 
-- `pnpm-lock.yaml`：`pnpm`
-- `package-lock.json`：`npm`
-- `yarn.lock`：`yarn`
-- `bun.lock` 或 `bun.lockb`：`bun`
+- `pnpm-lock.yaml`: `pnpm`
+- `package-lock.json`: `npm`
+- `yarn.lock`: `yarn`
+- `bun.lock` or `bun.lockb`: `bun`
 
-新專案若使用者未指定 package manager，Greenfield bootstrap 預設使用 `pnpm`。
+For greenfield bootstrap, default to `pnpm`.
 
-## 專案結構
+## Project Layout
 
-預設結構如下：
+Use this feature-based layout:
 
 ```text
 src/
   app/
-    App.tsx
     AppRouter.tsx
-    global.css
 
   features/
     <feature-name>/
@@ -70,54 +66,128 @@ src/
     types/
     assets/
 
+  App.tsx
+  index.css
   main.tsx
 ```
 
-## 工作方式
+## Composition Rule
 
-開始修改前先做這些事：
+Build UI in three layers, in this order:
 
-1. 先閱讀 `src/app/`、相關的 `src/features/<feature-name>/` 與 `src/shared/`
-2. 確認需求屬於哪一個 feature
-3. 用最小正確修改完成工作，抽象只在能降低實際複雜度時加入
+1. `shared/components/` contains global reusable components.
+2. `features/<feature-name>/components/` composes shared components into feature-specific components.
+3. `features/<feature-name>/router/` composes feature components into route/page components.
 
-## Greenfield Bootstrap 規則
+Do not skip the feature component layer. A route/page file should not become the place where global components are assembled directly into product UI. Put that product UI into feature components first, then compose those feature components in the route.
 
-建立新的 React / Vite 專案時，完成 Vite React scaffold、import alias、TypeScript paths 與 feature-based folder layout。
+Correct flow:
 
-必要設定：
-
-1. 建立或保留 CSS entry，例如 `src/app/global.css` 或 `src/index.css`
-2. `vite.config.ts` 必須設定 `@` alias 指向 `./src`
-3. `tsconfig.json` 或 `tsconfig.app.json` 必須設定 `baseUrl: "."` 與 `paths: { "@/*": ["./src/*"] }`
-
-CSS entry 範例：
-
-```css
-:root {
-  color: #0f172a;
-  background: #f8fafc;
-}
+```text
+shared/components/Button.tsx
+  -> features/profile/components/ProfileActions.tsx
+  -> features/profile/router/ProfilePage.tsx
+  -> src/app/AppRouter.tsx
 ```
 
-`vite.config.ts` 範例：
+## Directory Responsibilities
+
+### `src/app/`
+
+Use `src/app/` for application-level composition:
+
+- `AppRouter.tsx` wires application routes to feature route/page components.
+- Keep cross-feature route registration here.
+- Do not place feature UI implementation here.
+
+### `features/<feature-name>/router/`
+
+Use `router/` for route-level composition only:
+
+- Route/page components such as `HomePage.tsx`, `ProfilePage.tsx`, or `SettingsPage.tsx`.
+- Route params, search params, guards, loaders, redirects, and route-level layout decisions.
+- Composition of one or more components from `features/<feature-name>/components/`.
+
+Do not put reusable UI blocks, cards, forms, tables, or feature business sections directly in `router/`. Move them to `components/` and import them into the route.
+
+Prefer route imports like:
 
 ```ts
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import path from 'node:path'
+import { ProfileHeader } from "@/features/profile/components/ProfileHeader"
+import { ProfileActions } from "@/features/profile/components/ProfileActions"
+```
+
+Avoid route imports like:
+
+```ts
+import { Button } from "@/shared/components/Button"
+```
+
+If a route needs `Button`, create or update a feature component that uses `Button`, then import that feature component into the route.
+
+### `features/<feature-name>/components/`
+
+Use feature components for product UI that belongs to exactly one feature:
+
+- Compose global/shared components into feature-specific sections.
+- Keep feature copy, feature visual structure, feature forms, feature tables, and feature state presentation here.
+- A feature component may import from `shared/components`, `shared/hooks`, `shared/types`, and its own feature folders.
+- A feature component must not import from `router/`.
+
+### `features/<feature-name>/hooks/`
+
+Use feature hooks for behavior that belongs to exactly one feature. Move a hook to `shared/hooks/` only after at least two features need it.
+
+### `features/<feature-name>/types/`
+
+Use feature types for data contracts owned by one feature. Move a type to `shared/types/` only when it is truly cross-feature.
+
+### `features/<feature-name>/assets/`
+
+Use feature assets for images, media, and static files used by one feature only.
+
+### `shared/`
+
+Use `shared/` for cross-feature building blocks:
+
+- `shared/components/`: global UI primitives and reusable layout pieces.
+- `shared/hooks/`: cross-feature hooks.
+- `shared/types/`: cross-feature types.
+- `shared/assets/`: cross-feature assets.
+
+Do not place feature-specific product copy, business rules, route decisions, or one-off UI in `shared/`.
+
+## Greenfield Bootstrap
+
+When creating a new React/Vite project:
+
+1. Use Vite React TypeScript scaffold.
+2. Add the `@` import alias for `./src`.
+3. Add TypeScript paths for `@/*`.
+4. Create the feature-based folders.
+5. Seed the example UI with the required composition flow:
+
+```text
+src/shared/components/AppPanel.tsx
+  -> src/features/home/components/HomeIntro.tsx
+  -> src/features/home/router/HomePage.tsx
+  -> src/app/AppRouter.tsx
+```
+
+`vite.config.ts` must include the alias:
+
+```ts
+import { defineConfig } from "vite"
+import react from "@vitejs/plugin-react"
+import { fileURLToPath, URL } from "node:url"
 
 export default defineConfig({
   plugins: [react()],
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),
-    },
-  },
+  resolve: { alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) } },
 })
 ```
 
-`tsconfig` 範例：
+`tsconfig.app.json` must include:
 
 ```json
 {
@@ -130,90 +200,35 @@ export default defineConfig({
 }
 ```
 
-若專案使用 feature-based 結構，建議入口使用 `src/app/global.css`。若既有專案已使用 `src/index.css`，沿用既有 CSS entry。
+## Update Workflow
 
-## 分層規則
+When adding or refactoring UI:
 
-### `app/`
+1. Identify whether the code is global, feature-specific, or route-specific.
+2. Put global reusable UI in `shared/components/`.
+3. Put feature product UI in `features/<feature-name>/components/`.
+4. Put only route/page orchestration in `features/<feature-name>/router/`.
+5. Register app-level routing in `src/app/AppRouter.tsx`.
+6. Update imports to use the `@` alias for cross-folder imports.
 
-只放應用程式層級內容：
+## Naming
 
-- `App.tsx`
-- `AppRouter.tsx`
-- `global.css`
+- Feature folder names use `kebab-case`.
+- Component and page files use `PascalCase.tsx`.
+- Hook files use `useXxx.ts`.
+- Route/page components end with `Page`, for example `ProfilePage.tsx`.
 
-feature 專屬頁面或區塊元件放在該 feature 目錄。
+## Shared Promotion Rule
 
-### `features/<feature-name>/router/`
+Move code from a feature folder to `shared/` only when:
 
-放該 feature 的頁面入口與路由相關元件。
+1. At least two features use it, or it is clearly global from the start.
+2. It has no feature-specific copy, route knowledge, or business rule.
+3. Its API is stable enough to be reused without pulling feature dependencies into `shared/`.
 
-例：
+## Verification
 
-- `HomePage.tsx`
-- `ProfilePage.tsx`
-
-### `features/<feature-name>/components/`
-
-放該 feature 專用元件。
-
-如果元件只被該 feature 使用，就留在這裡；跨 feature 共用時再搬到 `shared/components/`。
-
-### `features/<feature-name>/hooks/`
-
-放該 feature 專用 hooks。
-
-### `features/<feature-name>/types/`
-
-放該 feature 的資料型別。
-
-### `features/<feature-name>/assets/`
-
-放該 feature 專用圖片與靜態資源。
-
-### `shared/`
-
-只有跨 feature 共用的內容才放進這裡。
-
-## 樣式規則
-
-Framework scaffold 只提供最小 CSS entry 與 starter class。新增 styling library、UI kit、design system 或 class merge utility 時，使用對應 skill 或專案既有模式管理。
-
-## 資產規則
-
-找圖片時先看最近的 feature：
-
-1. 單一 feature 使用的圖片，放進該 feature 的 `assets/`
-2. 多個 feature 共用的圖片，才放進 `shared/assets/`
-
-## 命名規則
-
-1. feature 資料夾使用小寫或 kebab-case
-2. 元件使用 `PascalCase.tsx`
-3. hook 使用 `useXxx.ts`
-4. 頁面使用 `XxxPage.tsx`
-
-## 何時提升到 shared
-
-只有在下列情況才放進 `shared/`：
-
-1. 該元件、hook、type、api 或 asset 已被多個 feature 使用
-2. 已有明確複用需求
-3. 提升後可以降低重複，而不是只是提早抽象
-
-## 修改準則
-
-進行前端修改時：
-
-1. 優先維持目前專案結構
-2. 優先最小改動
-3. 若需求只影響單一 feature，修改範圍維持在該 feature 目錄
-4. 若搬動檔案，務必同步更新 import
-5. 若新增頁面，從 `router/` 開始組裝，再從 `components/` 拆區塊
-
-## 驗證
-
-完成後優先執行既有 `package.json` scripts。常見命令如下：
+After changes, run the package manager's build command:
 
 ```bash
 pnpm build
@@ -222,7 +237,7 @@ yarn build
 bun run build
 ```
 
-若 `package.json` 有 `lint` script，再執行對應 package manager 的 lint：
+If the project has a lint script, run it too:
 
 ```bash
 pnpm lint
@@ -231,51 +246,4 @@ yarn lint
 bun run lint
 ```
 
-如果失敗，先修正再回報。
-
-## 專案啟動方式
-
-當使用者詢問如何啟動這個專案時，直接提供以下資訊：
-
-1. 在專案根目錄安裝依賴，使用現有 lockfile 對應的 package manager。
-2. 執行專案的 `dev` script。
-3. Vite 預設在瀏覽器開啟 `http://localhost:5173`，若終端輸出不同 URL，以終端為準。
-
-若使用者還需要其他常用指令，一併提供：
-
-- `dev`
-- `build`
-- `lint`，若專案有提供
-- `preview`，若專案有提供
-
-## 回覆方式
-
-對使用者回覆時：
-
-1. 使用中文
-2. 直接說明變更內容與檔案路徑
-3. 若有驗證，明確回報實際執行的 build/lint/typecheck 命令與結果
-
-## 典型任務範例
-
-### 範例 1：新增功能頁
-
-若使用者要新增 `profile` 頁面：
-
-1. 建立 `src/features/profile/router/ProfilePage.tsx`
-2. 在 `src/features/profile/components/` 建立該頁面需要的元件
-3. 在 `src/app/AppRouter.tsx` 掛上對應路由
-
-### 範例 2：新增專用圖片
-
-若圖片只給 `home` 使用：
-
-1. 放到 `src/features/home/assets/`
-2. 從該 feature 元件直接引用
-
-### 範例 3：共用按鈕
-
-若按鈕會在多個 feature 使用：
-
-1. 建立於 `src/shared/components/`
-2. 讓 feature 再引用它
+For local runtime checks, start the dev server only when useful for the task and provide the local URL.
