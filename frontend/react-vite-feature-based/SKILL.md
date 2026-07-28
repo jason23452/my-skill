@@ -90,6 +90,23 @@ Treat this folder layout as the fixed architecture contract. Keep the top-level 
 
 Implementation details remain flexible. Adapt the router library, route config style, UI package, styling system, state management, data fetching, and component internals to the existing project.
 
+## Architecture Invariants
+
+Hardcode only these architecture rules:
+
+- `src/app`, `src/features`, and `src/shared` ownership boundaries.
+- `src/features/home/router/index.tsx` as the root route entry for `/`.
+- Index-based route segment folders under `features/<feature-name>/router/`.
+- `src/app/AppRouter.tsx` as the place that composes app-level shared chrome with feature router entries.
+- `shared/components/ui/` for reusable primitives and wrappers; `shared/components/layout/` for reusable app chrome.
+
+Keep these choices adaptable to the project:
+
+- Router library and route object, JSX, or generated route style.
+- UI package, styling system, state management, data fetching, and API client.
+- Feature names other than `home`, route names, product copy, mock data, and business flows.
+- Exact shared component slots, prop names, config shapes, and component internals.
+
 ## Required Root Feature
 
 Always create and keep `src/features/home/router/index.tsx` as the root route entry.
@@ -118,8 +135,8 @@ Feature UI flow:
 
 ```text
 shared/components/ui/Button.tsx
-  -> features/profile/components/ProfileActions.tsx
-  -> features/profile/router/index.tsx
+  -> features/<feature-name>/components/<Feature>Actions.tsx
+  -> features/<feature-name>/router/index.tsx
   -> src/app/AppRouter.tsx
 ```
 
@@ -138,6 +155,8 @@ This app-level rule does not replace the feature component layer. It only covers
 Persistent app chrome belongs in `shared/components/layout/`, not in a feature router. Examples include app sidebars, top bars, bottom composers/action bars, context or inspector panels, page frames, and global modal hosts that remain mounted while route content changes. Name promoted components by their app-level responsibility, for example `AppSidebar`, `AppTopbar`, `AppComposer`, `AppInspector`, or `AppPreviewDialog`, instead of retaining a feature-specific name.
 
 For routes that share the same app chrome, mount the chrome once in `src/app/AppRouter.tsx` and switch only the feature route's main content. `AppShell` may expose named slots such as `sidebar`, `topNav`, `aside`, `composer`, `modalHost`, or `children`; pass shared layout components into those slots from `AppRouter.tsx`.
+
+Keep `AppShell` itself generic: accept ReactNode slots, layout flags, callbacks, and configuration from the app boundary. Do not import feature route entries, feature components, feature mock data, route-specific state, or product copy inside the shell.
 
 Keep shared layout components configurable with props, config arrays, slots, or component maps. Do not make shared layout components import feature mock data, feature route state, feature route entries, or feature-specific product components just to assemble themselves. Pass app-level data, labels, empty-state copy, and callbacks from `AppRouter.tsx`, a shared app store, or another app-level boundary instead.
 
@@ -167,8 +186,8 @@ Example:
 ```text
 ui-kit/Button + ui-kit/Menu
   -> shared/components/ui/AppActionMenu.tsx
-  -> features/workspace/components/WorkspaceActions.tsx
-  -> features/workspace/router/index.tsx
+  -> features/<feature-name>/components/<Feature>Actions.tsx
+  -> features/<feature-name>/router/index.tsx
 
 shared/components/ui/Button.tsx
   -> shared/components/layout/Sidebar.tsx
@@ -188,6 +207,7 @@ Use `src/app/` for application-level composition:
 - Keep cross-feature route registration here.
 - Keep app-wide wrappers here, such as app shell, global navigation, providers, auth gates, suspense/error boundaries, toast hosts, and global modal hosts.
 - Keep persistent app chrome here so route changes replace only the routed main content.
+- If `AppRouter.tsx` needs UI that started inside a feature, promote and rename it into `shared/components/layout/` or `shared/components/ui/` first, then make it props, slot, or config driven.
 - Do not import `features/<feature-name>/components/` directly into `AppRouter.tsx`; feature components must be assembled inside that feature's router entry first.
 - Do not place feature-specific UI implementation here.
 
@@ -199,25 +219,26 @@ Use `router/` for index-based route segment files:
 - `router/<child-route>/index.tsx` is a static child route.
 - `router/[param]/index.tsx` is a dynamic child route.
 - Nested child routes continue the same folder pattern.
-- Route params, search params, guards, loaders, redirects, and route-level layout decisions.
+- Route params, search params, guards, loaders, redirects, and feature-local nested layout decisions.
+- Keep persistent all-route chrome in `src/app/AppRouter.tsx` and `shared/components/layout/`.
 - Composition of one or more components from `features/<feature-name>/components/`.
 - Export route entries for `src/app/AppRouter.tsx` to compose.
 
 Example:
 
 ```text
-src/features/workspace/router/index.tsx
-src/features/workspace/router/[name]/index.tsx
-src/features/workspace/router/settings/index.tsx
+src/features/<feature-name>/router/index.tsx
+src/features/<feature-name>/router/[id]/index.tsx
+src/features/<feature-name>/router/settings/index.tsx
 ```
 
 Keep route files thin. Reusable UI blocks, cards, forms, tables, and feature business sections belong in `components/`; move them there and import them into the route. Route files may keep route-only glue such as guards, redirects, loading fallbacks, simple param extraction, and child-route selection.
 
 Prefer route imports like:
 
-```ts
-import { ProfileHeader } from "@/features/profile/components/ProfileHeader"
-import { ProfileActions } from "@/features/profile/components/ProfileActions"
+```text
+import { FeatureHeader } from "@/features/<feature-name>/components/FeatureHeader"
+import { FeatureActions } from "@/features/<feature-name>/components/FeatureActions"
 ```
 
 Avoid route imports like this for feature product UI:
@@ -260,6 +281,7 @@ Use `shared/` for cross-feature building blocks:
 - `shared/assets/`: cross-feature assets.
 
 Do not place feature-specific product copy, business rules, route decisions, or one-off UI in `shared/`.
+If only the outer shell is reusable, split the reusable shell into `shared/` and keep feature content inside `features/<feature-name>/components/`.
 
 ## Greenfield Bootstrap
 
@@ -269,7 +291,7 @@ When creating a new React/Vite project:
 2. Add the `@` import alias for `./src`.
 3. Add TypeScript paths for `@/*`.
 4. Create the feature-based folders.
-5. Create `src/features/home/router/index.tsx` as the hardcoded root route entry for `/`.
+5. Create `src/features/home/router/index.tsx` as the required root route entry for `/`.
 6. Seed the example UI with the required composition flow:
 
 ```text
@@ -277,8 +299,8 @@ src/shared/components/layout/AppShell.tsx
   + src/features/home/router/index.tsx
   -> src/app/AppRouter.tsx
 
-src/shared/components/ui/AppPanel.tsx
-  -> src/features/home/components/HomeIntro.tsx
+src/shared/components/ui/Button.tsx
+  -> src/features/home/components/HomeActions.tsx
   -> src/features/home/router/index.tsx
 ```
 
@@ -312,32 +334,35 @@ export default defineConfig({
 
 When adding or refactoring UI:
 
-1. Identify whether the code is global, feature-specific, or route-specific.
+1. Identify whether the code is app-global, reusable primitive UI, shared layout, feature-specific, or route-specific.
 2. Put small reusable UI in `shared/components/ui/` and larger shared layout in `shared/components/layout/`.
-3. Put feature product UI in `features/<feature-name>/components/`.
-4. Put route/page orchestration in `features/<feature-name>/router/`.
-5. Export feature route entries from `features/<feature-name>/router`.
-6. Compose common app-level components and feature router entries in `src/app/AppRouter.tsx`.
-7. Update imports to use the `@` alias for cross-folder imports.
+3. For persistent all-route chrome, add or extend `AppShell` slots and pass shared layout components from `src/app/AppRouter.tsx`.
+4. Put feature product UI in `features/<feature-name>/components/`.
+5. Put route/page orchestration in `features/<feature-name>/router/`.
+6. Export feature route entries from `features/<feature-name>/router`.
+7. Compose common app-level components and feature router entries in `src/app/AppRouter.tsx`.
+8. Update imports to use the `@` alias for cross-folder imports.
 
 ## Naming
 
 - Feature folder names use `kebab-case`.
 - Static route segment folder names use `kebab-case`.
-- Dynamic route segment folder names use bracket syntax, for example `[name]` or `[workspaceId]`.
+- Dynamic route segment folder names use bracket syntax, for example `[id]` or `[slug]`.
 - Component and page files use `PascalCase.tsx`.
 - Hook files use `useXxx.ts`.
 - Route files are named `index.tsx`.
-- Prefer route component exports with descriptive `PascalCase` names ending with `Route`, for example `WorkspaceRoute` or `WorkspaceNameRoute`, unless the selected router library requires a different export convention.
+- Prefer route component exports with descriptive `PascalCase` names ending with `Route`, for example `<Feature>Route` or `<Feature><Param>Route`, unless the selected router library requires a different export convention.
 - Rename components when promoting them out of a feature. Use app/shared names such as `AppSidebar`, `AppTopbar`, or `AppComposer` for persistent layout chrome, not the original feature name.
 
 ## Shared Promotion Rule
 
 Move code from a feature folder to `shared/` only when:
 
-1. At least two features use it, or it is clearly global from the start.
-2. It has no feature-specific copy, route knowledge, or business rule.
-3. Its API is stable enough to be reused without pulling feature dependencies into `shared/`.
+1. At least two features use it, it wraps all routes, or it is clearly app-wide from the start.
+2. It has no feature-specific copy, route knowledge, business rule, or mock dataset.
+3. It does not import from `features/`.
+4. It accepts feature-specific labels, data, navigation targets, callbacks, and children through props, config, slots, or context.
+5. Its API is stable enough to be reused without pulling feature dependencies into `shared/`.
 
 ## Verification
 
