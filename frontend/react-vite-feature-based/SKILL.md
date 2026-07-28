@@ -53,6 +53,14 @@ src/
     AppRouter.tsx
 
   features/
+    home/
+      router/
+        index.tsx
+      components/
+      hooks/
+      types/
+      assets/
+
     <feature-name>/
       router/
         index.tsx
@@ -81,6 +89,18 @@ src/
 Treat this folder layout as the fixed architecture contract. Keep the top-level ownership boundaries and route file shape stable unless the user explicitly asks for a different architecture.
 
 Implementation details remain flexible. Adapt the router library, route config style, UI package, styling system, state management, data fetching, and component internals to the existing project.
+
+## Required Root Feature
+
+Always create and keep `src/features/home/router/index.tsx` as the root route entry.
+
+```text
+src/features/home/router/index.tsx -> "/"
+```
+
+The `home` feature folder name is an implementation feature name, not the URL path. Do not create `/home` for the default homepage unless the user explicitly asks for a separate `/home` route.
+
+When the project uses a router library, map `/` to the route entry exported from `@/features/home/router` in `src/app/AppRouter.tsx`.
 
 ## Composition Rule
 
@@ -150,6 +170,7 @@ Use `src/app/` for application-level composition:
 - `AppRouter.tsx` composes common app-level components with feature router entries.
 - Import common app-level layout components from `shared/components/layout/`.
 - Import feature route entries from `features/<feature-name>/router`.
+- Always map the root path `/` to `@/features/home/router`.
 - Keep cross-feature route registration here.
 - Keep app-wide wrappers here, such as app shell, global navigation, providers, auth gates, suspense/error boundaries, toast hosts, and global modal hosts.
 - Do not import `features/<feature-name>/components/` directly into `AppRouter.tsx`; feature components must be assembled inside that feature's router entry first.
@@ -233,7 +254,8 @@ When creating a new React/Vite project:
 2. Add the `@` import alias for `./src`.
 3. Add TypeScript paths for `@/*`.
 4. Create the feature-based folders.
-5. Seed the example UI with the required composition flow:
+5. Create `src/features/home/router/index.tsx` as the hardcoded root route entry for `/`.
+6. Seed the example UI with the required composition flow:
 
 ```text
 src/shared/components/layout/AppShell.tsx

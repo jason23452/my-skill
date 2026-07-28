@@ -60,7 +60,7 @@ writeFile(
 )
 writeFile(
   "src/features/home/router/index.tsx",
-  'import { HomeIntro } from "@/features/home/components/HomeIntro";\n\nexport function HomeRoute() {\n  return (\n    <main className="app-page">\n      <HomeIntro />\n    </main>\n  );\n}\n',
+  'import { HomeIntro } from "@/features/home/components/HomeIntro";\n\nexport const HOME_ROUTE_PATH = "/";\n\nexport function HomeRoute() {\n  return (\n    <main className="app-page">\n      <HomeIntro />\n    </main>\n  );\n}\n',
 )
 writeFile(
   "src/app/AppRouter.tsx",
