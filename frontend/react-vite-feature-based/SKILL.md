@@ -55,6 +55,11 @@ src/
   features/
     <feature-name>/
       router/
+        index.tsx
+        <child-route>/
+          index.tsx
+        [param]/
+          index.tsx
       components/
       hooks/
       types/
@@ -86,19 +91,19 @@ Feature UI flow:
 ```text
 shared/components/Button.tsx
   -> features/profile/components/ProfileActions.tsx
-  -> features/profile/router/ProfilePage.tsx
+  -> features/profile/router/index.tsx
   -> src/app/AppRouter.tsx
 ```
 
-App-level route wrapper flow:
+AppRouter composition flow:
 
 ```text
 shared/components/AppShell.tsx
+  + features/<feature-name>/router/index.tsx
   -> src/app/AppRouter.tsx
-  -> features/<feature-name>/router/<FeaturePage>.tsx
 ```
 
-If a component is used by every route or wraps the entire route tree, compose it in `src/app/AppRouter.tsx`. Examples include app shell, root layout, global navigation, global footer, auth boundary, provider boundary, suspense boundary, error boundary, toast host, and global modal host.
+`src/app/AppRouter.tsx` composes common app-level components with feature router entries. If a component is used by every route or wraps the entire route tree, compose it in `AppRouter.tsx`. Examples include app shell, root layout, global navigation, global footer, auth boundary, provider boundary, suspense boundary, error boundary, toast host, and global modal host.
 
 This app-level rule does not replace the feature component layer. It only covers components that are genuinely shared by all routes or all routed pages.
 
@@ -108,19 +113,33 @@ This app-level rule does not replace the feature component layer. It only covers
 
 Use `src/app/` for application-level composition:
 
-- `AppRouter.tsx` wires application routes to feature route/page components.
-- Compose components that every route needs in `AppRouter.tsx`.
+- `AppRouter.tsx` composes common app-level components with feature router entries.
+- Import common app-level components from `shared/components/`.
+- Import feature route entries from `features/<feature-name>/router`.
 - Keep cross-feature route registration here.
 - Keep app-wide wrappers here, such as app shell, global navigation, providers, auth gates, suspense/error boundaries, toast hosts, and global modal hosts.
+- Do not import `features/<feature-name>/components/` directly into `AppRouter.tsx`; feature components must be assembled inside that feature's router entry first.
 - Do not place feature-specific UI implementation here.
 
 ### `features/<feature-name>/router/`
 
-Use `router/` for route-level composition only:
+Use `router/` for index-based route segment files:
 
-- Route/page components such as `HomePage.tsx`, `ProfilePage.tsx`, or `SettingsPage.tsx`.
+- `router/index.tsx` is the feature root route.
+- `router/<child-route>/index.tsx` is a static child route.
+- `router/[param]/index.tsx` is a dynamic child route.
+- Nested child routes continue the same folder pattern.
 - Route params, search params, guards, loaders, redirects, and route-level layout decisions.
 - Composition of one or more components from `features/<feature-name>/components/`.
+- Export route entries for `src/app/AppRouter.tsx` to compose.
+
+Example:
+
+```text
+src/features/workspace/router/index.tsx
+src/features/workspace/router/[name]/index.tsx
+src/features/workspace/router/settings/index.tsx
+```
 
 Do not put reusable UI blocks, cards, forms, tables, or feature business sections directly in `router/`. Move them to `components/` and import them into the route.
 
@@ -182,10 +201,13 @@ When creating a new React/Vite project:
 5. Seed the example UI with the required composition flow:
 
 ```text
+src/shared/components/AppShell.tsx
+  + src/features/home/router/index.tsx
+  -> src/app/AppRouter.tsx
+
 src/shared/components/AppPanel.tsx
   -> src/features/home/components/HomeIntro.tsx
-  -> src/features/home/router/HomePage.tsx
-  -> src/app/AppRouter.tsx
+  -> src/features/home/router/index.tsx
 ```
 
 `vite.config.ts` must include the alias:
@@ -222,16 +244,19 @@ When adding or refactoring UI:
 2. Put global reusable UI in `shared/components/`.
 3. Put feature product UI in `features/<feature-name>/components/`.
 4. Put route/page orchestration in `features/<feature-name>/router/`.
-5. Compose components used by every route in `src/app/AppRouter.tsx`.
-6. Register app-level routing in `src/app/AppRouter.tsx`.
+5. Export feature route entries from `features/<feature-name>/router`.
+6. Compose common app-level components and feature router entries in `src/app/AppRouter.tsx`.
 7. Update imports to use the `@` alias for cross-folder imports.
 
 ## Naming
 
 - Feature folder names use `kebab-case`.
+- Static route segment folder names use `kebab-case`.
+- Dynamic route segment folder names use bracket syntax, for example `[name]` or `[workspaceId]`.
 - Component and page files use `PascalCase.tsx`.
 - Hook files use `useXxx.ts`.
-- Route/page components end with `Page`, for example `ProfilePage.tsx`.
+- Route files are named `index.tsx`.
+- Route component exports use descriptive `PascalCase` names ending with `Route`, for example `WorkspaceRoute` or `WorkspaceNameRoute`.
 
 ## Shared Promotion Rule
 
