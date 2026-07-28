@@ -78,6 +78,10 @@ src/
   main.tsx
 ```
 
+Treat this folder layout as the fixed architecture contract. Keep the top-level ownership boundaries and route file shape stable unless the user explicitly asks for a different architecture.
+
+Implementation details remain flexible. Adapt the router library, route config style, UI package, styling system, state management, data fetching, and component internals to the existing project.
+
 ## Composition Rule
 
 Build feature UI in three layers, in this order:
@@ -86,7 +90,9 @@ Build feature UI in three layers, in this order:
 2. `features/<feature-name>/components/` composes shared components into feature-specific components.
 3. `features/<feature-name>/router/` composes feature components into route/page components.
 
-Do not skip the feature component layer. A route/page file should not become the place where global components are assembled directly into product UI. Put that product UI into feature components first, then compose those feature components in the route.
+Do not skip the feature component layer when a route renders feature-specific product UI. A route file should not become the place where global components are assembled directly into product UI. Put that product UI into feature components first, then compose those feature components in the route.
+
+Route files may still render route-only glue directly, such as redirects, guards, suspense or error boundaries, loading fallbacks, simple param wiring, or a temporary placeholder while scaffolding.
 
 Feature UI flow:
 
@@ -111,7 +117,7 @@ This app-level rule does not replace the feature component layer. It only covers
 
 ## UI Kit Composition
 
-When a project uses a UI package, compose that package through `shared/components/`:
+When a project uses a UI package, compose that package through `shared/components/` by default:
 
 - Put small, high-reuse components in `shared/components/ui/`, for example `Button`, `Input`, `IconButton`, `Select`, `Dialog`, `Tooltip`, and `Menu`.
 - Wrap UI kit primitives in project-level `ui/` components before feature code uses them.
@@ -120,7 +126,7 @@ When a project uses a UI package, compose that package through `shared/component
 - Build layout components from `shared/components/ui/` and other shared utilities.
 - Use config arrays, schemas, or component maps in shared components when common UI must be assembled dynamically.
 - Keep raw UI kit imports mostly inside `shared/components/ui/` unless the existing codebase already follows a different local pattern.
-- Feature components should import project-level shared components, not raw UI kit primitives, when the same UI pattern can be reused.
+- Feature components should import project-level shared components instead of raw UI kit primitives when the same UI pattern can be reused.
 
 Example:
 
@@ -169,7 +175,7 @@ src/features/workspace/router/[name]/index.tsx
 src/features/workspace/router/settings/index.tsx
 ```
 
-Do not put reusable UI blocks, cards, forms, tables, or feature business sections directly in `router/`. Move them to `components/` and import them into the route.
+Keep route files thin. Reusable UI blocks, cards, forms, tables, and feature business sections belong in `components/`; move them there and import them into the route. Route files may keep route-only glue such as guards, redirects, loading fallbacks, simple param extraction, and child-route selection.
 
 Prefer route imports like:
 
@@ -178,13 +184,13 @@ import { ProfileHeader } from "@/features/profile/components/ProfileHeader"
 import { ProfileActions } from "@/features/profile/components/ProfileActions"
 ```
 
-Avoid route imports like:
+Avoid route imports like this for feature product UI:
 
 ```ts
 import { Button } from "@/shared/components/ui/Button"
 ```
 
-If a route needs `Button`, create or update a feature component that uses `Button`, then import that feature component into the route.
+If route content needs `Button` as part of feature UI, create or update a feature component that uses `Button`, then import that feature component into the route. Direct shared UI imports are acceptable for route-only fallback or shell glue.
 
 ### `features/<feature-name>/components/`
 
@@ -197,11 +203,11 @@ Use feature components for product UI that belongs to exactly one feature:
 
 ### `features/<feature-name>/hooks/`
 
-Use feature hooks for behavior that belongs to exactly one feature. Move a hook to `shared/hooks/` only after at least two features need it.
+Use feature hooks for behavior that belongs to exactly one feature. Move a hook to `shared/hooks/` when at least two features need it or when it is clearly app-wide from the start.
 
 ### `features/<feature-name>/types/`
 
-Use feature types for data contracts owned by one feature. Move a type to `shared/types/` only when it is truly cross-feature.
+Use feature types for data contracts owned by one feature. Move a type to `shared/types/` when it is truly cross-feature or app-wide.
 
 ### `features/<feature-name>/assets/`
 
@@ -285,7 +291,7 @@ When adding or refactoring UI:
 - Component and page files use `PascalCase.tsx`.
 - Hook files use `useXxx.ts`.
 - Route files are named `index.tsx`.
-- Route component exports use descriptive `PascalCase` names ending with `Route`, for example `WorkspaceRoute` or `WorkspaceNameRoute`.
+- Prefer route component exports with descriptive `PascalCase` names ending with `Route`, for example `WorkspaceRoute` or `WorkspaceNameRoute`, unless the selected router library requires a different export convention.
 
 ## Shared Promotion Rule
 
