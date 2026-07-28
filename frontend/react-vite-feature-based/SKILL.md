@@ -67,6 +67,8 @@ src/
 
   shared/
     components/
+      ui/
+      layout/
     hooks/
     types/
     assets/
@@ -80,7 +82,7 @@ src/
 
 Build feature UI in three layers, in this order:
 
-1. `shared/components/` contains global reusable components.
+1. `shared/components/ui/` contains small, high-reuse UI components and UI kit wrappers.
 2. `features/<feature-name>/components/` composes shared components into feature-specific components.
 3. `features/<feature-name>/router/` composes feature components into route/page components.
 
@@ -89,7 +91,7 @@ Do not skip the feature component layer. A route/page file should not become the
 Feature UI flow:
 
 ```text
-shared/components/Button.tsx
+shared/components/ui/Button.tsx
   -> features/profile/components/ProfileActions.tsx
   -> features/profile/router/index.tsx
   -> src/app/AppRouter.tsx
@@ -98,7 +100,7 @@ shared/components/Button.tsx
 AppRouter composition flow:
 
 ```text
-shared/components/AppShell.tsx
+shared/components/layout/AppShell.tsx
   + features/<feature-name>/router/index.tsx
   -> src/app/AppRouter.tsx
 ```
@@ -107,6 +109,32 @@ shared/components/AppShell.tsx
 
 This app-level rule does not replace the feature component layer. It only covers components that are genuinely shared by all routes or all routed pages.
 
+## UI Kit Composition
+
+When a project uses a UI package, compose that package through `shared/components/`:
+
+- Put small, high-reuse components in `shared/components/ui/`, for example `Button`, `Input`, `IconButton`, `Select`, `Dialog`, `Tooltip`, and `Menu`.
+- Wrap UI kit primitives in project-level `ui/` components before feature code uses them.
+- Put reusable variant rules, style defaults, accessibility defaults, and common prop mapping in `shared/components/ui/`.
+- Compose larger shared structures in `shared/components/layout/`, for example `AppShell`, `Sidebar`, `TopNav`, and `PageFrame`.
+- Build layout components from `shared/components/ui/` and other shared utilities.
+- Use config arrays, schemas, or component maps in shared components when common UI must be assembled dynamically.
+- Keep raw UI kit imports mostly inside `shared/components/ui/` unless the existing codebase already follows a different local pattern.
+- Feature components should import project-level shared components, not raw UI kit primitives, when the same UI pattern can be reused.
+
+Example:
+
+```text
+ui-kit/Button + ui-kit/Menu
+  -> shared/components/ui/AppActionMenu.tsx
+  -> features/workspace/components/WorkspaceActions.tsx
+  -> features/workspace/router/index.tsx
+
+shared/components/ui/Button.tsx
+  -> shared/components/layout/Sidebar.tsx
+  -> src/app/AppRouter.tsx
+```
+
 ## Directory Responsibilities
 
 ### `src/app/`
@@ -114,7 +142,7 @@ This app-level rule does not replace the feature component layer. It only covers
 Use `src/app/` for application-level composition:
 
 - `AppRouter.tsx` composes common app-level components with feature router entries.
-- Import common app-level components from `shared/components/`.
+- Import common app-level layout components from `shared/components/layout/`.
 - Import feature route entries from `features/<feature-name>/router`.
 - Keep cross-feature route registration here.
 - Keep app-wide wrappers here, such as app shell, global navigation, providers, auth gates, suspense/error boundaries, toast hosts, and global modal hosts.
@@ -153,7 +181,7 @@ import { ProfileActions } from "@/features/profile/components/ProfileActions"
 Avoid route imports like:
 
 ```ts
-import { Button } from "@/shared/components/Button"
+import { Button } from "@/shared/components/ui/Button"
 ```
 
 If a route needs `Button`, create or update a feature component that uses `Button`, then import that feature component into the route.
@@ -183,7 +211,8 @@ Use feature assets for images, media, and static files used by one feature only.
 
 Use `shared/` for cross-feature building blocks:
 
-- `shared/components/`: global UI primitives and reusable layout pieces.
+- `shared/components/ui/`: small high-reuse UI components, UI kit wrappers, variants, defaults, and dynamic primitive composition.
+- `shared/components/layout/`: larger shared layout components assembled from `shared/components/ui/`, such as app shell, sidebar, top nav, and page frame.
 - `shared/hooks/`: cross-feature hooks.
 - `shared/types/`: cross-feature types.
 - `shared/assets/`: cross-feature assets.
@@ -201,11 +230,11 @@ When creating a new React/Vite project:
 5. Seed the example UI with the required composition flow:
 
 ```text
-src/shared/components/AppShell.tsx
+src/shared/components/layout/AppShell.tsx
   + src/features/home/router/index.tsx
   -> src/app/AppRouter.tsx
 
-src/shared/components/AppPanel.tsx
+src/shared/components/ui/AppPanel.tsx
   -> src/features/home/components/HomeIntro.tsx
   -> src/features/home/router/index.tsx
 ```
@@ -241,7 +270,7 @@ export default defineConfig({
 When adding or refactoring UI:
 
 1. Identify whether the code is global, feature-specific, or route-specific.
-2. Put global reusable UI in `shared/components/`.
+2. Put small reusable UI in `shared/components/ui/` and larger shared layout in `shared/components/layout/`.
 3. Put feature product UI in `features/<feature-name>/components/`.
 4. Put route/page orchestration in `features/<feature-name>/router/`.
 5. Export feature route entries from `features/<feature-name>/router`.
