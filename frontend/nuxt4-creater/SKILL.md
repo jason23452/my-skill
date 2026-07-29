@@ -203,6 +203,16 @@ Content section 範例：
 - route page 保持組裝層；大量 markup 先抽成 content section
 - UI primitive 保持 route、API schema、品牌文案與頁面順序無關
 
+## Component File Size Budget
+
+組裝 component-heavy UI 時，`app/pages/*.vue`、`app/content/<page>/*.vue`、`app/components/**/*.vue` 每個檔案盡量控制在實用的 `100-500` 行範圍。
+
+- 把 `500` 行視為拆分門檻。超過時，拆成 content sections、domain display components、UI primitives、composables、typed config 或較小的 child components。
+- 把 `100` 行視為有內容組裝檔的 soft target，不是硬性下限。不要為了湊行數而拆散簡單 page、layout glue、health route、placeholder、loading state 或很小的 UI primitive。
+- `app/pages` 應保持 route 組裝層，只放 SEO/meta、layout 選擇、route-level data fetching 與 section 排列；大型 markup 先移到 `app/content/<page>/`。
+- `app/content/<page>` section 若接近或超過 500 行，拆成多個可排序 sections，或把跨 section 的展示結構提升到 `app/components/<domain>/`。
+- `app/components/app/` 與 `app/components/ui/` 也套用同樣上限。重複 nav items、card variants、CTA lists、empty states、copy blocks 與 visual state matrix 優先放到 config/composable 或小型 child components。
+
 ## Starter CSS
 
 Nuxt framework scaffold 使用 `app/assets/css/main.css` 作為最小 base CSS。這個 CSS 只支援預設 app shell、container、section、card、button 與首頁 starter components。

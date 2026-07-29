@@ -152,6 +152,16 @@ shared/components/layout/AppShell.tsx
 
 This app-level rule does not replace the feature component layer. It only covers components that are genuinely shared by all routes or all routed pages.
 
+## Component File Size Budget
+
+When assembling component-heavy UI, keep each route, feature component, shared layout component, and shared UI wrapper within a practical `100-500` line budget whenever feasible.
+
+- Treat `500` lines as the split threshold. If a component or route file grows past that, split it into feature sections, layout slots, smaller shared UI wrappers, hooks, data/config objects, or child components.
+- Treat `100` lines as a soft target for meaningful assembled UI, not a minimum. Do not pad or over-split simple route glue, provider wrappers, placeholders, redirects, loading states, or tiny UI primitives just to reach 100 lines.
+- Route files should stay thin even when under 500 lines. Move reusable cards, forms, tables, dashboards, panels, and product sections into `features/<feature-name>/components/` before composing them in `router/`.
+- Shared layout components such as `AppShell`, `Sidebar`, `TopNav`, `PageFrame`, and modal hosts should also stay under 500 lines. Push repeated nav items, panel definitions, action lists, and empty-state copy into config arrays or smaller child components.
+- If a feature requires many visual states, keep the component responsible for composition and move state derivation, formatting, fixture data, and reusable interaction logic into hooks, helpers, stores, or typed config owned by the same feature.
+
 Persistent app chrome belongs in `shared/components/layout/`, not in a feature router. Examples include app sidebars, top bars, bottom composers/action bars, context or inspector panels, page frames, and global modal hosts that remain mounted while route content changes. Name promoted components by their app-level responsibility, for example `AppSidebar`, `AppTopbar`, `AppComposer`, `AppInspector`, or `AppPreviewDialog`, instead of retaining a feature-specific name.
 
 For routes that share the same app chrome, mount the chrome once in `src/app/AppRouter.tsx` and switch only the feature route's main content. `AppShell` may expose named slots such as `sidebar`, `topNav`, `aside`, `composer`, `modalHost`, or `children`; pass shared layout components into those slots from `AppRouter.tsx`.
